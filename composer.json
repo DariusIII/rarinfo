@@ -1,0 +1,26 @@
+{
+  "name": "DariusIII/rarinfo",
+  "description": "PHP archive reader helper class",
+  "type": "library",
+  "minimum-stability": "stable",
+  "license": "Modified BSD",
+  "authors": [
+    {
+      "name": "DariusIII",
+      "email": "dkrisan@egmail.com"
+    },
+    {
+      "name": "Hecks"
+
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0"
+  },
+  "autoload": {
+    "classmap": [
+      "ArchiveReader.php",
+      "PipeReader.php"
+    ]
+  }
+}

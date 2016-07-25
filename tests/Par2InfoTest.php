@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../par2info.php';
+use darius\rarinfo\Par2Info;
 
 /**
  * Test case for Par2Info.

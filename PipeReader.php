@@ -1,4 +1,5 @@
 <?php
+namespace darius\rarinfo;
 /**
  * PipeReader class.
  *
@@ -85,14 +86,14 @@ class PipeReader
 	 * are available.
 	 *
 	 * @param   integer   $num      number of bytes to read
-	 * @param   booleann  $confirm  check available bytes?
+	 * @param   boolean  $confirm  check available bytes?
 	 * @return  string    the byte string
-	 * @throws  InvalidArgumentException
+	 * @throws  \InvalidArgumentException
 	 */
 	public function read($num, $confirm=true)
 	{
 		if ($num < 1) {
-			throw new InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
+			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
 		} elseif ($num == 0) {
 			return '';
 		}
@@ -110,7 +111,7 @@ class PipeReader
 		// Confirm the read length?
 		if ($confirm && (!isset($read) || strlen($read) < $num)) {
 			$this->offset = $this->tell();
-			throw new InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
+			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
 		}
 
 		// Move the data pointer
@@ -160,12 +161,12 @@ class PipeReader
 	 *
 	 * @param   integer  $pos  new pointer position
 	 * @return  void
-	 * @throws  InvalidArgumentException
+	 * @throws  \InvalidArgumentException
 	 */
 	public function seek($pos)
 	{
 		if ($pos < 0)
-			throw new InvalidArgumentException("Could not seek to offset: {$pos}");
+			throw new \InvalidArgumentException("Could not seek to offset: {$pos}");
 
 		if ($this->command) {
 			if ($pos < $this->offset) {

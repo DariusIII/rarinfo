@@ -1,6 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/rarinfo.php';
+namespace darius\rarinfo;
 
 /**
  * SrrInfo class.
@@ -309,7 +308,7 @@ class SrrInfo extends RarInfo
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($this->error) {$this->close(); return false;}
 			break;
 		}

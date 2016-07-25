@@ -1,7 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../archivereader.php';
-
+use darius\rarinfo\ArchiveReader;
 /**
  * Test case for ArchiveReader.
  *

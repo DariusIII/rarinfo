@@ -8,6 +8,12 @@
  *  -r         Regenerate existing fixture files (default is to create only missing ones)
  *  -p         Run in pretend mode, output debug info without making changes
  */
+use darius\rarinfo\Par2Info;
+use darius\rarinfo\RarInfo;
+use darius\rarinfo\SrrInfo;
+use darius\rarinfo\SzipInfo;
+use darius\rarinfo\ZipInfo;
+
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_startup_errors', 'on');
 ini_set('display_errors', 'on');
@@ -32,7 +38,6 @@ if (!isset($opts['t']) || $opts['t'] == 'szip') makeSzipFixtures($pretend, $refr
  */
 function makeRarFixtures($pretend=false, $refresh=true)
 {
-	require_once dirname(__FILE__).'/../../rarinfo.php';
 	$rar = new RarInfo;
 	foreach(glob(dirname(__FILE__).'/rar/*.rar') as $rarfile) {
 		$fname = pathinfo($rarfile, PATHINFO_BASENAME).'.blocks';
@@ -62,7 +67,6 @@ function makeRarFixtures($pretend=false, $refresh=true)
  */
 function makeSrrFixtures($pretend=false, $refresh=true)
 {
-	require_once dirname(__FILE__).'/../../srrinfo.php';
 	$srr = new SrrInfo;
 	foreach(glob(dirname(__FILE__).'/srr/*.srr') as $srrfile) {
 		$fname = pathinfo($srrfile, PATHINFO_BASENAME).'.blocks';
@@ -92,7 +96,6 @@ function makeSrrFixtures($pretend=false, $refresh=true)
  */
 function makePar2Fixtures($pretend=false, $refresh=true)
 {
-	require_once dirname(__FILE__).'/../../par2info.php';
 	$par2 = new Par2Info;
 	foreach(glob(dirname(__FILE__).'/par2/*.par2') as $par2file) {
 		$fname = pathinfo($par2file, PATHINFO_BASENAME).'.packets';
@@ -122,7 +125,6 @@ function makePar2Fixtures($pretend=false, $refresh=true)
  */
 function makeZipFixtures($pretend=false, $refresh=true)
 {
-	require_once dirname(__FILE__).'/../../zipinfo.php';
 	$zip = new ZipInfo;
 	foreach(glob(dirname(__FILE__).'/zip/*.zip') as $zipfile) {
 		$fname = pathinfo($zipfile, PATHINFO_BASENAME).'.records';
@@ -152,7 +154,6 @@ function makeZipFixtures($pretend=false, $refresh=true)
  */
 function makeSzipFixtures($pretend=false, $refresh=true)
 {
-	require_once dirname(__FILE__).'/../../szipinfo.php';
 	$szip = new SzipInfo;
 	foreach(glob(dirname(__FILE__).'/szip/*.{7z,001,002}', GLOB_BRACE) as $szipfile) {
 		$fname = pathinfo($szipfile, PATHINFO_BASENAME).'.headers';

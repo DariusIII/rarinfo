@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../zipinfo.php';
+use darius\rarinfo\ZipInfo;
 
 /**
  * Test case for ZipInfo.

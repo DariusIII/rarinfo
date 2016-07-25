@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../sfvinfo.php';
+use darius\rarinfo\SfvInfo;
 
 /**
  * Test case for SfvInfo.

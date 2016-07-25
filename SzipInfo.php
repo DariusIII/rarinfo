@@ -1,7 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
-require_once dirname(__FILE__).'/pipereader.php';
+namespace darius\rarinfo;
 
 /**
  * SzipInfo class.
@@ -333,12 +331,12 @@ class SzipInfo extends ArchiveReader
 	 *
 	 * @param   string   $client  path to the client
 	 * @return  void
-	 * @throws  InvalidArgumentException
+	 * @throws  \InvalidArgumentException
 	 */
 	public function setExternalClient($client)
 	{
 		if ($client && (!is_file($client) || !is_executable($client)))
-			throw new InvalidArgumentException("Not a valid client: {$client}");
+			throw new \InvalidArgumentException("Not a valid client: {$client}");
 
 		$this->externalClient = $client;
 	}
@@ -433,7 +431,7 @@ class SzipInfo extends ArchiveReader
 			$buff = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
 			return $this->markerPosition = strpos($buff, self::MARKER_SIGNATURE);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 	}
@@ -520,7 +518,7 @@ class SzipInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($this->error) {$this->close(); return false;}
 			break;
 		}
@@ -551,7 +549,7 @@ class SzipInfo extends ArchiveReader
 		try {
 			$buffer = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
-		} catch (Exception $e) {return false;}
+		} catch (\Exception $e) {return false;}
 
 		// Get all the offsets to test
 		$searches = [
@@ -571,7 +569,7 @@ class SzipInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {continue;}
+		} catch (\Exception $e) {continue;}
 
 		return false;
 	}
@@ -589,7 +587,7 @@ class SzipInfo extends ArchiveReader
 		];
 		try {
 			$header += self::unpack(self::START_HEADER_FORMAT, $this->read(self::START_HEADER_SIZE));
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 		$header['next_head_offset'] = self::int64($header['next_head_offset'], $header['next_head_offset_high']);
@@ -1446,7 +1444,7 @@ class SzipInfo extends ArchiveReader
 			// Remainder (skipping final null)
 			$head .= $this->read($encoded['next_offset'] - $this->offset - 1);
 
-		} catch (Exception $e) {return false;}
+		} catch (\Exception $e) {return false;}
 
 		// Substreams Info (skipping digests)
 		$head .= pack('C*', self::PROPERTY_SUBSTREAMS_INFO, self::PROPERTY_NUM_UNPACK_STREAM, 1, 0, 0);

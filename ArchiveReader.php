@@ -1,4 +1,6 @@
 <?php
+namespace darius\rarinfo;
+
 /**
  * Abstract base class for all archive file inspectors.
  *
@@ -122,7 +124,7 @@ abstract class ArchiveReader
 			if (! extension_loaded('com_dotnet')) {
 				return trim(shell_exec('for %f in ('.escapeshellarg($file).') do @echo %~zf')) + 0;
 			}
-			$com = new COM('Scripting.FileSystemObject');
+			$com = new \COM('Scripting.FileSystemObject');
 			$f = $com->GetFile($file);
 			return $f->Size + 0;
 		}
@@ -342,8 +344,8 @@ abstract class ArchiveReader
 	 *
 	 * @param   string  $name  the property name
 	 * @return  mixed   the property value
-	 * @throws  RuntimeException
-	 * @throws  LogicException
+	 * @throws  \RuntimeException
+	 * @throws  \LogicException
 	 */
 	public function __get($name)
 	{
@@ -351,9 +353,9 @@ abstract class ArchiveReader
 		if ($name == 'file') {return $this->file;}
 
 		if (!isset($this->$name))
-			throw new RuntimeException('Undefined property: '.get_class($this).'::$'.$name);
+			throw new \RuntimeException('Undefined property: '.get_class($this).'::$'.$name);
 
-		throw new LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
+		throw new \LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
 	}
 
 	/**
@@ -592,8 +594,8 @@ abstract class ArchiveReader
 	 *
 	 * @param   integer  $num  number of bytes to read
 	 * @return  string   the byte string
-	 * @throws  InvalidArgumentException
-	 * @throws  RangeException
+	 * @throws  \InvalidArgumentException
+	 * @throws  \RangeException
 	 */
 	protected function read($num)
 	{
@@ -602,7 +604,7 @@ abstract class ArchiveReader
 		// Check that enough data is available
 		$newPos = $this->offset + $num;
 		if ($num < 1 || $newPos > $this->length)
-			throw new InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
+			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
 
 		// Read the requested bytes
 		if ($this->file && is_resource($this->handle)) {
@@ -615,7 +617,7 @@ abstract class ArchiveReader
 		if (!isset($read) || (($rlen = strlen($read)) < $num)) {
 			$rlen = isset($rlen) ? $rlen : 'none';
 			$this->error = "Not enough data to read ({$num} bytes requested, {$rlen} available)";
-			throw new RangeException($this->error);
+			throw new \RangeException($this->error);
 		}
 
 		// Move the data pointer
@@ -634,20 +636,20 @@ abstract class ArchiveReader
 	 *
 	 * @param   integer  $pos  new pointer position
 	 * @return  void
-	 * @throws  RuntimeException
-	 * @throws  InvalidArgumentException
+	 * @throws  \RuntimeException
+	 * @throws  \InvalidArgumentException
 	 */
 	protected function seek($pos)
 	{
 		if ($pos > $this->length || $pos < 0)
-			throw new InvalidArgumentException("Could not seek to {$pos} (max: {$this->length})");
+			throw new \InvalidArgumentException("Could not seek to {$pos} (max: {$this->length})");
 
 		if ($this->file && is_resource($this->handle)) {
 			$max = PHP_INT_MAX;
 			$file_pos = $this->start + $pos;
 			if ($file_pos >= $max) {
 				$this->error = 'The file is too large for this PHP version (> '.self::formatSize($max).')';
-				throw new RuntimeException($this->error);
+				throw new \RuntimeException($this->error);
 			}
 			fseek($this->handle, $file_pos, SEEK_SET);
 		}

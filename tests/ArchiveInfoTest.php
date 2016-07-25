@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../archiveinfo.php';
+use darius\rarinfo\ArchiveInfo;
 
 /**
  * Test case for ArchiveInfo.

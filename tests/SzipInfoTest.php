@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../szipinfo.php';
+use darius\rarinfo\SzipInfo;
 
 /**
  * Test case for SzipInfo.

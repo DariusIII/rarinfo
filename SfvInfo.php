@@ -1,6 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
+namespace darius\rarinfo;
 
 /**
  * SfvInfo class.
@@ -113,7 +112,7 @@ class SfvInfo extends ArchiveReader
 		// Get the available data up to the maximum allowed
 		try {
 			$data = $this->read(min($this->length, $this->maxReadBytes));
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->close();
 			return false;
 		}

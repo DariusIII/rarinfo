@@ -1,7 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
-require_once dirname(__FILE__).'/pipereader.php';
+namespace darius\rarinfo;
 
 /**
  * ZipInfo class.
@@ -350,12 +348,12 @@ class ZipInfo extends ArchiveReader
 	 *
 	 * @param   string   $client  path to the client
 	 * @return  void
-	 * @throws  InvalidArgumentException
+	 * @throws  \InvalidArgumentException
 	 */
 	public function setExternalClient($client)
 	{
 		if ($client && (!is_file($client) || !is_executable($client)))
-			throw new InvalidArgumentException("Not a valid client: {$client}");
+			throw new \InvalidArgumentException("Not a valid client: {$client}");
 
 		$this->externalClient = $client;
 	}
@@ -510,7 +508,7 @@ class ZipInfo extends ArchiveReader
 		try {
 			$buff = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 
@@ -565,7 +563,7 @@ class ZipInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($this->error) {$this->close(); return false;}
 			break;
 		}

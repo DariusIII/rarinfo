@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../pipereader.php';
+use darius\rarinfo\PipeReader;
 
 /**
  * Test case for PipeReader.

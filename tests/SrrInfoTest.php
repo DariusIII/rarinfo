@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../srrinfo.php';
+use darius\rarinfo\SrrInfo;
 
 /**
  * Test case for SrrInfo.

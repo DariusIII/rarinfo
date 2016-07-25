@@ -1,6 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
+namespace darius\rarinfo;
 
 /**
  * Par2Info class.
@@ -253,7 +252,7 @@ class Par2Info extends ArchiveReader
 			$buff = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
 			return $this->markerPosition = strpos($buff, self::PACKET_MARKER);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 	}
@@ -281,7 +280,7 @@ class Par2Info extends ArchiveReader
 			// Verify the packet
 			if ($this->verifyPacket($packet) === false) {
 				$this->error = "Packet failed checksum (offset: {$this->offset})";
-				throw new Exception('Packet checksum failed');
+				throw new \Exception('Packet checksum failed');
 			}
 
 			// Process the current packet by type
@@ -303,7 +302,7 @@ class Par2Info extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($this->error) {$this->close(); return false;}
 			break;
 		}

@@ -1,12 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
-require_once dirname(__FILE__).'/rarinfo.php';
-require_once dirname(__FILE__).'/zipinfo.php';
-require_once dirname(__FILE__).'/srrinfo.php';
-require_once dirname(__FILE__).'/par2info.php';
-require_once dirname(__FILE__).'/sfvinfo.php';
-require_once dirname(__FILE__).'/szipinfo.php';
+namespace darius\rarinfo;
 
 /**
  * ArchiveInfo class.
@@ -364,7 +357,7 @@ class ArchiveInfo extends ArchiveReader
 		if (isset($this->archives[$filename]))
 			return $this->archives[$filename];
 
-		foreach ($this->reader->getFileList(true) as $file) {
+		foreach ($this->reader->getFileList() as $file) {
 			if ($file['name'] == $filename && isset($file['range'])) {
 
 				// Create the new archive object
@@ -649,12 +642,12 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $method  the method name
 	 * @param   array   $args    the method arguments
 	 * @return  mixed   result of the delegated method call
-	 * @throws  BadMethodCallException
+	 * @throws  \BadMethodCallException
 	 */
 	public function __call($method, $args)
 	{
 		if (!$this->reader)
-			throw new BadMethodCallException(get_class($this)."::$method() is not defined");
+			throw new \BadMethodCallException(get_class($this)."::$method() is not defined");
 
 		switch (count($args)) {
 			case 0:

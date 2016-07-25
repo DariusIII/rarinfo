@@ -1,7 +1,5 @@
 <?php
-
-require_once dirname(__FILE__).'/archivereader.php';
-require_once dirname(__FILE__).'/pipereader.php';
+namespace darius\rarinfo;
 
 /**
  * RarInfo class.
@@ -519,12 +517,12 @@ class RarInfo extends ArchiveReader
 	 *
 	 * @param   string   $client  path to the client
 	 * @return  void
-	 * @throws  InvalidArgumentException
+	 * @throws  \InvalidArgumentException
 	 */
 	public function setExternalClient($client)
 	{
 		if ($client && (!is_file($client) || !is_executable($client)))
-			throw new InvalidArgumentException("Not a valid client: {$client}");
+			throw new \InvalidArgumentException("Not a valid client: {$client}");
 
 		$this->externalClient = $client;
 	}
@@ -740,7 +738,7 @@ class RarInfo extends ArchiveReader
 		try {
 			$buffer = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
-		} catch (Exception $e) {return false;}
+		} catch (\Exception $e) {return false;}
 
 		// Get all the offsets to test
 		if (!($positions = self::strposall($buffer, pack('C', self::BLOCK_FILE))))
@@ -764,7 +762,7 @@ class RarInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {continue;}
+		} catch (\Exception $e) {continue;}
 
 		return false;
 	}
@@ -787,7 +785,7 @@ class RarInfo extends ArchiveReader
 			$data = $this->read($block['head_size'] - 2);
 			$crc = crc32($data) & 0xffff;
 			return ($crc === $block['head_crc']);
-		} catch (Exception $e){
+		} catch (\Exception $e){
 			return false;
 		}
 	}
@@ -836,7 +834,7 @@ class RarInfo extends ArchiveReader
 				$this->format = self::FMT_RAR50;
 			}
 			return $this->markerPosition = $pos;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 	}
@@ -905,7 +903,7 @@ class RarInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			if ($this->error) {
 				$this->close();
 				return false;
@@ -1181,7 +1179,7 @@ class RarInfo extends ArchiveReader
 		     || $block['head_type'] == self::R50_BLOCK_SERVICE
 		) {
 			if (!isset($block['data_size']))
-				throw new RuntimeException('Required block data size is missing');
+				throw new \RuntimeException('Required block data size is missing');
 
 			$block['flags']     = $this->getVarInt();
 			$block['pack_size'] = $block['data_size'];
