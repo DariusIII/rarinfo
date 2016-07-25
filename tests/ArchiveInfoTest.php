@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\ArchiveInfo;
+use dariusiii\rarinfo\ArchiveInfo;
 
 /**
  * Test case for ArchiveInfo.

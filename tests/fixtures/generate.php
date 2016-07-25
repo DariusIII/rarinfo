@@ -8,11 +8,11 @@
  *  -r         Regenerate existing fixture files (default is to create only missing ones)
  *  -p         Run in pretend mode, output debug info without making changes
  */
-use darius\rarinfo\Par2Info;
-use darius\rarinfo\RarInfo;
-use darius\rarinfo\SrrInfo;
-use darius\rarinfo\SzipInfo;
-use darius\rarinfo\ZipInfo;
+use dariusiii\rarinfo\Par2Info;
+use dariusiii\rarinfo\RarInfo;
+use dariusiii\rarinfo\SrrInfo;
+use dariusiii\rarinfo\SzipInfo;
+use dariusiii\rarinfo\ZipInfo;
 
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_startup_errors', 'on');

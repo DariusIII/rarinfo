@@ -1,14 +1,6 @@
 <?php
 namespace dariusiii\rarinfo;
 
-use dariusiii\rarinfo\ArchiveReader;
-use dariusiii\rarinfo\RarInfo;
-use dariusiii\rarinfo\SrrInfo;
-use dariusiii\rarinfo\Par2Info;
-use dariusiii\rarinfo\SfvInfo;
-use dariusiii\rarinfo\SzipInfo;
-use dariusiii\rarinfo\ZipInfo;
-
 /**
  * ArchiveInfo class.
  *
@@ -101,12 +93,12 @@ class ArchiveInfo extends ArchiveReader
 	 * @var array
 	 */
 	protected $readers = [
-		self::TYPE_RAR  => 'RarInfo',
-		self::TYPE_SRR  => 'SrrInfo',
-		self::TYPE_PAR2 => 'Par2Info',
-		self::TYPE_ZIP  => 'ZipInfo',
-		self::TYPE_SFV  => 'SfvInfo',
-		self::TYPE_SZIP => 'SzipInfo',
+		self::TYPE_RAR  => '\dariusiii\rarinfo\RarInfo',
+		self::TYPE_SRR  => '\dariusiii\rarinfo\SrrInfo',
+		self::TYPE_PAR2 => '\dariusiii\rarinfo\Par2Info',
+		self::TYPE_ZIP  => '\dariusiii\rarinfo\ZipInfo',
+		self::TYPE_SFV  => '\dariusiii\rarinfo\SfvInfo',
+		self::TYPE_SZIP => '\dariusiii\rarinfo\SzipInfo',
 	];
 
 	/**
@@ -440,11 +432,11 @@ class ArchiveInfo extends ArchiveReader
 	 * way possible, and not much more than that.
 	 *
 	 * @param   boolean  $recurse   list all archive contents recursively?
-	 * @param   string   $all       include all supported archive file lists?
+	 * @param   string|bool   $all       include all supported archive file lists?
 	 * @param   string   $source    [ignore, for internal use only]
 	 * @return  array|boolean  the flat archive file list, or false on error
 	 */
-	public function getArchiveFileList($recurse=true, $all=false, $source=null)
+	public function getArchiveFileList($recurse = true, $all = false, $source = null)
 	{
 		if (!$this->reader) {
 			return false;

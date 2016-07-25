@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\Par2Info;
+use dariusiii\rarinfo\Par2Info;
 
 /**
  * Test case for Par2Info.

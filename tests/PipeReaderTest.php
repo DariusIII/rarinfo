@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\PipeReader;
+use dariusiii\rarinfo\PipeReader;
 
 /**
  * Test case for PipeReader.

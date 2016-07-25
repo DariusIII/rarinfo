@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\SfvInfo;
+use dariusiii\rarinfo\SfvInfo;
 
 /**
  * Test case for SfvInfo.

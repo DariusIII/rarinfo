@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\ZipInfo;
+use dariusiii\rarinfo\ZipInfo;
 
 /**
  * Test case for ZipInfo.

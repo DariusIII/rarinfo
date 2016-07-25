@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\SrrInfo;
+use dariusiii\rarinfo\SrrInfo;
 
 /**
  * Test case for SrrInfo.

@@ -1,6 +1,6 @@
 <?php
 
-use darius\rarinfo\ArchiveReader;
+use dariusiii\rarinfo\ArchiveReader;
 /**
  * Test case for ArchiveReader.
  *
