@@ -1,5 +1,5 @@
 <?php
-namespace darius\rarinfo;
+namespace dariusiii\rarinfo;
 
 /**
  * ArchiveInfo class.

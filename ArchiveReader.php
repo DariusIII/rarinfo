@@ -1,5 +1,5 @@
 <?php
-namespace darius\rarinfo;
+namespace dariusiii\rarinfo;
 
 /**
  * Abstract base class for all archive file inspectors.
