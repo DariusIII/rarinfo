@@ -11,7 +11,6 @@
     },
     {
       "name": "Hecks"
-
     }
   ],
   "require": {
@@ -19,8 +18,15 @@
   },
   "autoload": {
     "classmap": [
+      "ArchiveInfo.php",
       "ArchiveReader.php",
-      "PipeReader.php"
+      "Par2Info.php",
+      "PipeReader.php",
+      "RarInfo.php",
+      "SfvInfo.php",
+      "SrrInfo.php",
+      "SzipInfo.php",
+      "ZipInfo.php"
     ]
   }
 }
