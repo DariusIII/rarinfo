@@ -264,7 +264,7 @@ class RarInfo extends ArchiveReader
 	 * List of block names corresponding to block types.
 	 * @var array
 	 */
-	protected $blockNames = array(
+	protected $blockNames = [
 		// RAR 1.5 - 4.x
 		self::BLOCK_MARK          => 'Marker',
 		self::BLOCK_MAIN          => 'Archive',
@@ -283,13 +283,13 @@ class RarInfo extends ArchiveReader
 		self::R50_BLOCK_SERVICE   => 'Service',
 		self::R50_BLOCK_CRYPT     => 'Archive Encryption',
 		self::R50_BLOCK_ENDARC    => 'Archive End',
-	);
+	];
 
 	/**
 	 * List of the names corresponding to Subblock types (0x7a).
 	 * @var array
 	 */
-	protected $subblockNames = array(
+	protected $subblockNames = [
 		self::SUBTYPE_COMMENT   => 'Comment',
 		self::SUBTYPE_ACL       => 'Access Control List',
 		self::SUBTYPE_STREAM    => 'Stream',
@@ -298,19 +298,19 @@ class RarInfo extends ArchiveReader
 		self::SUBTYPE_RECOVERY  => 'Recovery Record',
 		self::SUBTYPE_OS2EA     => 'OS2EA',
 		self::SUBTYPE_BEOSEA    => 'BEOSEA',
-	);
+	];
 
 	/**
 	 * List of the names corresponding to RAR 5.0 Service types.
 	 * @var array
 	 */
-	protected $serviceNames = array(
+	protected $serviceNames = [
 		self::R50_SERVICE_COMMENT    => 'Archive Comment',
 		self::R50_SERVICE_QUICKOPEN  => 'Archive Quick Open',
 		self::R50_SERVICE_ACL        => 'Access Control List',
 		self::R50_SERVICE_STREAM     => 'NTFS Stream',
 		self::R50_SERVICE_RECOVERY   => 'Recovery Record',
-	);
+	];
 
 	/**
 	 * Is the volume attribute set for the archive?
@@ -356,9 +356,9 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean   $skipDirs  should directory entries be skipped?
 	 * @return  array     archive summary
 	 */
-	public function getSummary($full=false, $skipDirs=false)
+	public function getSummary($full = false, $skipDirs = false)
 	{
-		$summary = array(
+		$summary = [
 			'file_name'    => $this->file,
 			'file_size'    => $this->fileSize,
 			'data_size'    => $this->dataSize,
@@ -368,7 +368,7 @@ class RarInfo extends ArchiveReader
 			'has_recovery' => (int) $this->hasRecovery,
 			'is_encrypted' => (int) $this->isEncrypted,
 			'rar_format'   => $this->format,
-		);
+		];
 		if ($this->comments) {
 			$summary['comments'] = $this->comments;
 		}
@@ -392,14 +392,14 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $asHex   should numeric values be displayed as hexadecimal?
 	 * @return  array|boolean  list of blocks, or false if none available
 	 */
-	public function getBlocks($format=true, $asHex=false)
+	public function getBlocks($format = true, $asHex = false)
 	{
 		// Check that blocks are stored
 		if (empty($this->blocks)) {return false;}
 		if (!$format) {return $this->blocks;}
 
 		// Build a formatted block list
-		$ret = array();
+		$ret = [];
 		foreach ($this->blocks as $block) {
 			$b = $this->formatBlock($block, $asHex);
 			if ($b['head_type'] == self::R50_BLOCK_SERVICE && !empty($block['file_name'])
@@ -423,9 +423,9 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs=false)
+	public function getFileList($skipDirs = false)
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($this->blocks as $block) {
 			if (($block['head_type'] == self::BLOCK_FILE || $block['head_type'] == self::R50_BLOCK_FILE)
 			 && !empty($block['file_name'])
@@ -444,12 +444,12 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array|boolean  list of file record, or false if none available
 	 */
-	public function getQuickOpenFileList($skipDirs=false)
+	public function getQuickOpenFileList($skipDirs = false)
 	{
 		// Check that blocks are stored
 		if (empty($this->blocks)) {return false;}
 
-		$ret = array();
+		$ret = [];
 		foreach ($this->blocks as $block) {
 			if ($block['head_type'] == self::R50_BLOCK_SERVICE && !empty($block['file_name'])
 			 && $block['file_name'] == self::R50_SERVICE_QUICKOPEN
@@ -615,16 +615,16 @@ class RarInfo extends ArchiveReader
 	 * List of block types and Subblock subtypes without bodies.
 	 * @var array
 	 */
-	protected $headersOnly = array(
-		'type'    => array(),
-		'subtype' => array()
-	);
+	protected $headersOnly = [
+		'type'    => [],
+		'subtype' => []
+	];
 
 	/**
 	 * List of blocks found in the archive.
 	 * @var array
 	 */
-	protected $blocks = array();
+	protected $blocks = [];
 
 	/**
 	 * Full path to the external Unrar client.
@@ -639,9 +639,9 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $asHex  should numeric values be displayed as hexadecimal?
 	 * @return  array    the formatted block
 	 */
-	protected function formatBlock($block, $asHex=false)
+	protected function formatBlock($block, $asHex = false)
 	{
-		$b = array();
+		$b = [];
 
 		// Add block descriptors
 		$b['type'] = isset($this->blockNames[$block['head_type']]) ? $this->blockNames[$block['head_type']] : 'Unknown';
@@ -659,7 +659,7 @@ class RarInfo extends ArchiveReader
 
 		// Use hexadecimal values?
 		if ($asHex) {
-			array_walk_recursive($b, array('self', 'convert2hex'));
+			array_walk_recursive($b, ['self', 'convert2hex']);
 		}
 
 		// Sanity check filename length
@@ -673,20 +673,21 @@ class RarInfo extends ArchiveReader
 	/**
 	 * Returns a processed summary of a RAR File block.
 	 *
-	 * @param   array  $block      a valid File block
-	 * @param   array  $quickOpen  is this a Quick Open cached block?
-	 * @return  array  summary information
+	 * @param   array    $block     a valid File block
+	 * @param array|bool $quickOpen is this a Quick Open cached block?
+	 *
+	 * @return array summary information
 	 */
-	protected function getFileBlockSummary($block, $quickOpen=false)
+	protected function getFileBlockSummary($block, $quickOpen = false)
 	{
-		$ret = array(
+		$ret = [
 			'name' => !empty($block['file_name']) ? substr($block['file_name'], 0, $this->maxFilenameLength) : 'Unknown',
 			'size' => isset($block['unp_size']) ? $block['unp_size'] : 0,
 			'date' => !empty($block['utime']) ? $block['utime'] : (!empty($block['ftime']) ? self::dos2unixtime($block['ftime']) : 0),
 			'pass' => isset($block['has_password']) ? ((int) $block['has_password']) : 0,
 			'compressed' => (int) ($block['method'] != self::METHOD_STORE && $block['method'] != self::R50_METHOD_STORE),
 			'next_offset' => $block['next_offset'],
-		);
+		];
 		if (!empty($block['is_dir'])) {
 			$ret['is_dir'] = 1;
 		} elseif (!$quickOpen && !in_array(self::BLOCK_FILE, $this->headersOnly['type'])) {
@@ -777,7 +778,9 @@ class RarInfo extends ArchiveReader
 	protected function checkFileHeaderCRC($block)
 	{
 		// Not supported for RAR 5.0
-		if ($this->format == self::FMT_RAR50) {return false;}
+		if ($this->format == self::FMT_RAR50) {
+			return false;
+		}
 
 		try {
 			$this->seek($block['offset'] + 2);
@@ -800,7 +803,9 @@ class RarInfo extends ArchiveReader
 	protected function sanityCheckFileHeader($block, $limit=3)
 	{
 		// Not supported for RAR 5.0
-		if ($this->format == self::FMT_RAR50) {return false;}
+		if ($this->format == self::FMT_RAR50) {
+			return false;
+		}
 
 		$fail = ($block['host_os'] > 5)
 		      + ($block['method'] > 0x35)
@@ -901,7 +906,10 @@ class RarInfo extends ArchiveReader
 
 		// No more readable data, or read error
 		} catch (Exception $e) {
-			if ($this->error) {$this->close(); return false;}
+			if ($this->error) {
+				$this->close();
+				return false;
+			}
 			break;
 		}
 
@@ -927,7 +935,7 @@ class RarInfo extends ArchiveReader
 			return $this->getNextBlockR50();
 
 		// Start the block info
-		$block = array('offset' => $this->offset);
+		$block = ['offset' => $this->offset];
 
 		// Unpack the block header
 		$block += self::unpack(self::FORMAT_BLOCK_HEADER, $this->read(self::HEADER_SIZE), false);
@@ -955,8 +963,9 @@ class RarInfo extends ArchiveReader
 	/**
 	 * Processes a block passed by reference based on its type.
 	 *
-	 * @param   array  $block  the block to process
-	 * @return  void
+	 * @param   array $block the block to process
+	 *
+	 * @return array|bool
 	 */
 	protected function processBlock(&$block)
 	{
@@ -1101,7 +1110,7 @@ class RarInfo extends ArchiveReader
 	protected function getNextBlockR50()
 	{
 		// Start the block info
-		$block = array('offset' => $this->offset);
+		$block = ['offset' => $this->offset];
 
 		// Unpack the main part of the header
 		$block += self::unpack('Vhead_crc', $this->read(4));
@@ -1134,12 +1143,10 @@ class RarInfo extends ArchiveReader
 	/**
 	 * Processes a RAR 5.0 block passed by reference based on its type.
 	 *
-	 * @param   array  $block      the block to process
-	 * @param   array  $quickOpen  is this a Quick Open cached block?
-	 * @return  void
-	 * @throws  RuntimeException
+	 * @param   array    $block     the block to process
+	 * @param array|bool $quickOpen is this a Quick Open cached block?
 	 */
-	protected function processBlockR50(&$block, $quickOpen=false)
+	protected function processBlockR50(&$block, $quickOpen = false)
 	{
 		// Block type: ARCHIVE
 		if ($block['head_type'] == self::R50_BLOCK_MAIN) {
@@ -1245,7 +1252,7 @@ class RarInfo extends ArchiveReader
 		while ($this->offset < $end) {
 
 			// Start the cache record
-			$cache = array('offset' => $this->offset);
+			$cache = ['offset' => $this->offset];
 			$cache += self::unpack('Vcrc32', $this->read(4));
 			$cache['size']         = $this->getVarInt();
 			$cache['flags']        = $this->getVarInt();
@@ -1278,13 +1285,13 @@ class RarInfo extends ArchiveReader
 		while ($this->offset < $end) {
 
 			// Start with the record size and type
-			$rec = array(
+			$rec = [
 				'name'   => 'Unknown',
 				'offset' => $this->offset,
 				'size'   => $size = $this->getVarInt(),
 				'next'   => $this->offset + $size,
 				'type'   => $this->getVarInt(),
-			);
+			];
 
 			// Block type: ARCHIVE
 			if ($block['head_type'] == self::R50_BLOCK_MAIN) {
@@ -1411,7 +1418,7 @@ class RarInfo extends ArchiveReader
 		$this->hasAuth = false;
 		$this->hasRecovery = false;
 		$this->isEncrypted = false;
-		$this->blocks = array();
+		$this->blocks = [];
 		$this->format = '';
 		$this->comments = '';
 	}
@@ -1433,9 +1440,8 @@ class RarUnicodeFilename
 	/**
 	 * Initializes the class instance.
 	 *
-	 * @param   string  $stdName  the standard filename
-	 * @param   string  $encData  the unicode data
-	 * @return  void
+	 * @param   string $stdName the standard filename
+	 * @param   string $encData the unicode data
 	 */
 	public function __construct($stdName, $encData)
 	{
