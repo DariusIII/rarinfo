@@ -18,9 +18,8 @@
     "php": ">=5.6.0"
   },
   "autoload": {
-    "classmap": [
-      "ArchiveReader.php",
-      "PipeReader.php"
-    ]
+    "psr-4": {
+      "dariusiii\\": ""
+    }
   }
 }
