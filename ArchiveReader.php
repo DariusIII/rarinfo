@@ -226,14 +226,15 @@ abstract class ArchiveReader
 	/**
 	 * Default constructor for loading and analyzing archive files.
 	 *
-	 * @param   string   $file        path to the archive file
-	 * @param   boolean  $isFragment  true if file is an archive fragment
-	 * @param   array    $range       the start and end byte positions
-	 * @return  void
+	 * @param   string  $file       path to the archive file
+	 * @param   boolean $isFragment true if file is an archive fragment
+	 * @param   array   $range      the start and end byte positions
 	 */
-	public function __construct($file=null, $isFragment=false, array $range=null)
+	public function __construct($file = null, $isFragment = false, array $range = null)
 	{
-		if ($file) $this->open($file, $isFragment, $range);
+		if ($file) {
+			$this->open($file, $isFragment, $range);
+		}
 	}
 
 	/**
@@ -245,11 +246,13 @@ abstract class ArchiveReader
 	 * @param   array    $range       the start and end byte positions
 	 * @return  boolean  false if archive analysis fails
 	 */
-	public function open($file, $isFragment=false, array $range=null)
+	public function open($file, $isFragment = false, array $range = null)
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
-		if (!$this->setRange($range)) {return false;}
+		if (!$this->setRange($range)) {
+			return false;
+		}
 
 		if (!$file || !($archive = realpath($file)) || !is_file($archive)) {
 			$this->error = "File does not exist ($file)";
@@ -375,7 +378,7 @@ abstract class ArchiveReader
 	 * @param   boolean  $full  return a full summary?
 	 * @return  array    archive summary
 	 */
-	abstract public function getSummary($full=false);
+	abstract public function getSummary($full = false);
 
 	/**
 	 * Parses the stored archive info and returns a list of records for each of the

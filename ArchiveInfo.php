@@ -1,13 +1,13 @@
 <?php
 namespace dariusiii\rarinfo;
 
-require_once dirname(__FILE__) . '/ArchiveReader.php';
-require_once dirname(__FILE__) . '/RarInfo.php';
-require_once dirname(__FILE__) . '/ZipInfo.php';
-require_once dirname(__FILE__) . '/SrrInfo.php';
-require_once dirname(__FILE__) . '/Par2Info.php';
-require_once dirname(__FILE__) . '/SfvInfo.php';
-require_once dirname(__FILE__) . '/SzipInfo.php';
+use dariusiii\rarinfo\ArchiveReader;
+use dariusiii\rarinfo\RarInfo;
+use dariusiii\rarinfo\SrrInfo;
+use dariusiii\rarinfo\Par2Info;
+use dariusiii\rarinfo\SfvInfo;
+use dariusiii\rarinfo\SzipInfo;
+use dariusiii\rarinfo\ZipInfo;
 
 /**
  * ArchiveInfo class.
@@ -446,7 +446,9 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function getArchiveFileList($recurse=true, $all=false, $source=null)
 	{
-		if (!$this->reader) {return false;}
+		if (!$this->reader) {
+			return false;
+		}
 		$ret = [];
 
 		// Start with the main parent
@@ -462,8 +464,9 @@ class ArchiveInfo extends ArchiveReader
 			foreach ($this->getArchiveList() as $name => $archive) {
 
 				// Only include the file lists of types that allow recursion?
-				if (empty($archive->error) && !$all && !$archive->allowsRecursion())
+				if (empty($archive->error) && !$all && !$archive->allowsRecursion()) {
 					continue;
+				}
 				$branch = $source.' > '.$name;
 
 				// We should append any errors
@@ -496,7 +499,9 @@ class ArchiveInfo extends ArchiveReader
 		$source = explode(' > ', $source);
 		foreach ($source as $file) {
 			$archive = ($file == self::MAIN_SOURCE) ? $this : $archive->getArchive($file);
-			if (!$archive) {break;}
+			if (!$archive) {
+				break;
+			}
 		}
 
 		return isset($archive) ? $archive : false;
