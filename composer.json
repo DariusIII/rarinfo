@@ -1,5 +1,5 @@
 {
-  "name": "DariusIII/rarinfo",
+  "name": "dariusiii/rarinfo",
   "description": "PHP archive reader helper class",
   "type": "library",
   "minimum-stability": "stable",
