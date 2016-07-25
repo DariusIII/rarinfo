@@ -1,6 +1,14 @@
 <?php
 namespace dariusiii\rarinfo;
 
+require_once dirname(__FILE__) . '/ArchiveReader.php';
+require_once dirname(__FILE__) . '/RarInfo.php';
+require_once dirname(__FILE__) . '/ZipInfo.php';
+require_once dirname(__FILE__) . '/SrrInfo.php';
+require_once dirname(__FILE__) . '/Par2Info.php';
+require_once dirname(__FILE__) . '/SfvInfo.php';
+require_once dirname(__FILE__) . '/SzipInfo.php';
+
 /**
  * ArchiveInfo class.
  *
