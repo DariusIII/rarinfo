@@ -94,7 +94,7 @@ class Par2Info extends ArchiveReader
 	 * List of packet names corresponding to packet types.
 	 * @var array
 	 */
-	protected $packetNames = array(
+	protected $packetNames = [
 		self::PACKET_MAIN             => 'Main',
 		self::PACKET_FILEDESC         => 'File Description',
 		self::PACKET_FILEVER          => 'File Block Verification',
@@ -108,7 +108,7 @@ class Par2Info extends ArchiveReader
 		self::PACKET_RECOVERY_VER     => 'Recovery File Block Verification',
 		self::PACKET_PACKED_MAIN      => 'Packed Main',
 		self::PACKET_PACKED_RECOVERY  => 'Packed Recovery',
-	);
+	];
 
 	/**
 	 * Number of valid recovery blocks in the file/data.
@@ -137,7 +137,7 @@ class Par2Info extends ArchiveReader
 	 */
 	public function getSummary($full=false)
 	{
-		$summary = array(
+		$summary = [
 			'file_name'   => $this->file,
 			'file_size'   => $this->fileSize,
 			'data_size'   => $this->dataSize,
@@ -145,7 +145,7 @@ class Par2Info extends ArchiveReader
 			'block_count' => $this->blockCount,
 			'block_size'  => $this->blockSize,
 			'file_count'  => $this->fileCount,
-		);
+		];
 		if ($full) {
 			$summary['file_list'] = $this->getFileList();
 		}
@@ -169,14 +169,14 @@ class Par2Info extends ArchiveReader
 		if (empty($this->packets)) {return false;}
 
 		// Build the packet list
-		$ret = array();
+		$ret = [];
 
 		foreach ($this->packets AS $packet) {
 
 			// File Block Verification packets are very verbose
 			if (!$full && $packet['head_type'] == self::PACKET_FILEVER) {continue;}
 
-			$p = array();
+			$p = [];
 			$p['type_name'] = isset($this->packetNames[$packet['head_type']]) ? $this->packetNames[$packet['head_type']] : 'Unknown';
 			$p += $packet;
 
@@ -196,7 +196,7 @@ class Par2Info extends ArchiveReader
 	 */
 	public function getFileList()
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($this->packets as $packet) {
 			if ($packet['head_type'] == self::PACKET_FILEDESC && !isset($ret[$packet['file_id']])) {
 				$ret[$packet['file_id']] = $this->getFilePacketSummary($packet);
@@ -213,13 +213,13 @@ class Par2Info extends ArchiveReader
 	 * List of File IDs found in the file/data.
 	 * @var array
 	 */
-	protected $fileIDs = array();
+	protected $fileIDs = [];
 
 	/**
 	 * List of packets found in the file/data.
 	 * @var array
 	 */
-	protected $packets = array();
+	protected $packets = [];
 
 	/**
 	 * Returns a processed summary of a PAR2 File Description packet.
@@ -229,14 +229,14 @@ class Par2Info extends ArchiveReader
 	 */
 	protected function getFilePacketSummary($packet)
 	{
-		return array(
+		return [
 			'name' => !empty($packet['file_name']) ? substr($packet['file_name'], 0, $this->maxFilenameLength) : 'Unknown',
 			'size' => isset($packet['file_length']) ? $packet['file_length'] : 0,
 			'hash' => $packet['file_hash'],
 			'hash_16K' => $packet['file_hash_16K'],
 			'blocks' => 0,
 			'next_offset' => $packet['next_offset'],
-		);
+		];
 	}
 
 	/**
@@ -329,7 +329,7 @@ class Par2Info extends ArchiveReader
 	protected function getNextPacket()
 	{
 		// Start the packet info
-		$packet = array('offset' => $this->offset);
+		$packet = ['offset' => $this->offset];
 
 		// Unpack the packet header
 		$format = (version_compare(PHP_VERSION, '5.5.0') >= 0)
@@ -380,14 +380,14 @@ class Par2Info extends ArchiveReader
 			$this->blockSize = $packet['block_size'];
 
 			// Unpack the File IDs of all files in the recovery set
-			$recoverable = array();
+			$recoverable = [];
 			for ($i = 0; $i < $packet['rec_file_count']; $i++) {
 				$recoverable = array_merge($recoverable, self::unpack('H32', $this->read(16)));
 			}
 			$packet['rec_file_ids'] = $recoverable;
 
 			// Unpack any File IDs of files not in the recovery set
-			$unrecoverable = array();
+			$unrecoverable = [];
 			while ($this->offset < $packet['next_offset']) {
 				$unrecoverable = array_merge($unrecoverable, self::unpack('H32', $this->read(16)));
 			}
@@ -415,7 +415,7 @@ class Par2Info extends ArchiveReader
 			$packet += self::unpack('H32file_id', $this->read(16));
 
 			// Unpack the MD5/CRC32 checksum pairs
-			$packet['block_checksums'] = array();
+			$packet['block_checksums'] = [];
 			while ($this->offset < $packet['next_offset']) {
 				$packet['block_checksums'][] = self::unpack('H32md5/Vcrc32', $this->read(20));
 			}
@@ -447,8 +447,8 @@ class Par2Info extends ArchiveReader
 		$this->client = '';
 		$this->blockCount = 0;
 		$this->blockSize = 0;
-		$this->fileIDs = array();
-		$this->packets = array();
+		$this->fileIDs = [];
+		$this->packets = [];
 	}
 
 } // End Par2Info class

@@ -46,14 +46,14 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/rar');
-		$fixtures = array();
+		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.rar') as $rarfile) {
 			$fname = pathinfo($rarfile, PATHINFO_BASENAME).'.blocks';
 			$fpath = $fixturesDir.$ds.$fname;
 			if (file_exists($fpath)) {
 				$blocks = include $fpath;
-				$fixtures[] = array('filename' => $rarfile, 'blocks' => $blocks);
+				$fixtures[] = ['filename' => $rarfile, 'blocks' => $blocks];
 			}
 		}
 
@@ -116,7 +116,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertStringEndsWith('children, y, is', $data);
 
 		// With range, all data available
-		$rar->open($rarfile, true, array(1, filesize($rarfile) - 5));
+		$rar->open($rarfile, true, [1, filesize($rarfile) - 5]);
 		$files = $rar->getFileList();
 		$data = $rar->getFileData($files[0]['name']);
 		$this->assertSame($files[0]['size'], strlen($data));
@@ -124,7 +124,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertStringEndsWith('children, y, is', $data);
 
 		// With range, partial data available
-		$rar->open($rarfile, true, array(1, filesize($rarfile) - 10));
+		$rar->open($rarfile, true, [1, filesize($rarfile) - 10]);
 		$files = $rar->getFileList();
 		$data = $rar->getFileData($files[0]['name']);
 		$this->assertSame($files[0]['size'] - 2, strlen($data));

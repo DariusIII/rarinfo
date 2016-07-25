@@ -156,7 +156,7 @@ class ZipInfo extends ArchiveReader
 	 * List of record names corresponding to record types.
 	 * @var array
 	 */
-	protected $recordNames = array(
+	protected $recordNames = [
 		self::RECORD_CENTRAL_FILE        => 'Central File',
 		self::RECORD_LOCAL_FILE          => 'Local File',
 		self::RECORD_SIGNATURE           => 'Digital Signature',
@@ -165,13 +165,13 @@ class ZipInfo extends ArchiveReader
 		self::RECORD_Z64_ENDCENTRAL_LOC  => 'ZIP64 End of Central Directory Locator',
 		self::RECORD_ARCHIVE_EXTRA       => 'Archive Extra Data',
 		self::RECORD_DATA_DESCR          => 'Data Descriptor',
-	);
+	];
 
 	/**
 	 * List of Extra Field names corresponding to header IDs.
 	 * @var array
 	 */
-	protected $extraFieldNames = array(
+	protected $extraFieldNames = [
 		self::EXTRA_ZIP64        => 'Zip64',
 		self::EXTRA_NTFS         => 'NTFS',
 		self::EXTRA_UNIX         => 'Unix',
@@ -182,13 +182,13 @@ class ZipInfo extends ArchiveReader
 		self::EXTRA_IZUNIX2      => 'Info-ZIP (Ux)',
 		self::EXTRA_IZUNIX3      => 'Info-ZIP (ux)',
 		self::EXTRA_WZ_AES       => 'AES-256 Password Encryption',
-	);
+	];
 
 	/**
 	 * List of Host OS names by type.
 	 * @var array
 	 */
-	protected $hostOSNames = array(
+	protected $hostOSNames = [
 		self::OS_FAT      => 'MS-DOS and OS/2 (FAT)',
 		self::OS_AMIGA    => 'Amiga',
 		self::OS_VMS      => 'OpenVMS',
@@ -209,7 +209,7 @@ class ZipInfo extends ArchiveReader
 		self::OS_TANDEM   => 'Tandem',
 		self::OS_OS400    => 'OS/400',
 		self::OS_OSX      => 'OS X (Darwin)',
-	);
+	];
 
 	/**
 	 * Is the archive Central Directory encrypted?
@@ -228,13 +228,13 @@ class ZipInfo extends ArchiveReader
 	 */
 	public function getSummary($full=false, $skipDirs=false, $central=false)
 	{
-		$summary = array(
+		$summary = [
 			'file_name'  => $this->file,
 			'file_size'  => $this->fileSize,
 			'data_size'  => $this->dataSize,
 			'use_range'  => "{$this->start}-{$this->end}",
 			'file_count' => $this->fileCount,
-		);
+		];
 		if ($full) {
 			$summary['file_list'] = $this->getFileList($skipDirs, $central);
 		}
@@ -257,11 +257,11 @@ class ZipInfo extends ArchiveReader
 		if (empty($this->records)) {return false;}
 
 		// Build the record list
-		$ret = array();
+		$ret = [];
 
 		foreach ($this->records AS $record) {
 
-			$r = array();
+			$r = [];
 			$r['type_name'] = $this->recordNames[$record['type']];
 			$r += $record;
 
@@ -283,7 +283,7 @@ class ZipInfo extends ArchiveReader
 	 */
 	public function getFileList($skipDirs=false, $central=false)
 	{
-		$ret = array();
+		$ret = [];
 		foreach ($this->records as $record) {
 			if (($central && $record['type'] == self::RECORD_CENTRAL_FILE)
 			|| (!$central && $record['type'] == self::RECORD_LOCAL_FILE)
@@ -441,7 +441,7 @@ class ZipInfo extends ArchiveReader
 	 * List of records found in the file/data.
 	 * @var array
 	 */
-	protected $records = array();
+	protected $records = [];
 
 	/**
 	 * Full path to the external 7za client.
@@ -457,14 +457,14 @@ class ZipInfo extends ArchiveReader
 	 */
 	protected function getFileRecordSummary($record)
 	{
-		$ret = array(
+		$ret = [
 			'name' => substr($record['file_name'], 0, $this->maxFilenameLength),
 			'size' => $record['uncompressed_size'],
 			'date' => self::dos2unixtime(($record['last_mod_date'] << 16) | $record['last_mod_time']),
 			'pass' => isset($record['is_encrypted']) ? ((int) $record['is_encrypted']) : 0,
 			'compressed' => (int) ($record['method'] > 0),
 			'next_offset' => $record['next_offset'],
-		);
+		];
 		if (!empty($record['is_dir'])) {
 			$ret['is_dir'] = 1;
 		} elseif ($record['type'] == self::RECORD_LOCAL_FILE) {
@@ -589,7 +589,7 @@ class ZipInfo extends ArchiveReader
 	protected function getNextRecord()
 	{
 		// Start the record info
-		$record = array('offset' => $this->offset);
+		$record = ['offset' => $this->offset];
 
 		// Unpack the record signature
 		$record += self::unpack('Vtype', $this->read(4));
@@ -731,7 +731,7 @@ class ZipInfo extends ArchiveReader
 		$end = $this->offset + $record['extra_length'];
 		while ($this->offset < $end)
 		{
-			$field = array('type_name' => '');
+			$field = ['type_name' => ''];
 			$field += self::unpack(self::FORMAT_EXTRA_FIELD, $this->read(4));
 			$field['type_name'] = isset($this->extraFieldNames[$field['headerID']]) ? $this->extraFieldNames[$field['headerID']] : 'Unknown';
 
@@ -783,7 +783,7 @@ class ZipInfo extends ArchiveReader
 	{
 		parent::reset();
 
-		$this->records = array();
+		$this->records = [];
 		$this->isEncrypted = false;
 	}
 

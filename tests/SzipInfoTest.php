@@ -46,14 +46,14 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/szip');
-		$fixtures = array();
+		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.{7z,001,002}', GLOB_BRACE) as $szipfile) {
 			$fname = pathinfo($szipfile, PATHINFO_BASENAME).'.headers';
 			$fpath = $fixturesDir.$ds.$fname;
 			if (file_exists($fpath)) {
 				$headers = include $fpath;
-				$fixtures[] = array('filename' => $szipfile, 'headers' => $headers);
+				$fixtures[] = ['filename' => $szipfile, 'headers' => $headers];
 			}
 		}
 
@@ -179,17 +179,17 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 		$file = $this->fixturesDir.'/multi_volume.7z.002';
 		$end = filesize($file) - 1;
 
-		$szip->open($file, true, array(2, $end));
+		$szip->open($file, true, [2, $end]);
 		$files = $szip->getFileList();
 		$this->assertSame('2-3508', $files[0]['range']);
 		$this->assertSame('3509-3523', $files[1]['range']);
 
-		$szip->open($file, true, array(3508, $end));
+		$szip->open($file, true, [3508, $end]);
 		$files = $szip->getFileList();
 		$this->assertSame('3508-3508', $files[0]['range']);
 		$this->assertSame('3509-3523', $files[1]['range']);
 
-		$szip->open($file, true, array(3510, $end));
+		$szip->open($file, true, [3510, $end]);
 		$files = $szip->getFileList();
 		$this->assertArrayNotHasKey('range', $files[0]);
 		$this->assertSame('3510-3523', $files[1]['range']);
@@ -198,24 +198,24 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 		$file = $this->fixturesDir.'/store_with_directories.7z';;
 		$end = filesize($file) - 1;
 
-		$szip->open($file, true, array(2, $end));
+		$szip->open($file, true, [2, $end]);
 		$files = $szip->getFileList();
 		$this->assertSame('32-7604', $files[0]['range']);
 		$this->assertSame('7605-7619', $files[1]['range']);
 
-		$szip->open($file, true, array(7604, $end));
+		$szip->open($file, true, [7604, $end]);
 		$files = $szip->getFileList();
 		$this->assertSame('7604-7604', $files[0]['range']);
 		$this->assertSame('7605-7619', $files[1]['range']);
 		$this->assertSame('7635-7649', $files[3]['range']);
 
-		$szip->open($file, true, array(7605, $end));
+		$szip->open($file, true, [7605, $end]);
 		$files = $szip->getFileList();
 		$this->assertArrayNotHasKey('range', $files[0]);
 		$this->assertSame('7605-7619', $files[1]['range']);
 		$this->assertSame('7635-7649', $files[3]['range']);
 
-		$szip->open($file, true, array(7640, $end));
+		$szip->open($file, true, [7640, $end]);
 		$files = $szip->getFileList();
 		$this->assertArrayNotHasKey('range', $files[0]);
 		$this->assertArrayNotHasKey('range', $files[1]);

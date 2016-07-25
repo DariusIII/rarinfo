@@ -86,22 +86,24 @@ class SfvInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	public function providerSfvFileRecords()
 	{
-		return array(
-			array('test001.sfv', array(
-				array('testrar.r00', 'f6d8c75f', 'testrar.r00'),
-				array('testrar.r01', '1e9ba708', 'testrar.r01'),
-				array('testrar.r02', 'fb171746', 'testrar.r02'),
-				array('testrar.r03', '1ddbb63a', 'testrar.r03'),
-				array('testrar.rar', '36fbdd27', 'testrar.rar'))
-			),
-			array('test002.sfv', array(
-				array('test 1.txt', 'f6d8c75f', 'test 1.txt'),
-				array('subdir\test_2.txt', '1e9ba708', 'test_2.txt'),
-				array('subdir\test 3.txt', 'fb171746', 'test 3.txt'),
-				array('subdir/test 4.txt', '1ddbb63a', 'test 4.txt'),
-				array('subdir1/subdir 2/test 5.txt', '36fbdd27', 'test 5.txt'))
-			),
-		);
+		return [
+			['test001.sfv', [
+				['testrar.r00', 'f6d8c75f', 'testrar.r00'],
+				['testrar.r01', '1e9ba708', 'testrar.r01'],
+				['testrar.r02', 'fb171746', 'testrar.r02'],
+				['testrar.r03', '1ddbb63a', 'testrar.r03'],
+				['testrar.rar', '36fbdd27', 'testrar.rar']
+			]
+			],
+			['test002.sfv', [
+				['test 1.txt', 'f6d8c75f', 'test 1.txt'],
+				['subdir\test_2.txt', '1e9ba708', 'test_2.txt'],
+				['subdir\test 3.txt', 'fb171746', 'test 3.txt'],
+				['subdir/test 4.txt', '1ddbb63a', 'test 4.txt'],
+				['subdir1/subdir 2/test 5.txt', '36fbdd27', 'test 5.txt']
+			]
+			],
+		];
 	}
 
 	/**
@@ -147,16 +149,16 @@ class SfvInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(2, $sfv->fileCount);
 
 		$this->assertSame("example comment\n", $sfv->comments);
-		$this->assertEquals(array(
-			array(
+		$this->assertEquals([
+			[
 				'name' => 'testrar.r00',
 				'checksum' => 'f6d8c75f'
-			),
-			array(
+			],
+			[
 				'name' => 'testrar.r01',
 				'checksum' => '1e9ba708'
-			),
-		), $sfv->getFileList());
+			],
+		], $sfv->getFileList());
 	}
 
 	/**
@@ -164,16 +166,16 @@ class SfvInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	public function providerSfvMixedLineEndings()
 	{
-		return array(
+		return [
 			// Unix
-			array("; example comment\ntestrar.r00 f6d8c75f\ntestrar.r01 1e9ba708\n"),
+			["; example comment\ntestrar.r00 f6d8c75f\ntestrar.r01 1e9ba708\n"],
 			// Windows
-			array("; example comment\r\ntestrar.r00 f6d8c75f\r\ntestrar.r01 1e9ba708\r\n"),
+			["; example comment\r\ntestrar.r00 f6d8c75f\r\ntestrar.r01 1e9ba708\r\n"],
 			// Mac
-			array("; example comment\rtestrar.r00 f6d8c75f\rtestrar.r01 1e9ba708\r"),
+			["; example comment\rtestrar.r00 f6d8c75f\rtestrar.r01 1e9ba708\r"],
 			// Mixed
-			array("; example comment\ntestrar.r00 f6d8c75f\r\ntestrar.r01 1e9ba708\r"),
-		);
+			["; example comment\ntestrar.r00 f6d8c75f\r\ntestrar.r01 1e9ba708\r"],
+		];
 	}
 
 	/**

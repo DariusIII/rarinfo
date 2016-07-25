@@ -46,14 +46,14 @@ class SrrInfoTest extends PHPUnit_Framework_TestCase
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/srr');
-		$fixtures = array();
+		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.srr') as $srrfile) {
 			$fname = pathinfo($srrfile, PATHINFO_BASENAME).'.blocks';
 			$fpath = $fixturesDir.$ds.$fname;
 			if (file_exists($fpath)) {
 				$blocks = include $fpath;
-				$fixtures[] = array('filename' => $srrfile, 'blocks' => $blocks);
+				$fixtures[] = ['filename' => $srrfile, 'blocks' => $blocks];
 			}
 		}
 

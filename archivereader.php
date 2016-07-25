@@ -148,7 +148,7 @@ abstract class ArchiveReader
 	 */
 	public static function formatSize($bytes, $round=1)
 	{
-		$suffix = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+		$suffix = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		for ($i = 0; $bytes > 1024 && isset($suffix[$i+1]); $i++) {$bytes /= 1024;}
 		return round($bytes, $round).' '.$suffix[$i];
 	}
@@ -184,7 +184,7 @@ abstract class ArchiveReader
 		$start   = $offset;
 		$hlen    = strlen($haystack);
 		$isArray = is_array($needle);
-		$results = array();
+		$results = [];
 
 		foreach ((array) $needle as $key => $value) {
 			if (($vlen = strlen($value)) == 0)
@@ -479,7 +479,7 @@ abstract class ArchiveReader
 	 * The list of any temporary files created by the reader.
 	 * @var array
 	 */
-	protected $tempFiles = array();
+	protected $tempFiles = [];
 
 	/**
 	 * Sets the absolute start and end positions in the file/data to be analyzed
@@ -535,7 +535,7 @@ abstract class ArchiveReader
 	protected function getRange(array $range)
 	{
 		// Check that the requested range is valid
-		$original = array($this->start, $this->end, $this->length);
+		$original = [$this->start, $this->end, $this->length];
 		if (!$this->setRange($range)) {
 			list($this->start, $this->end, $this->length) = $original;
 			return false;
@@ -562,7 +562,7 @@ abstract class ArchiveReader
 	protected function saveRange(array $range, $destination)
 	{
 		// Check that the requested range is valid
-		$original = array($this->start, $this->end, $this->length);
+		$original = [$this->start, $this->end, $this->length];
 		if (!$this->setRange($range)) {
 			list($this->start, $this->end, $this->length) = $original;
 			return false;
@@ -712,7 +712,7 @@ abstract class ArchiveReader
 		$hash = $data ? md5($data) : md5(substr($this->data, 0, 16*1024));
 		$path = $this->getTempDirectory().DIRECTORY_SEPARATOR.$hash.'.tmp';
 
-		return array($hash, $path);
+		return [$hash, $path];
 	}
 
 	/**
@@ -739,7 +739,7 @@ abstract class ArchiveReader
 		foreach ($this->tempFiles as $temp) {
 			@unlink($temp);
 		}
-		$this->tempFiles = array();
+		$this->tempFiles = [];
 	}
 
 	/**

@@ -50,13 +50,13 @@ class SfvInfo extends ArchiveReader
 	 */
 	public function getSummary($full=false, $basenames=false)
 	{
-		$summary = array(
+		$summary = [
 			'file_name'  => $this->file,
 			'file_size'  => $this->fileSize,
 			'data_size'  => $this->dataSize,
 			'use_range'  => "{$this->start}-{$this->end}",
 			'file_count' => $this->fileCount,
-		);
+		];
 		if ($full) {
 			$summary['file_list'] = $this->getFileList($basenames);
 		}
@@ -76,7 +76,7 @@ class SfvInfo extends ArchiveReader
 	public function getFileList($basenames=false)
 	{
 		if ($basenames) {
-			$ret = array();
+			$ret = [];
 			foreach ($this->fileList as $item) {
 				$item['name'] = pathinfo($item['name'], PATHINFO_BASENAME);
 				$ret[] = $item;
@@ -101,7 +101,7 @@ class SfvInfo extends ArchiveReader
 	 * The parsed file list with checksum info.
 	 * @var array
 	 */
-	protected $fileList = array();
+	protected $fileList = [];
 
 	/**
 	 * Parses the source data and stores a list of valid file records locally.
@@ -130,10 +130,10 @@ class SfvInfo extends ArchiveReader
 			if (preg_match('/^(.+?)\s+([[:xdigit:]]{2,8})$/', trim($line), $matches)) {
 
 				// Store the file record locally
-				$this->fileList[] = array(
+				$this->fileList[] = [
 					'name'     => $matches[1],
 					'checksum' => $matches[2]
-				);
+				];
 
 				// Increment the filecount
 				$this->fileCount++;
@@ -160,7 +160,7 @@ class SfvInfo extends ArchiveReader
 	protected function reset()
 	{
 		parent::reset();
-		$this->fileList = array();
+		$this->fileList = [];
 		$this->comments = '';
 	}
 

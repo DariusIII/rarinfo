@@ -47,14 +47,14 @@ class Par2InfoTest extends PHPUnit_Framework_TestCase
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/par2');
-		$fixtures = array();
+		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.par2') as $par2file) {
 			$fname = pathinfo($par2file, PATHINFO_BASENAME).'.packets';
 			$fpath = $fixturesDir.$ds.$fname;
 			if (file_exists($fpath)) {
 				$packets = include $fpath;
-				$fixtures[] = array('filename' => $par2file, 'packets' => $packets);
+				$fixtures[] = ['filename' => $par2file, 'packets' => $packets];
 			}
 		}
 
@@ -79,14 +79,15 @@ class Par2InfoTest extends PHPUnit_Framework_TestCase
 		$this->assertCount(10, $files);
 
 		$this->assertArrayHasKey('4631d494bc34ae0b3131291eeb3238f6', $files);
-		$this->assertEquals($files['4631d494bc34ae0b3131291eeb3238f6'], array(
+		$this->assertEquals($files['4631d494bc34ae0b3131291eeb3238f6'], [
 			'name' => 'test-3.data',
 			'size' => 142129,
 			'hash' => '9e44a776f7a1fac4a3569bf734bacb01',
 			'hash_16K' => 'bd1a58ae2f233491c450623596c322eb',
 			'blocks' => 27,
 			'next_offset' => 5576
-		));
+		]
+		);
 
 		// Check the hash of the whole file contents
 		$data = file_get_contents($this->fixturesDir.'/test-3.data');

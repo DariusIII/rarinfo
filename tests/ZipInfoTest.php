@@ -46,14 +46,14 @@ class ZipInfoTest extends PHPUnit_Framework_TestCase
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/zip');
-		$fixtures = array();
+		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.zip') as $rarfile) {
 			$fname = pathinfo($rarfile, PATHINFO_BASENAME).'.records';
 			$fpath = $fixturesDir.$ds.$fname;
 			if (file_exists($fpath)) {
 				$records = include $fpath;
-				$fixtures[] = array('filename' => $rarfile, 'records' => $records);
+				$fixtures[] = ['filename' => $rarfile, 'records' => $records];
 			}
 		}
 

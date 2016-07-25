@@ -99,14 +99,14 @@ class ArchiveInfo extends ArchiveReader
 	 * The default list of the supported archive reader classes.
 	 * @var array
 	 */
-	protected $readers = array(
+	protected $readers = [
 		self::TYPE_RAR  => 'RarInfo',
 		self::TYPE_SRR  => 'SrrInfo',
 		self::TYPE_PAR2 => 'Par2Info',
 		self::TYPE_ZIP  => 'ZipInfo',
 		self::TYPE_SFV  => 'SfvInfo',
 		self::TYPE_SZIP => 'SzipInfo',
-	);
+	];
 
 	/**
 	 * The current archive file/data type.
@@ -133,7 +133,7 @@ class ArchiveInfo extends ArchiveReader
 		$this->readers = $readers;
 		$this->inheritReaders = $recursive;
 		if ($recursive) {
-			$this->archives = array();
+			$this->archives = [];
 		}
 	}
 
@@ -159,7 +159,7 @@ class ArchiveInfo extends ArchiveReader
 		}
 
 		$this->externalClients = $clients;
-		$this->archives = array();
+		$this->archives = [];
 		if ($this->reader) {
 			unset($this->error);
 		}
@@ -176,7 +176,7 @@ class ArchiveInfo extends ArchiveReader
 	public function setArchiveExtensions($extensions)
 	{
 		$this->extensions = $extensions;
-		$this->archives = array();
+		$this->archives = [];
 	}
 
 	/**
@@ -192,14 +192,14 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function getSummary($full=false)
 	{
-		$summary = array(
+		$summary = [
 			'main_info' => isset($this->readers[$this->type]) ? $this->readers[$this->type] : 'Unknown',
 			'main_type' => $this->type,
 			'file_name' => $this->file,
 			'file_size' => $this->fileSize,
 			'data_size' => $this->dataSize,
 			'use_range' => "{$this->start}-{$this->end}",
-		);
+		];
 		if ($this->reader) {
 			$args = func_get_args();
 			$summary += $this->__call('getSummary', $args);
@@ -335,7 +335,7 @@ class ArchiveInfo extends ArchiveReader
 			}
 		}
 		if ($summary) {
-			$ret = array();
+			$ret = [];
 			foreach ($this->archives as $name => $archive) {
 				$ret[$name] = $archive->getSummary(true); // recursive
 			}
@@ -385,7 +385,7 @@ class ArchiveInfo extends ArchiveReader
 					}
 					if ($this->reader->error) {
 						$archive->error = $this->reader->error;
-						$archive->readers = array();
+						$archive->readers = [];
 					} else {
 						$archive->open($temp, $this->isFragment);
 						$archive->isTemporary = true;
@@ -395,7 +395,7 @@ class ArchiveInfo extends ArchiveReader
 
 				// Otherwise we shouldn't process any files that are unreadable
 				if (!empty($file['compressed']) || !empty($file['pass'])) {
-					$archive->readers = array();
+					$archive->readers = [];
 				}
 
 				// Try to parse the raw source file/data
@@ -446,7 +446,7 @@ class ArchiveInfo extends ArchiveReader
 	public function getArchiveFileList($recurse=true, $all=false, $source=null)
 	{
 		if (!$this->reader) {return false;}
-		$ret = array();
+		$ret = [];
 
 		// Start with the main parent
 		if ($source == null) {
@@ -468,7 +468,7 @@ class ArchiveInfo extends ArchiveReader
 				// We should append any errors
 				if ($archive->error || !($files = $archive->reader->getFileList())) {
 					$error = $archive->error ? $archive->error : 'No files found';
-					$ret[] = array('error' => $error, 'source' => $branch);
+					$ret[] = ['error' => $error, 'source' => $branch];
 					continue;
 				}
 
@@ -666,7 +666,7 @@ class ArchiveInfo extends ArchiveReader
 			case 3:
 				return $this->reader->$method($args[0], $args[1], $args[2]);
 			default:
-				return call_user_func_array(array($this->reader, $method), $args);
+				return call_user_func_array([$this->reader, $method], $args);
 		}
 	}
 
@@ -680,7 +680,7 @@ class ArchiveInfo extends ArchiveReader
 	 * Cached list of any embedded archive objects.
 	 * @var array
 	 */
-	protected $archives = array();
+	protected $archives = [];
 
 	/**
 	 * Should any embedded archives inherit the readers list from this instance?
@@ -692,7 +692,7 @@ class ArchiveInfo extends ArchiveReader
 	 * List of any external clients to use for extraction.
 	 * @var array
 	 */
-	protected $externalClients = array();
+	protected $externalClients = [];
 
 	/**
 	 * Is the current archive being processed from a temporary file?
@@ -747,7 +747,7 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	protected function createReader()
 	{
-		$range = array($this->start, $this->end);
+		$range = [$this->start, $this->end];
 
 		foreach ($this->readers as $type => $class) {
 
@@ -814,7 +814,7 @@ class ArchiveInfo extends ArchiveReader
 	protected function flattenFileList(array $files, $source, $all=false)
 	{
 		$files = array_values($files);
-		$children = array();
+		$children = [];
 		foreach ($files as &$file) {
 			$file['source'] = $source;
 			if ($source != self::MAIN_SOURCE) {
@@ -852,7 +852,7 @@ class ArchiveInfo extends ArchiveReader
 				if (!empty($file['compressed']) && empty($file['pass'])) {
 					list($hash, $temp) = $this->getTempFileName("{$name}:{$archive->start}-{$archive->end}");
 					if (!isset($this->tempFiles[$hash])) {
-						$archive->reader->saveRange(array($archive->start, $archive->end), $temp);
+						$archive->reader->saveRange([$archive->start, $archive->end], $temp);
 						@chmod($temp, 0777);
 						$this->tempFiles[$hash] = $temp;
 					}
@@ -878,7 +878,7 @@ class ArchiveInfo extends ArchiveReader
 			$archive->reset();
 		}
 		parent::reset();
-		$this->archives = array();
+		$this->archives = [];
 		$this->type = self::TYPE_NONE;
 		$this->isTemporary = false;
 	}

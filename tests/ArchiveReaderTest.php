@@ -185,7 +185,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$this->assertSame($tell, $archive->tell());
 
 		// With set ranges
-		$ranges = array(array(5, 9), array(0, 99), array(50, 249), array(5, $fsize - 1));
+		$ranges = [[5, 9], [0, 99], [50, 249], [5, $fsize - 1]];
 
 		foreach ($ranges as $range)
 		{
@@ -217,7 +217,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$archive = new TestArchiveReader;
 
 		// Common checks
-		$range = array(-1, -2);
+		$range = [-1, -2];
 		$regex = '/Start.*end.*positive/';
 		$this->assertFalse($archive->setData($data, false, $range));
 		$this->assertRegExp($regex, $archive->error);
@@ -226,7 +226,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$this->assertRegExp($regex, $archive->error);
 		$this->assertNull($archive->handle);
 
-		$range = array(1.5, 3);
+		$range = [1.5, 3];
 		$regex = '/Start.*end.*integer/';
 		$this->assertFalse($archive->setData($data, false, $range));
 		$this->assertRegExp($regex, $archive->error);
@@ -235,7 +235,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$this->assertRegExp($regex, $archive->error);
 		$this->assertNull($archive->handle);
 
-		$range = array(2, 1);
+		$range = [2, 1];
 		$regex = '/End.*must be higher than start/';
 		$this->assertFalse($archive->setData($data, false, $range));
 		$this->assertRegExp($regex, $archive->error);
@@ -247,19 +247,19 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		// Setting data
 		$archive->setMaxReadBytes(100);
 
-		$range = array(1, 105);
+		$range = [1, 105];
 		$regex = '/range.*is invalid/';
 		$this->assertFalse($archive->setData($data, false, $range));
 		$this->assertRegExp($regex, $archive->error);
 		$this->assertEmpty($archive->data);
 
-		$range = array(101, 105);
+		$range = [101, 105];
 		$this->assertFalse($archive->setData($data, false, $range));
 		$this->assertRegExp($regex, $archive->error);
 		$this->assertEmpty($archive->data);
 
 		// Opening file
-		$range = array(0, filesize($this->testFile));
+		$range = [0, filesize($this->testFile)];
 		$this->assertFalse($archive->open($this->testFile, false, $range));
 		$this->assertRegExp($regex, $archive->error);
 		$this->assertNull($archive->handle);
@@ -276,7 +276,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$file = $this->fixturesDir.'/rar/commented.rar';
 		$data = file_get_contents($file);
 		$content = 'file content';
-		$range = array(146, 157);
+		$range = [146, 157];
 		$archive = new TestArchiveReader;
 
 		// Within bounds
@@ -284,14 +284,14 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 		$this->assertSame($content, $archive->getRange($range));
 		$archive->setData($data);
 		$this->assertSame($content, $archive->getRange($range));
-		$archive->open($file, false, array(0, 1));
+		$archive->open($file, false, [0, 1]);
 		$this->assertSame($content, $archive->getRange($range));
-		$archive->setData($data, false, array(0, 1));
+		$archive->setData($data, false, [0, 1]);
 		$this->assertSame($content, $archive->getRange($range));
 
 		// Out of bounds
 		$archive->open($file);
-		$archive->getRange(array(0, filesize($file)));
+		$archive->getRange([0, filesize($file)]);
 		$this->assertRegExp('/range.*is invalid/', $archive->error);
 	}
 
@@ -336,29 +336,31 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 	 */
 	public function providerNeedles()
 	{
-		return array(
+		return [
 
 			// Single needles
-			array('D',       array(0)),
-			array('s',       array(25)),
-			array('the dog', array(4, 15)),
-			array('dog',     array(8, 19)),
-			array('og',      array(1, 9, 20, 37)),
-			array('d',       array(8, 19, 30, 32)),
-			array('g',       array(2, 10, 21, 38)),
+			['D', [0]],
+			['s', [25]],
+			['the dog', [4, 15]],
+			['dog', [8, 19]],
+			['og', [1, 9, 20, 37]],
+			['d', [8, 19, 30, 32]],
+			['g', [2, 10, 21, 38]],
 
 			// Arrays of needles
-			array(array('d', 'og', 'dog'), array(
-				 1 => array(1),  8 => array(0, 2), 9 => array(1), 19 => array(0, 2),
-				20 => array(1), 30 => array(0),   32 => array(0), 37 => array(1),
-			)),
-			array(array('key1' => 's', 'key2' => 'the', 'key3' => 't'), array(
-				 4 => array('key2', 'key3'),
-				15 => array('key2', 'key3'),
-				25 => array('key1'),
-				28 => array('key3'),
-			)),
-		);
+			[['d', 'og', 'dog'], [
+				1  => [1], 8 => [0, 2], 9 => [1], 19 => [0, 2],
+				20 => [1], 30 => [0], 32 => [0], 37 => [1],
+			]
+			],
+			[['key1' => 's', 'key2' => 'the', 'key3' => 't'], [
+				4 => ['key2', 'key3'],
+				15 => ['key2', 'key3'],
+				25 => ['key1'],
+				28 => ['key3'],
+			]
+			],
+		];
 	}
 
 } // End ArchiveReaderTest
@@ -368,10 +370,10 @@ class TestArchiveReader extends ArchiveReader
 	// Abstract method implementations
 	public function getSummary($full=false)
 	{
-		return array(
+		return [
 			'fileSize' => $this->fileSize,
 			'dataSize' => $this->dataSize,
-		);
+		];
 	}
 
 	public function getFileList() {}
@@ -399,7 +401,7 @@ class TestArchiveReader extends ArchiveReader
 	public $length = 0;
 	public $start = 0;
 	public $end = 0;
-	public $tempFiles = array();
+	public $tempFiles = [];
 
 	public function seek($pos)
 	{

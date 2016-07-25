@@ -83,21 +83,21 @@ class SrrInfo extends RarInfo
 	 * List of block names corresponding to SRR block types.
 	 * @var array
 	 */
-	protected $srrBlockNames = array(
+	protected $srrBlockNames = [
 		self::SRR_BLOCK_MARK  => 'SRR Marker',
 		self::SRR_STORED_FILE => 'Stored File',
 		self::SRR_OSO_HASH    => 'OSO Hash',
 		self::SRR_RAR_FILE    => 'RAR File',
-	);
+	];
 
 	/**
 	 * List of block types and Subblock subtypes without bodies.
 	 * @var array
 	 */
-	protected $headersOnly = array(
-		'type'    => array(self::BLOCK_FILE),
-		'subtype' => array(self::SUBTYPE_RECOVERY),
-	);
+	protected $headersOnly = [
+		'type'    => [self::BLOCK_FILE],
+		'subtype' => [self::SUBTYPE_RECOVERY],
+	];
 
 	/**
 	 * Details of the client that created the file/data.
@@ -128,13 +128,13 @@ class SrrInfo extends RarInfo
 	 */
 	public function getSummary($full=false, $skipDirs=false)
 	{
-		$summary = array(
+		$summary = [
 			'file_name'    => $this->file,
 			'file_size'    => $this->fileSize,
 			'data_size'    => $this->dataSize,
 			'client'       => $this->client,
 			'stored_files' => $this->getStoredFiles($full),
-		);
+		];
 		if ($osoInfo = $this->getOsoInfo()) {
 			$summary['oso_info'] = $osoInfo;
 		}
@@ -160,14 +160,14 @@ class SrrInfo extends RarInfo
 	public function getStoredFiles($extract=true)
 	{
 		if (empty($this->blocks)) {return false;}
-		$ret = array();
+		$ret = [];
 
 		foreach ($this->blocks as $block) {
 			if ($block['head_type'] == self::SRR_STORED_FILE) {
-				$b = array(
+				$b = [
 					'name' => $block['file_name'],
 					'size' => $block['add_size'],
-				);
+				];
 				if ($extract) {
 					$b['data'] = $block['file_data'];
 				}
@@ -192,11 +192,11 @@ class SrrInfo extends RarInfo
 
 		foreach ($this->blocks as $block) {
 			if ($block['head_type'] == self::SRR_OSO_HASH) {
-				return array(
+				return [
 					'name' => $block['file_name'],
 					'size' => $block['file_size'],
 					'hash' => $block['file_hash'],
-				);
+				];
 			}
 		}
 
@@ -212,14 +212,14 @@ class SrrInfo extends RarInfo
 	 */
 	public function getFileList($skipDirs=false)
 	{
-		$list = array();
+		$list = [];
 		$i = -1;
 
 		foreach ($this->blocks as $block) {
 
 			// Start a new RAR volume record
 			if ($block['head_type'] == self::SRR_RAR_FILE) {
-				$list[++$i] = array('name' => $block['file_name']);
+				$list[++$i] = ['name' => $block['file_name']];
 
 			// Append the file summaries to the current volume record
 			} elseif ($block['head_type'] == self::BLOCK_FILE) {
