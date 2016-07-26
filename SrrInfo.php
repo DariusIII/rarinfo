@@ -107,9 +107,11 @@ class SrrInfo extends RarInfo
 	/**
 	 * Initializes the class instance.
 	 *
-	 * @return  void
+	 * @param null  $file
+	 * @param bool  $isFragment
+	 * @param array $range
 	 */
-	public function __construct($file=null, $isFragment=false, array $range=null)
+	public function __construct($file = null, $isFragment = false, array $range = null)
 	{
 		// Merge the SRR and RAR block names
 		$this->blockNames = $this->srrBlockNames + $this->blockNames;
@@ -125,7 +127,7 @@ class SrrInfo extends RarInfo
 	 * @param   boolean   $skipDirs  should RAR directory entries be skipped?
 	 * @return  array     SRR file summary
 	 */
-	public function getSummary($full=false, $skipDirs=false)
+	public function getSummary($full = false, $skipDirs = false)
 	{
 		$summary = [
 			'file_name'    => $this->file,
@@ -156,9 +158,11 @@ class SrrInfo extends RarInfo
 	 * @param   boolean  $extract  include file data in the result?
 	 * @return  mixed  false if no stored files blocks available, or array of records
 	 */
-	public function getStoredFiles($extract=true)
+	public function getStoredFiles($extract = true)
 	{
-		if (empty($this->blocks)) {return false;}
+		if (empty($this->blocks)) {
+			return false;
+		}
 		$ret = [];
 
 		foreach ($this->blocks as $block) {
@@ -187,7 +191,9 @@ class SrrInfo extends RarInfo
 	 */
 	public function getOsoInfo()
 	{
-		if (empty($this->blocks)) {return false;}
+		if (empty($this->blocks)) {
+			return false;
+		}
 
 		foreach ($this->blocks as $block) {
 			if ($block['head_type'] == self::SRR_OSO_HASH) {
@@ -209,7 +215,7 @@ class SrrInfo extends RarInfo
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array|boolean  list of file records, or false if none are available
 	 */
-	public function getFileList($skipDirs=false)
+	public function getFileList($skipDirs = false)
 	{
 		$list = [];
 		$i = -1;
@@ -222,7 +228,9 @@ class SrrInfo extends RarInfo
 
 			// Append the file summaries to the current volume record
 			} elseif ($block['head_type'] == self::BLOCK_FILE) {
-				if ($skipDirs && !empty($block['is_dir'])) {continue;}
+				if ($skipDirs && !empty($block['is_dir'])) {
+					continue;
+				}
 				$list[$i]['files'][] = $this->getFileBlockSummary($block);
 			}
 		}
@@ -231,9 +239,20 @@ class SrrInfo extends RarInfo
 	}
 
 	// SRR files do not include any file contents
-	public function getFileData($filename) {return false;}
-	public function saveFileData($filename, $destination) {return false;}
-	public function extractFile($filename, $destination=null, $password=null) {return false;}
+	public function getFileData($filename)
+	{
+		return false;
+	}
+
+	public function saveFileData($filename, $destination)
+	{
+		return false;
+	}
+
+	public function extractFile($filename, $destination = null, $password = null)
+	{
+		return false;
+	}
 
 	/**
 	 * Parses the SRR data and stores a list of valid blocks locally.
@@ -309,7 +328,10 @@ class SrrInfo extends RarInfo
 
 		// No more readable data, or read error
 		} catch (\Exception $e) {
-			if ($this->error) {$this->close(); return false;}
+			if ($this->error) {
+				$this->close();
+				return false;
+			}
 			break;
 		}
 

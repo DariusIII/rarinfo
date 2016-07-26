@@ -24,7 +24,7 @@ abstract class ArchiveReader
 	 * @param   boolean  $fixLongs  should unsigned longs be fixed?
 	 * @return  array    the unpacked data
 	 */
-	public static function unpack($format, $data, $fixLongs=true)
+	public static function unpack($format, $data, $fixLongs = true)
 	{
 		$unpacked = unpack($format, $data);
 		$longs = 'VNL';
@@ -151,7 +151,9 @@ abstract class ArchiveReader
 	public static function formatSize($bytes, $round=1)
 	{
 		$suffix = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-		for ($i = 0; $bytes > 1024 && isset($suffix[$i+1]); $i++) {$bytes /= 1024;}
+		for ($i = 0; $bytes > 1024 && isset($suffix[$i+1]); $i++) {
+			$bytes /= 1024;
+		}
 		return round($bytes, $round).' '.$suffix[$i];
 	}
 
@@ -163,8 +165,9 @@ abstract class ArchiveReader
 	 */
 	public static function makeDirectory($dir)
 	{
-		if (file_exists($dir))
+		if (file_exists($dir)) {
 			return false;
+		}
 
 		mkdir($dir, 0777, TRUE);
 		chmod($dir, 0777);
@@ -181,7 +184,7 @@ abstract class ArchiveReader
 	 * @param   string|array   $needle    the string or list of strings to find
 	 * @return  array|boolean  the needle positions, or false if none found
 	 */
-	public static function strposall($haystack, $needle, $offset=0)
+	public static function strposall($haystack, $needle, $offset = 0)
 	{
 		$start   = $offset;
 		$hlen    = strlen($haystack);
@@ -189,8 +192,9 @@ abstract class ArchiveReader
 		$results = [];
 
 		foreach ((array) $needle as $key => $value) {
-			if (($vlen = strlen($value)) == 0)
+			if (($vlen = strlen($value)) == 0) {
 				continue;
+			}
 			while ($offset < $hlen && ($pos = strpos($haystack, $value, $offset)) !== false) {
 				$offset = $pos + $vlen;
 				if ($isArray) {
@@ -261,8 +265,12 @@ abstract class ArchiveReader
 
 		$this->file = $archive;
 		$this->fileSize = self::getFileSize($archive);
-		if (!$this->end) {$this->end = $this->fileSize - 1;}
-		if (!$this->checkRange()) {return false;}
+		if (!$this->end) {
+			$this->end = $this->fileSize - 1;
+		}
+		if (!$this->checkRange()) {
+			return false;
+		}
 
 		// Open the file handle
 		$this->handle = fopen($archive, 'rb');
@@ -282,11 +290,13 @@ abstract class ArchiveReader
 	 * @param   array    $range       the start and end byte positions
 	 * @return  boolean  false if archive analysis fails
 	 */
-	public function setData($data, $isFragment=false, array $range=null)
+	public function setData($data, $isFragment = false, array $range = null)
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
-		if (!$this->setRange($range)) {return false;}
+		if (!$this->setRange($range)) {
+			return false;
+		}
 
 		if (($dsize = strlen($data)) == 0) {
 			$this->error = 'No data was passed, nothing to analyze';
@@ -296,8 +306,12 @@ abstract class ArchiveReader
 		// Store the data locally up to max bytes
 		$data = ($dsize > $this->maxReadBytes) ? substr($data, 0, $this->maxReadBytes) : $data;
 		$this->dataSize = strlen($data);
-		if (!$this->end) {$this->end = $this->dataSize - 1;}
-		if (!$this->checkRange()) {return false;}
+		if (!$this->end) {
+			$this->end = $this->dataSize - 1;
+		}
+		if (!$this->checkRange()) {
+			return false;
+		}
 		$this->data = $data;
 
 		$this->rewind();
@@ -353,10 +367,13 @@ abstract class ArchiveReader
 	public function __get($name)
 	{
 		// For backwards compatibility
-		if ($name == 'file') {return $this->file;}
+		if ($name == 'file') {
+			return $this->file;
+		}
 
-		if (!isset($this->$name))
-			throw new \RuntimeException('Undefined property: '.get_class($this).'::$'.$name);
+		if (!isset($this->$name)) {
+			throw new \RuntimeException('Undefined property: ' . get_class($this) . '::$' . $name);
+		}
 
 		throw new \LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
 	}
@@ -493,7 +510,7 @@ abstract class ArchiveReader
 	 * @param   array    $range  the start and end byte positions
 	 * @return  boolean  false if ranges are invalid
 	 */
-	protected function setRange(array $range=null)
+	protected function setRange(array $range = null)
 	{
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
@@ -606,8 +623,9 @@ abstract class ArchiveReader
 
 		// Check that enough data is available
 		$newPos = $this->offset + $num;
-		if ($num < 1 || $newPos > $this->length)
+		if ($num < 1 || $newPos > $this->length) {
 			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
+		}
 
 		// Read the requested bytes
 		if ($this->file && is_resource($this->handle)) {
@@ -644,8 +662,9 @@ abstract class ArchiveReader
 	 */
 	protected function seek($pos)
 	{
-		if ($pos > $this->length || $pos < 0)
+		if ($pos > $this->length || $pos < 0) {
 			throw new \InvalidArgumentException("Could not seek to {$pos} (max: {$this->length})");
+		}
 
 		if ($this->file && is_resource($this->handle)) {
 			$max = PHP_INT_MAX;
@@ -668,8 +687,9 @@ abstract class ArchiveReader
 	 */
 	protected function tell()
 	{
-		if ($this->file && is_resource($this->handle))
+		if ($this->file && is_resource($this->handle)) {
 			return ftell($this->handle);
+		}
 
 		return $this->start + $this->offset;
 	}
@@ -696,8 +716,9 @@ abstract class ArchiveReader
 	{
 		list($hash, $dest) = $this->getTempFileName();
 
-		if (file_exists($dest))
+		if (file_exists($dest)) {
 			return $this->tempFiles[$hash] = $dest;
+		}
 
 		file_put_contents($dest, $this->data);
 		chmod($dest, 0777);
@@ -712,7 +733,7 @@ abstract class ArchiveReader
 	 * @param   string  $data  the source data to be hashed
 	 * @return  array   the hash and temporary file path values
 	 */
-	protected function getTempFileName($data=null)
+	protected function getTempFileName($data = null)
 	{
 		$hash = $data ? md5($data) : md5(substr($this->data, 0, 16*1024));
 		$path = $this->getTempDirectory().DIRECTORY_SEPARATOR.$hash.'.tmp';

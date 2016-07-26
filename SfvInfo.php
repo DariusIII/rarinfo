@@ -47,7 +47,7 @@ class SfvInfo extends ArchiveReader
 	 * @param   boolean  $basenames  don't include full file paths?
 	 * @return  array    file record summary
 	 */
-	public function getSummary($full=false, $basenames=false)
+	public function getSummary($full = false, $basenames = false)
 	{
 		$summary = [
 			'file_name'  => $this->file,
@@ -72,7 +72,7 @@ class SfvInfo extends ArchiveReader
 	 * @param   boolean  $basenames  don't include full file paths?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($basenames=false)
+	public function getFileList($basenames = false)
 	{
 		if ($basenames) {
 			$ret = [];

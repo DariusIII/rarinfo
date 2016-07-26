@@ -38,7 +38,7 @@ class PipeReader
 	 * @param   string  $command  the command to execute
 	 * @return  void
 	 */
-	public function __construct($command=null)
+	public function __construct($command = null)
 	{
 		if ($command) $this->open($command);
 	}
@@ -90,7 +90,7 @@ class PipeReader
 	 * @return  string    the byte string
 	 * @throws  \InvalidArgumentException
 	 */
-	public function read($num, $confirm=true)
+	public function read($num, $confirm = true)
 	{
 		if ($num < 1) {
 			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
@@ -143,8 +143,9 @@ class PipeReader
 	 */
 	public function readLine()
 	{
-		if (!$this->command || !is_resource($this->handle) || feof($this->handle))
+		if (!$this->command || !is_resource($this->handle) || feof($this->handle)) {
 			return false;
+		}
 
 		$line = fgets($this->handle, $this->maxReadBytes);
 		$this->offset = $this->tell();
@@ -165,8 +166,9 @@ class PipeReader
 	 */
 	public function seek($pos)
 	{
-		if ($pos < 0)
+		if ($pos < 0) {
 			throw new \InvalidArgumentException("Could not seek to offset: {$pos}");
+		}
 
 		if ($this->command) {
 			if ($pos < $this->offset) {

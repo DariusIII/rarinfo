@@ -121,7 +121,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $recursive  apply list to all embedded archives?
 	 * @return  void
 	 */
-	public function setReaders(array $readers, $recursive=false)
+	public function setReaders(array $readers, $recursive = false)
 	{
 		$this->readers = $readers;
 		$this->inheritReaders = $recursive;
@@ -183,7 +183,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $full  return a full summary?
 	 * @return  array    archive summary
 	 */
-	public function getSummary($full=false)
+	public function getSummary($full = false)
 	{
 		$summary = [
 			'main_info' => isset($this->readers[$this->type]) ? $this->readers[$this->type] : 'Unknown',
@@ -268,7 +268,7 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function allowsRecursion()
 	{
-		return (bool) ($this->type & (self::TYPE_RAR | self::TYPE_ZIP | self::TYPE_SZIP));
+		return (bool) ($this->type && (self::TYPE_RAR | self::TYPE_ZIP | self::TYPE_SZIP));
 	}
 
 	/**
@@ -307,10 +307,11 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $summary  return file summaries?
 	 * @return  array|boolean  list of stored objects/summaries, or false on error
 	 */
-	public function getArchiveList($summary=false)
+	public function getArchiveList($summary = false)
 	{
-		if (!$this->reader || !$this->allowsRecursion())
+		if (!$this->reader || !$this->allowsRecursion()) {
 			return false;
+		}
 
 		if (empty($this->archives)) {
 			$extensions = !empty($this->extensions) ? "/^({$this->extensions})$/" : false;
@@ -350,12 +351,14 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function getArchive($filename)
 	{
-		if (!$this->reader || !$this->allowsRecursion())
+		if (!$this->reader || !$this->allowsRecursion()) {
 			return false;
+		}
 
 		// Check the cache first
-		if (isset($this->archives[$filename]))
+		if (isset($this->archives[$filename])) {
 			return $this->archives[$filename];
+		}
 
 		foreach ($this->reader->getFileList() as $file) {
 			if ($file['name'] == $filename && isset($file['range'])) {
@@ -489,6 +492,7 @@ class ArchiveInfo extends ArchiveReader
 	{
 		$this->getArchiveFileList(true);
 		$source = explode(' > ', $source);
+		$archive = false;
 		foreach ($source as $file) {
 			$archive = ($file == self::MAIN_SOURCE) ? $this : $archive->getArchive($file);
 			if (!$archive) {
@@ -507,7 +511,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $source    archive source path of the file
 	 * @return  string|boolean  file data, or false on error
 	 */
-	public function getFileData($filename, $source=self::MAIN_SOURCE)
+	public function getFileData($filename, $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid data source is available
 		if (!$this->reader || ($this->reader->data == '' && $this->reader->handle == null))
@@ -533,11 +537,12 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $source       archive source path of the file
 	 * @return  integer|boolean  number of bytes saved or false on error
 	 */
-	public function saveFileData($filename, $destination, $source=self::MAIN_SOURCE)
+	public function saveFileData($filename, $destination, $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid data source is available
-		if (!$this->reader || ($this->reader->data == '' && $this->reader->handle == null))
+		if (!$this->reader || ($this->reader->data == '' && $this->reader->handle == null)) {
 			return false;
+		}
 
 		// Get the absolute start/end positions
 		if (!($info = $this->getFileInfo($filename, $source)) || empty($info['range'])) {
@@ -563,7 +568,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $source       archive source path of the file to extract
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 */
-	public function extractFile($filename, $destination=null, $password=null, $source=self::MAIN_SOURCE)
+	public function extractFile($filename, $destination = null, $password = null, $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid reader is available
 		if (!($archive = $this->getArchiveFromSource($source)) || !($reader = $archive->reader)) {
@@ -605,8 +610,9 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function findMarker()
 	{
-		if ($this->reader)
+		if ($this->reader) {
 			return $this->reader->findMarker();
+		}
 
 		return false;
 	}
@@ -619,8 +625,9 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function __get($name)
 	{
-		if ($this->reader && isset($this->reader->$name))
+		if ($this->reader && isset($this->reader->$name)) {
 			return $this->reader->$name;
+		}
 
 		return parent::__get($name);
 	}
@@ -635,8 +642,9 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function __isset($name)
 	{
-		if ($this->reader)
+		if ($this->reader) {
 			return isset($this->reader->$name);
+		}
 
 		return false;
 	}
@@ -651,8 +659,9 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function __call($method, $args)
 	{
-		if (!$this->reader)
-			throw new \BadMethodCallException(get_class($this)."::$method() is not defined");
+		if (!$this->reader) {
+			throw new \BadMethodCallException(get_class($this) . "::$method() is not defined");
+		}
 
 		switch (count($args)) {
 			case 0:
@@ -756,7 +765,9 @@ class ArchiveInfo extends ArchiveReader
 			} else {
 				$reader->setData($this->data, $this->isFragment, $range);
 			}
-			if ($reader->error) {continue;}
+			if ($reader->error) {
+				continue;
+			}
 
 			// Store the reader with the earliest marker
 			if (($marker = $reader->findMarker()) !== false) {
@@ -769,7 +780,9 @@ class ArchiveInfo extends ArchiveReader
 					$this->reader = $reader;
 					$this->type = $type;
 				}
-				if ($start === 0) {break;}
+				if ($start === 0) {
+					break;
+				}
 			}
 		}
 
@@ -784,7 +797,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $source    archive source path of the file
 	 * @return  array|boolean  the file info or false on error
 	 */
-	protected function getFileInfo($filename, $source=self::MAIN_SOURCE)
+	protected function getFileInfo($filename, $source = self::MAIN_SOURCE)
 	{
 		if (strpos($source, self::MAIN_SOURCE) !== 0) {
 			$source = self::MAIN_SOURCE.' > '.$source;
@@ -809,7 +822,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $all     should any child lists be included?
 	 * @return  array  the flat file list
 	 */
-	protected function flattenFileList(array $files, $source, $all=false)
+	protected function flattenFileList(array $files, $source, $all = false)
 	{
 		$files = array_values($files);
 		$children = [];
@@ -839,24 +852,28 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	protected function extractArchives()
 	{
-		if (!$this->reader || !$this->canExtract())
+		if (!$this->reader || !$this->canExtract()) {
 			return false;
+		}
 
 		foreach ($this->archives as $name => $archive) {
-			if ($archive->isTemporary || !$archive->canExtract())
+			if ($archive->isTemporary || !$archive->canExtract()) {
 				continue;
+			}
 
-			if ($files = $archive->reader->getFileList()) foreach ($files as $file) {
-				if (!empty($file['compressed']) && empty($file['pass'])) {
-					list($hash, $temp) = $this->getTempFileName("{$name}:{$archive->start}-{$archive->end}");
-					if (!isset($this->tempFiles[$hash])) {
-						$archive->reader->saveRange([$archive->start, $archive->end], $temp);
-						@chmod($temp, 0777);
-						$this->tempFiles[$hash] = $temp;
+			if ($files = $archive->reader->getFileList()) {
+				foreach ($files as $file) {
+					if (!empty($file['compressed']) && empty($file['pass'])) {
+						list($hash, $temp) = $this->getTempFileName("{$name}:{$archive->start}-{$archive->end}");
+						if (!isset($this->tempFiles[$hash])) {
+							$archive->reader->saveRange([$archive->start, $archive->end], $temp);
+							@chmod($temp, 0777);
+							$this->tempFiles[$hash] = $temp;
+						}
+						$archive->open($temp, $this->isFragment);
+						$archive->isTemporary = true;
+						continue 2;
 					}
-					$archive->open($temp, $this->isFragment);
-					$archive->isTemporary = true;
-					continue 2;
 				}
 			}
 		}

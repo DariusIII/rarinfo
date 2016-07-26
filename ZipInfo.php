@@ -224,7 +224,7 @@ class ZipInfo extends ArchiveReader
 	 * @param   boolean   $central   should Central File records be used?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full=false, $skipDirs=false, $central=false)
+	public function getSummary($full = false, $skipDirs = false, $central = false)
 	{
 		$summary = [
 			'file_name'  => $this->file,
@@ -252,7 +252,9 @@ class ZipInfo extends ArchiveReader
 	public function getRecords()
 	{
 		// Check that records are stored
-		if (empty($this->records)) {return false;}
+		if (empty($this->records)) {
+			return false;
+		}
 
 		// Build the record list
 		$ret = [];
@@ -264,7 +266,9 @@ class ZipInfo extends ArchiveReader
 			$r += $record;
 
 			// Sanity check filename length
-			if (isset($r['file_name'])) {$r['file_name'] = substr($r['file_name'], 0, $this->maxFilenameLength);}
+			if (isset($r['file_name'])) {
+				$r['file_name'] = substr($r['file_name'], 0, $this->maxFilenameLength);
+			}
 			$ret[] = $r;
 		}
 
@@ -279,14 +283,16 @@ class ZipInfo extends ArchiveReader
 	 *
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs=false, $central=false)
+	public function getFileList($skipDirs = false, $central = false)
 	{
 		$ret = [];
 		foreach ($this->records as $record) {
 			if (($central && $record['type'] == self::RECORD_CENTRAL_FILE)
 			|| (!$central && $record['type'] == self::RECORD_LOCAL_FILE)
 			) {
-				if ($skipDirs && !empty($record['is_dir'])) {continue;}
+				if ($skipDirs && !empty($record['is_dir'])) {
+					continue;
+				}
 				$ret[] = $this->getFileRecordSummary($record);
 			}
 		}
@@ -352,8 +358,9 @@ class ZipInfo extends ArchiveReader
 	 */
 	public function setExternalClient($client)
 	{
-		if ($client && (!is_file($client) || !is_executable($client)))
+		if ($client && (!is_file($client) || !is_executable($client))) {
 			throw new \InvalidArgumentException("Not a valid client: {$client}");
+		}
 
 		$this->externalClient = $client;
 	}
@@ -367,7 +374,7 @@ class ZipInfo extends ArchiveReader
 	 * @param   string  $password     password to use for decryption
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 */
-	public function extractFile($filename, $destination=null, $password=null)
+	public function extractFile($filename, $destination = null, $password = null)
 	{
 		if (!$this->externalClient || (!$this->file && !$this->data)) {
 			$this->error = 'An external client and valid data source are needed';
@@ -407,6 +414,7 @@ class ZipInfo extends ArchiveReader
 		$this->error = '';
 
 		// Open destination file or start buffer
+		$data = $written = $handle = '';
 		if ($destination) {
 			$handle = fopen($destination, 'wb');
 			$written = 0;
@@ -427,7 +435,9 @@ class ZipInfo extends ArchiveReader
 
 		// Check for errors (only after the pipe is closed)
 		if (($error = @file_get_contents($errorFile)) && strpos($error, 'Everything is Ok') === false) {
-			if ($destination) {@unlink($destination);}
+			if ($destination) {
+				@unlink($destination);
+			}
 			$this->error = $error;
 			return false;
 		}
@@ -501,8 +511,9 @@ class ZipInfo extends ArchiveReader
 	 */
 	public function findMarker()
 	{
-		if ($this->markerPosition !== null)
+		if ($this->markerPosition !== null) {
 			return $this->markerPosition;
+		}
 
 		// Buffer the data to search
 		try {
@@ -541,8 +552,9 @@ class ZipInfo extends ArchiveReader
 		while ($this->offset < $this->length) try {
 
 			// Get the next record header
-			if (($record = $this->getNextRecord()) === false)
+			if (($record = $this->getNextRecord()) === false) {
 				continue;
+			}
 
 			// Process the current record by type
 			$this->processRecord($record);
@@ -564,7 +576,10 @@ class ZipInfo extends ArchiveReader
 
 		// No more readable data, or read error
 		} catch (\Exception $e) {
-			if ($this->error) {$this->close(); return false;}
+			if ($this->error) {
+				$this->close();
+				return false;
+			}
 			break;
 		}
 

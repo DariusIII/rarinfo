@@ -134,7 +134,7 @@ class Par2Info extends ArchiveReader
 	 * @param   boolean   $full  add file list to output?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full=false)
+	public function getSummary($full = false)
 	{
 		$summary = [
 			'file_name'   => $this->file,
@@ -162,10 +162,12 @@ class Par2Info extends ArchiveReader
 	 * @param   boolean  $full  include all packet details in output?
 	 * @return  array|boolean   list of packets, or false if none available
 	 */
-	public function getPackets($full=false)
+	public function getPackets($full = false)
 	{
 		// Check that packets are stored
-		if (empty($this->packets)) {return false;}
+		if (empty($this->packets)) {
+			return false;
+		}
 
 		// Build the packet list
 		$ret = [];
@@ -173,14 +175,18 @@ class Par2Info extends ArchiveReader
 		foreach ($this->packets AS $packet) {
 
 			// File Block Verification packets are very verbose
-			if (!$full && $packet['head_type'] == self::PACKET_FILEVER) {continue;}
+			if (!$full && $packet['head_type'] == self::PACKET_FILEVER) {
+				continue;
+			}
 
 			$p = [];
 			$p['type_name'] = isset($this->packetNames[$packet['head_type']]) ? $this->packetNames[$packet['head_type']] : 'Unknown';
 			$p += $packet;
 
 			// Sanity check filename length
-			if (isset($p['file_name'])) {$p['file_name'] = substr($p['file_name'], 0, $this->maxFilenameLength);}
+			if (isset($p['file_name'])) {
+				$p['file_name'] = substr($p['file_name'], 0, $this->maxFilenameLength);
+			}
 			$ret[] = $p;
 		}
 

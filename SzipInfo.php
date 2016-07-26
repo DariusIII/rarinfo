@@ -152,7 +152,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   boolean   $skipDirs  should directory entries be skipped?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full=false, $skipDirs=false)
+	public function getSummary($full = false, $skipDirs = false)
 	{
 		$summary = [
 			'file_name'    => $this->file,
@@ -184,13 +184,14 @@ class SzipInfo extends ArchiveReader
 	 */
 	public function getHeaders()
 	{
-		if (empty($this->headers)) {return false;}
+		if (empty($this->headers)) {
+			return false;
+		}
 		$ret = [];
 
 		foreach ($this->headers as $header) {
 			$h = [];
-			$h['type_name'] = isset($this->headerNames[$header['type']])
-				? $this->headerNames[$header['type']] : 'Unknown';
+			$h['type_name'] = isset($this->headerNames[$header['type']]) ? $this->headerNames[$header['type']] : 'Unknown';
 			$h += $header;
 			$ret[] = $h;
 		}
@@ -205,11 +206,12 @@ class SzipInfo extends ArchiveReader
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs=false)
+	public function getFileList($skipDirs = false)
 	{
 		// Check that headers are stored
-		if (!($info = $this->getFilesHeaderInfo()) || empty($info['files']))
+		if (!($info = $this->getFilesHeaderInfo()) || empty($info['files'])) {
 			return [];
+		}
 
 		// Files may be stored in their own folders or as substreams
 		$streams = $this->getMainStreamsInfo();
@@ -234,7 +236,9 @@ class SzipInfo extends ArchiveReader
 				'compressed' => 0,
 			];
 			if (!empty($file['is_dir'])) {
-				if ($skipDirs) {continue;}
+				if ($skipDirs) {
+					continue;
+				}
 				$item['is_dir'] = 1;
 			}
 			if ($file['has_stream']) {
@@ -335,8 +339,9 @@ class SzipInfo extends ArchiveReader
 	 */
 	public function setExternalClient($client)
 	{
-		if ($client && (!is_file($client) || !is_executable($client)))
+		if ($client && (!is_file($client) || !is_executable($client))) {
 			throw new \InvalidArgumentException("Not a valid client: {$client}");
+		}
 
 		$this->externalClient = $client;
 	}
@@ -350,7 +355,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   string  $password     password to use for decryption
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 */
-	public function extractFile($filename, $destination=null, $password=null)
+	public function extractFile($filename, $destination = null, $password = null)
 	{
 		if (!$this->externalClient || (!$this->file && !$this->data)) {
 			$this->error = 'An external client and valid data source are needed';
@@ -390,6 +395,7 @@ class SzipInfo extends ArchiveReader
 		$this->error = '';
 
 		// Open destination file or start buffer
+		$data = $written = $handle = '';
 		if ($destination) {
 			$handle = fopen($destination, 'wb');
 			$written = 0;
@@ -409,7 +415,9 @@ class SzipInfo extends ArchiveReader
 
 		// Check for errors (only after the pipe is closed)
 		if (($error = @file_get_contents($errorFile)) && strpos($error, 'Everything is Ok') === false) {
-			if ($destination) {@unlink($destination);}
+			if ($destination) {
+				@unlink($destination);
+			}
 			$this->error = $error;
 			return false;
 		}
@@ -424,8 +432,9 @@ class SzipInfo extends ArchiveReader
 	 */
 	public function findMarker()
 	{
-		if ($this->markerPosition !== null)
+		if ($this->markerPosition !== null) {
 			return $this->markerPosition;
+		}
 
 		try {
 			$buff = $this->read(min($this->length, $this->maxReadBytes));
@@ -499,8 +508,9 @@ class SzipInfo extends ArchiveReader
 		while ($this->offset < $this->length) try {
 
 			// Get the next header
-			if (($header = $this->readNextHeader()) === false)
+			if (($header = $this->readNextHeader()) === false) {
 				break;
+			}
 
 			// Add the current header to the list
 			$this->headers[] = $header;
@@ -519,7 +529,10 @@ class SzipInfo extends ArchiveReader
 
 		// No more readable data, or read error
 		} catch (\Exception $e) {
-			if ($this->error) {$this->close(); return false;}
+			if ($this->error) {
+				$this->close();
+				return false;
+			}
 			break;
 		}
 
@@ -549,16 +562,18 @@ class SzipInfo extends ArchiveReader
 		try {
 			$buffer = $this->read(min($this->length, $this->maxReadBytes));
 			$this->rewind();
-		} catch (\Exception $e) {return false;}
+		} catch (\Exception $e) {
+			return false;
+		}
 
 		// Get all the offsets to test
 		$searches = [
 			'unencoded' => pack('C*', self::PROPERTY_HEADER, self::PROPERTY_MAIN_STREAMS_INFO),
 			'encoded'   => pack('C*', self::PROPERTY_ENCODED_HEADER, self::PROPERTY_PACK_INFO),
 		];
-		if (!($positions = self::strposall($buffer, $searches)))
+		if (!($positions = self::strposall($buffer, $searches))) {
 			return false;
-
+		}
 		foreach ($positions as $offset => $matches) try {
 			$offset += $start;
 			$this->seek(($matches[0] == 'encoded') ? $offset : $offset + 1);
@@ -569,7 +584,9 @@ class SzipInfo extends ArchiveReader
 			}
 
 		// No more readable data, or read error
-		} catch (\Exception $e) {continue;}
+		} catch (\Exception $e) {
+			continue;
+		}
 
 		return false;
 	}
@@ -640,7 +657,7 @@ class SzipInfo extends ArchiveReader
 	 * and adds it to the given header record.
 	 *
 	 * @param   array    $header  a valid header record
-	 * @return  boolean  false on error
+	 * @return  bool|array  false on error
 	 */
 	protected function processStreamsInfo(&$header)
 	{
@@ -648,29 +665,34 @@ class SzipInfo extends ArchiveReader
 
 		// Pack Info
 		if ($nid == self::PROPERTY_PACK_INFO) {
-			if (!$this->processPackInfo($header))
+			if (!$this->processPackInfo($header)) {
 				return false;
+			}
 			$this->isSolid = (bool) $header['is_solid'];
 			$nid = ord($this->read(1));
 		}
 
 		// Unpack Info
 		if ($nid == self::PROPERTY_UNPACK_INFO) {
-			if (!$this->processUnpackInfo($header))
+			if (!$this->processUnpackInfo($header)) {
 				return false;
+			}
 			$this->blockCount = $header['num_folders'];
 			$nid = ord($this->read(1));
 		}
 
 		// Substreams Info
 		if ($nid == self::PROPERTY_SUBSTREAMS_INFO) {
-			if (!$this->processSubstreamsInfo($header))
+			if (!$this->processSubstreamsInfo($header)) {
 				return false;
+			}
 			$nid = ord($this->read(1));
 		}
 
 		// End Streams Info
-		if (!$this->checkIsEnd($nid)) {return false;}
+		if (!$this->checkIsEnd($nid)) {
+			return false;
+		}
 		$this->hasEncodedHeader = ($header['type'] == self::PROPERTY_ENCODED_HEADER);
 		$header['next_offset'] = $this->offset;
 
@@ -730,7 +752,9 @@ class SzipInfo extends ArchiveReader
 			return false;
 		}
 		$header['num_folders'] = $this->readNumber();
-		if (!$this->checkExternal()) {return false;}
+		if (!$this->checkExternal()) {
+			return false;
+		}
 		$this->processFolders($header);
 		$nid = ord($this->read(1));
 
@@ -880,8 +904,9 @@ class SzipInfo extends ArchiveReader
 			$subs['unpack_sizes'] = [];
 			for ($i = 0; $i < $header['num_folders']; $i++) {
 				$sum = 0;
-				if (($numStreams = $subs['num_unpack_streams'][$i]) == 0)
+				if (($numStreams = $subs['num_unpack_streams'][$i]) == 0) {
 					continue;
+				}
 				for ($j = 1; $j < $numStreams; $j++) {
 					$size = $this->readNumber();
 					$subs['unpack_sizes'][] = $size;
@@ -932,7 +957,7 @@ class SzipInfo extends ArchiveReader
 	 * Reads & parses information about the files stored in the archive.
 	 *
 	 * @param   array    $header  a valid header record
-	 * @return  boolean  false on error
+	 * @return  bool|array  false on error
 	 */
 	protected function processFilesInfo(&$header)
 	{
@@ -959,7 +984,9 @@ class SzipInfo extends ArchiveReader
 
 			// File names
 			if ($type == self::PROPERTY_NAME) {
-				if (!$this->checkExternal()) {return false;}
+				if (!$this->checkExternal()) {
+					return false;
+				}
 				foreach ($header['files'] as &$file) {
 					$name = '';
 					while ($this->offset < $this->length) {
@@ -987,7 +1014,9 @@ class SzipInfo extends ArchiveReader
 			// File attributes
 			elseif ($type == self::PROPERTY_ATTRIBUTES) {
 				$defined = $this->readBooleans($header['num_files'], true);
-				if (!$this->checkExternal()) {return false;}
+				if (!$this->checkExternal()) {
+					return false;
+				}
 				foreach ($header['files'] as $i => &$file) {
 					if ($defined[$i] == 1) {
 						$file += self::unpack('Vattributes', $this->read(4));
@@ -1000,7 +1029,9 @@ class SzipInfo extends ArchiveReader
 			// Start positions
 			elseif ($type == self::PROPERTY_START_POSITION) {
 				$defined = $this->readBooleans($header['num_files'], true);
-				if (!$this->checkExternal()) {return false;}
+				if (!$this->checkExternal()) {
+					return false;
+				}
 				foreach ($header['files'] as $i => &$file) {
 					if ($defined[$i] == 1) {
 						$sp = self::unpack('Vlow/Vhigh', $this->read(8));
@@ -1024,7 +1055,9 @@ class SzipInfo extends ArchiveReader
 			}
 
 			// Skip unknowns
-			else {$this->read($size);}
+			else {
+				$this->read($size);
+			}
 		}
 
 		// Process empty streams/files
@@ -1052,12 +1085,14 @@ class SzipInfo extends ArchiveReader
 	 *
 	 * @param   array    $header  a valid header record
 	 * @param   string   $type    the file time type
-	 * @return  boolean  false on error
+	 * @return  bool  false on error
 	 */
 	protected function processFileTimes(&$header, $type)
 	{
 		$defined = $this->readBooleans($header['num_files'], true);
-		if (!$this->checkExternal()) {return false;}
+		if (!$this->checkExternal()) {
+			return false;
+		}
 
 		foreach ($header['files'] as $i => &$file) {
 			if ($defined[$i] == 1) {
@@ -1181,10 +1216,10 @@ class SzipInfo extends ArchiveReader
 	 * Reads a list of boolean bit flags from the current offset.
 	 *
 	 * @param   integer  $count     the number of booleans to read
-	 * @param   integer  $checkAll  read an all defined flag first?
+	 * @param   bool  $checkAll  read an all defined flag first?
 	 * @return  array    the list of boolean flags
 	 */
-	protected function readBooleans($count, $checkAll=false)
+	protected function readBooleans($count, $checkAll = false)
 	{
 		if ($checkAll) {
 			$allDefined = ord($this->read(1));
@@ -1241,8 +1276,9 @@ class SzipInfo extends ArchiveReader
 	protected function findBindPair($pairs, $index, $type)
 	{
 		foreach ($pairs as $idx => $pair) {
-			if ($pair[$type] == $index)
+			if ($pair[$type] == $index) {
 				return $idx;
+			}
 		}
 		return -1;
 	}
@@ -1255,8 +1291,9 @@ class SzipInfo extends ArchiveReader
 	 */
 	protected function getFolderUnpackSize($folder)
 	{
-		if (empty($folder['unpack_sizes']))
+		if (empty($folder['unpack_sizes'])) {
 			return 0;
+		}
 
 		$pairs = isset($folder['bind_pairs']) ?  $folder['bind_pairs'] : [];
 		for ($i = count($folder['unpack_sizes']) - 1; $i >= 0; $i--) {
@@ -1273,12 +1310,13 @@ class SzipInfo extends ArchiveReader
 	 * i.e. fragments or any split archive volumes. The range is set to null only
 	 * if the packed data for the block is completely missing.
 	 *
-	 * @return  array  the list of absolute ranges
+	 * @return  bool|array  the list of absolute ranges
 	 */
 	protected function getPackedRanges()
 	{
-		if (!($mainStreams = $this->getMainStreamsInfo()))
+		if (!($mainStreams = $this->getMainStreamsInfo())) {
 			return false;
+		}
 
 		$startHeader   = $this->getStartHeader();
 		$mainHeader    = $this->getMainHeader();
@@ -1320,8 +1358,9 @@ class SzipInfo extends ArchiveReader
 	protected function getMainStreamsInfo()
 	{
 		foreach ($this->headers as $header) {
-			if ($header['type'] == self::PROPERTY_MAIN_STREAMS_INFO)
+			if ($header['type'] == self::PROPERTY_MAIN_STREAMS_INFO) {
 				return $header;
+			}
 		}
 		return false;
 	}
@@ -1334,8 +1373,9 @@ class SzipInfo extends ArchiveReader
 	protected function getEncodedHeader()
 	{
 		foreach ($this->headers as $header) {
-			if ($header['type'] == self::PROPERTY_ENCODED_HEADER)
+			if ($header['type'] == self::PROPERTY_ENCODED_HEADER) {
 				return $header;
+			}
 		}
 		return false;
 	}
@@ -1348,8 +1388,9 @@ class SzipInfo extends ArchiveReader
 	protected function getMainHeader()
 	{
 		foreach ($this->headers as $header) {
-			if ($header['type'] == self::PROPERTY_HEADER)
+			if ($header['type'] == self::PROPERTY_HEADER) {
 				return $header;
+			}
 		}
 		return false;
 	}
@@ -1362,8 +1403,9 @@ class SzipInfo extends ArchiveReader
 	protected function getStartHeader()
 	{
 		foreach ($this->headers as $header) {
-			if ($header['type'] == self::START_HEADER)
+			if ($header['type'] == self::START_HEADER) {
 				return $header;
+			}
 		}
 		return false;
 	}
@@ -1376,8 +1418,9 @@ class SzipInfo extends ArchiveReader
 	protected function getFilesHeaderInfo()
 	{
 		foreach ($this->headers as $header) {
-			if ($header['type'] == self::PROPERTY_FILES_INFO)
+			if ($header['type'] == self::PROPERTY_FILES_INFO) {
 				return $header;
+			}
 		}
 		return false;
 	}
@@ -1416,8 +1459,9 @@ class SzipInfo extends ArchiveReader
 			$this->error = 'Archive headers are encrypted, password needed';
 			return false;
 		}
-		if (($encoded = $this->getEncodedHeader()) === false)
+		if (($encoded = $this->getEncodedHeader()) === false) {
 			return false;
+		}
 
 		try {
 			// Fetch the Encoded Header packed data
