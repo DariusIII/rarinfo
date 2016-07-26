@@ -395,7 +395,6 @@ class SzipInfo extends ArchiveReader
 		$this->error = '';
 
 		// Open destination file or start buffer
-		$data = $written = $handle = '';
 		if ($destination) {
 			$handle = fopen($destination, 'wb');
 			$written = 0;
@@ -410,7 +409,9 @@ class SzipInfo extends ArchiveReader
 				$data .= $read;
 			}
 		}
-		if ($destination) {fclose($handle);}
+		if ($destination) {
+			fclose($handle);
+		}
 		$pipe->close();
 
 		// Check for errors (only after the pipe is closed)
