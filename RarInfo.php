@@ -594,10 +594,11 @@ class RarInfo extends ArchiveReader
 		$this->error = '';
 
 		// Open destination file or start buffer
-		$data = $written = $handle = '';
 		if ($destination) {
 			$handle = fopen($destination, 'wb');
 			$written = 0;
+		} else {
+			$data = '';
 		}
 
 		// Buffer the piped data or save it to file

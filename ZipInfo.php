@@ -414,7 +414,6 @@ class ZipInfo extends ArchiveReader
 		$this->error = '';
 
 		// Open destination file or start buffer
-		$data = $written = $handle = '';
 		if ($destination) {
 			$handle = fopen($destination, 'wb');
 			$written = 0;
@@ -430,7 +429,9 @@ class ZipInfo extends ArchiveReader
 				$data .= $read;
 			}
 		}
-		if ($destination) {fclose($handle);}
+		if ($destination) {
+			fclose($handle);
+		}
 		$pipe->close();
 
 		// Check for errors (only after the pipe is closed)
