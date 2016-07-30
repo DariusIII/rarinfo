@@ -268,7 +268,7 @@ class ArchiveInfo extends ArchiveReader
 	 */
 	public function allowsRecursion()
 	{
-		return (bool) ($this->type && (self::TYPE_RAR | self::TYPE_ZIP | self::TYPE_SZIP));
+		return (bool) ($this->type & (self::TYPE_RAR | self::TYPE_ZIP | self::TYPE_SZIP));
 	}
 
 	/**
