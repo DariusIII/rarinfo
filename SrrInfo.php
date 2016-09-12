@@ -292,7 +292,7 @@ class SrrInfo extends RarInfo
 			} elseif ($block['head_type'] == self::SRR_STORED_FILE) {
 				$block += self::unpack('vname_size', $this->read(2), false);
 				$block['file_name'] = $this->read($block['name_size']);
-				$block['file_data'] = $this->read($block['add_size']);
+				$block['file_data'] = isset($block['add_size']) ? $this->read($block['add_size']) : '';
 
 			// Block type: OSO HASH
 			} elseif ($block['head_type'] == self::SRR_OSO_HASH) {

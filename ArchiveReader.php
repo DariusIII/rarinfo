@@ -619,7 +619,9 @@ abstract class ArchiveReader
 	 */
 	protected function read($num)
 	{
-		if ($num == 0) return '';
+		if ($num == 0) {
+			return '';
+		}
 
 		// Check that enough data is available
 		$newPos = $this->offset + $num;
