@@ -1303,10 +1303,10 @@ class RarInfo extends ArchiveReader
 	 */
 	protected function processExtraRecords(&$block)
 	{
-		if ($this->offset > $block['extra_size']) {
+		if ($this->offset < $this->length) {
 			$end = $this->offset + $block['extra_size'];
 		} else {
-			$end = $this->offset;
+			$end = $this->length;
 		}
 
 		while ($this->offset < $end) {
