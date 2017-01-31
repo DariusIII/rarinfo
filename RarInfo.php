@@ -1057,13 +1057,15 @@ class RarInfo extends ArchiveReader
 				$fn = explode("\x00", $this->read($block['name_size']));
 
 				// Decompress the unicode filename, encode the result as UTF-8
-				$uc = new RarUnicodeFilename($fn[0], $fn[1]);
+				$stdFileName = !empty($fn[0]) ? $fn[0] : '';
+				$encFileData = !empty($fn[1]) ? $fn[1] : '';
+				$uc = new RarUnicodeFilename($stdFileName, $encFileData);
 				if ($ucname = $uc->decode()) {
 					$block['file_name'] = @iconv('UTF-16LE', 'UTF-8//IGNORE//TRANSLIT', $ucname);
 
 				// Fallback to the standard filename
 				} else {
-					$block['file_name'] = $fn[0];
+					$block['file_name'] = $stdFileName;
 				}
 
 			// Filename: non-unicode
