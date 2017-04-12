@@ -169,7 +169,7 @@ class SrrInfo extends RarInfo
 			if ($block['head_type'] == self::SRR_STORED_FILE) {
 				$b = [
 					'name' => $block['file_name'],
-					'size' => $block['add_size'],
+					'size' => isset($block['add_size']) ? $block['add_size'] : '',
 				];
 				if ($extract) {
 					$b['data'] = $block['file_data'];
