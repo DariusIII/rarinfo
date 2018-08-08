@@ -16,7 +16,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    1.2
+ * @version    1.3
  */
 class PipeReader
 {
@@ -40,7 +40,9 @@ class PipeReader
 	 */
 	public function __construct($command = null)
 	{
-		if ($command) $this->open($command);
+		if ($command) {
+			$this->open($command);
+		}
 	}
 
 	/**
@@ -94,10 +96,12 @@ class PipeReader
 	{
 		if ($num < 1) {
 			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
-		} elseif ($num == 0) {
+		}
+		
+		if ($num === 0) {
 			return '';
 		}
-
+		
 		// Read the requested bytes
 		if ($this->command && is_resource($this->handle)) {
 			$read = ''; $rlen = $num;
@@ -119,11 +123,12 @@ class PipeReader
 
 		return isset($read) ? $read : '';
 	}
-
+	
 	/**
 	 * Convenience method for reading the remaining bytes from the piped output.
 	 *
 	 * @return  string  the remaining output data
+	 * @throws \InvalidArgumentException
 	 */
 	public function readAll()
 	{
@@ -189,8 +194,9 @@ class PipeReader
 	 */
 	public function tell()
 	{
-		if ($this->command && is_resource($this->handle))
+		if ($this->command && is_resource($this->handle)) {
 			return ftell($this->handle);
+		}
 
 		return $this->offset;
 	}

@@ -30,7 +30,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    2.1
+ * @version    2.2
  */
 class SfvInfo extends ArchiveReader
 {
@@ -39,12 +39,14 @@ class SfvInfo extends ArchiveReader
 	 * @var string
 	 */
 	public $comments = '';
-
+	
 	/**
 	 * Convenience method that outputs a summary list of the SFV file records,
 	 * useful for pretty-printing.
 	 *
-	 * @param   boolean  $basenames  don't include full file paths?
+	 * @param bool      $full
+	 * @param   boolean $basenames don't include full file paths?
+	 *
 	 * @return  array    file record summary
 	 */
 	public function getSummary($full = false, $basenames = false)

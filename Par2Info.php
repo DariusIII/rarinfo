@@ -38,7 +38,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    1.7
+ * @version    1.8
  */
 class Par2Info extends ArchiveReader
 {
@@ -175,7 +175,7 @@ class Par2Info extends ArchiveReader
 		foreach ($this->packets AS $packet) {
 
 			// File Block Verification packets are very verbose
-			if (!$full && $packet['head_type'] == self::PACKET_FILEVER) {
+			if (!$full && $packet['head_type'] === self::PACKET_FILEVER) {
 				continue;
 			}
 
@@ -203,10 +203,10 @@ class Par2Info extends ArchiveReader
 	{
 		$ret = [];
 		foreach ($this->packets as $packet) {
-			if ($packet['head_type'] == self::PACKET_FILEDESC && !isset($ret[$packet['file_id']])) {
+			if ($packet['head_type'] === self::PACKET_FILEDESC && !isset($ret[$packet['file_id']])) {
 				$ret[$packet['file_id']] = $this->getFilePacketSummary($packet);
 			}
-			if ($packet['head_type'] == self::PACKET_FILEVER && empty($ret[$packet['file_id']]['blocks'])) {
+			if ($packet['head_type'] === self::PACKET_FILEVER && empty($ret[$packet['file_id']]['blocks'])) {
 				$ret[$packet['file_id']]['blocks'] = count($packet['block_checksums']);
 			}
 		}
@@ -262,55 +262,65 @@ class Par2Info extends ArchiveReader
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Parses the PAR2 data and stores a list of valid packets locally.
 	 *
 	 * @return  boolean  false if parsing fails
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	protected function analyze()
 	{
 		// Find the first Packet Marker, if there is one
 		if (($startPos = $this->findMarker()) === false) {
 			$this->error = 'Could not find a Packet Marker, not a valid PAR2 file';
+			
 			return false;
 		}
 		$this->seek($startPos);
-
+		
 		// Analyze all packets
-		while ($this->offset < $this->length) try {
-
-			// Get the next packet header
-			$packet = $this->getNextPacket();
-
-			// Verify the packet
-			if ($this->verifyPacket($packet) === false) {
-				$this->error = "Packet failed checksum (offset: {$this->offset})";
-				throw new \Exception('Packet checksum failed');
+		while ($this->offset < $this->length) {
+			try {
+				
+				// Get the next packet header
+				$packet = $this->getNextPacket();
+				
+				// Verify the packet
+				if ($this->verifyPacket($packet) === false) {
+					$this->error = "Packet failed checksum (offset: {$this->offset})";
+					throw new \Exception('Packet checksum failed');
+				}
+				
+				// Process the current packet by type
+				$this->processPacket($packet);
+				
+				// Add the current packet to the list
+				$this->packets[] = $packet;
+				
+				// Skip to the next packet, if any
+				if ($this->offset !== $packet['next_offset']) {
+					$this->seek($packet['next_offset']);
+				}
+				
+				// Sanity check
+				if ($packet['offset'] === $this->offset) {
+					$this->error = 'Parsing seems to be stuck';
+					$this->close();
+					
+					return false;
+				}
+				
+				// No more readable data, or read error
+			} catch (\Exception $e) {
+				if ($this->error) {
+					$this->close();
+					
+					return false;
+				}
+				break;
 			}
-
-			// Process the current packet by type
-			$this->processPacket($packet);
-
-			// Add the current packet to the list
-			$this->packets[] = $packet;
-
-			// Skip to the next packet, if any
-			if ($this->offset != $packet['next_offset']) {
-				$this->seek($packet['next_offset']);
-			}
-
-			// Sanity check
-			if ($packet['offset'] == $this->offset) {
-				$this->error = 'Parsing seems to be stuck';
-				$this->close();
-				return false;
-			}
-
-		// No more readable data, or read error
-		} catch (\Exception $e) {
-			if ($this->error) {$this->close(); return false;}
-			break;
 		}
 
 		// Check for valid packets
@@ -324,12 +334,14 @@ class Par2Info extends ArchiveReader
 		$this->close();
 		return true;
 	}
-
+	
 	/**
 	 * Reads the start of the next packet header and returns the common packet
 	 * info before further processing by packet type.
 	 *
 	 * @return  array  the next packet header info
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
 	 */
 	protected function getNextPacket()
 	{
@@ -337,9 +349,7 @@ class Par2Info extends ArchiveReader
 		$packet = ['offset' => $this->offset];
 
 		// Unpack the packet header
-		$format = (version_compare(PHP_VERSION, '5.5.0') >= 0)
-			? self::PL_FORMAT_PACKET_HEADER
-			: self::FORMAT_PACKET_HEADER;
+		$format = self::PL_FORMAT_PACKET_HEADER;
 		$packet += self::unpack($format, $this->read(64));
 
 		// Convert packet size (64-bit integer)
@@ -351,12 +361,16 @@ class Par2Info extends ArchiveReader
 		// Return the packet info
 		return $packet;
 	}
-
+	
 	/**
 	 * Verifies that the given packet is valid and parsable.
 	 *
-	 * @param   array    $packet  the packet to verify
+	 * @param   array $packet the packet to verify
+	 *
 	 * @return  boolean  false on failure
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	protected function verifyPacket($packet)
 	{
@@ -369,17 +383,20 @@ class Par2Info extends ArchiveReader
 
 		return (md5($data) === $packet['head_hash']);
 	}
-
+	
 	/**
 	 * Processes a packet passed by reference and unpacks its body.
 	 *
-	 * @param   array  $packet  the packet to process
+	 * @param   array $packet the packet to process
+	 *
 	 * @return  void
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
 	 */
 	protected function processPacket(&$packet)
 	{
 		// Packet type: MAIN
-		if ($packet['head_type'] == self::PACKET_MAIN) {
+		if ($packet['head_type'] === self::PACKET_MAIN) {
 			$packet += self::unpack(self::FORMAT_PACKET_MAIN, $this->read(12));
 			$packet['block_size'] = self::int64($packet['block_size'], $packet['block_size_high']);
 			$this->blockSize = $packet['block_size'];
@@ -387,14 +404,14 @@ class Par2Info extends ArchiveReader
 			// Unpack the File IDs of all files in the recovery set
 			$recoverable = [];
 			for ($i = 0; $i < $packet['rec_file_count']; $i++) {
-				$recoverable = array_merge($recoverable, self::unpack('H32', $this->read(16)));
+				$recoverable[] = self::unpack('H32', $this->read(16));
 			}
 			$packet['rec_file_ids'] = $recoverable;
 
 			// Unpack any File IDs of files not in the recovery set
 			$unrecoverable = [];
 			while ($this->offset < $packet['next_offset']) {
-				$unrecoverable = array_merge($unrecoverable, self::unpack('H32', $this->read(16)));
+				$unrecoverable[] = self::unpack('H32', $this->read(16));
 			}
 			if (!empty($unrecoverable)) {
 				$packet['other_file_ids'] = $unrecoverable;
@@ -402,7 +419,7 @@ class Par2Info extends ArchiveReader
 		}
 
 		// Packet type: FILE DESCRIPTION
-		elseif ($packet['head_type'] == self::PACKET_FILEDESC) {
+		elseif ($packet['head_type'] === self::PACKET_FILEDESC) {
 			$packet += self::unpack(self::FORMAT_PACKET_FILEDESC, $this->read(56));
 			$packet['file_length'] = self::int64($packet['file_length'], $packet['file_length_high']);
 			$len = ($packet['offset'] + $packet['head_length']) - $this->offset;
@@ -416,7 +433,7 @@ class Par2Info extends ArchiveReader
 		}
 
 		// Packet type: FILE BLOCK VERIFICATION
-		elseif ($packet['head_type'] == self::PACKET_FILEVER) {
+		elseif ($packet['head_type'] === self::PACKET_FILEVER) {
 			$packet += self::unpack('H32file_id', $this->read(16));
 
 			// Unpack the MD5/CRC32 checksum pairs
@@ -427,13 +444,13 @@ class Par2Info extends ArchiveReader
 		}
 
 		// Packet type: RECOVERY BLOCK
-		elseif ($packet['head_type'] == self::PACKET_RECOVERY) {
+		elseif ($packet['head_type'] === self::PACKET_RECOVERY) {
 			$packet += self::unpack('Vexponent', $this->read(4));
 			$this->blockCount++;
 		}
 
 		// Packet type: CREATOR
-		elseif ($packet['head_type'] == self::PACKET_CREATOR) {
+		elseif ($packet['head_type'] === self::PACKET_CREATOR) {
 			$len = ($packet['offset'] + $packet['head_length']) - $this->offset;
 			$packet['client'] = $this->read($len);
 			$this->client = rtrim($packet['client']);

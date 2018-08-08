@@ -43,7 +43,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    2.3
+ * @version    2.4
  */
 class SrrInfo extends RarInfo
 {
@@ -166,7 +166,7 @@ class SrrInfo extends RarInfo
 		$ret = [];
 
 		foreach ($this->blocks as $block) {
-			if ($block['head_type'] == self::SRR_STORED_FILE) {
+			if ($block['head_type'] === self::SRR_STORED_FILE) {
 				$b = [
 					'name' => $block['file_name'],
 					'size' => isset($block['add_size']) ? $block['add_size'] : '',
@@ -196,7 +196,7 @@ class SrrInfo extends RarInfo
 		}
 
 		foreach ($this->blocks as $block) {
-			if ($block['head_type'] == self::SRR_OSO_HASH) {
+			if ($block['head_type'] === self::SRR_OSO_HASH) {
 				return [
 					'name' => $block['file_name'],
 					'size' => $block['file_size'],
@@ -223,11 +223,11 @@ class SrrInfo extends RarInfo
 		foreach ($this->blocks as $block) {
 
 			// Start a new RAR volume record
-			if ($block['head_type'] == self::SRR_RAR_FILE) {
+			if ($block['head_type'] === self::SRR_RAR_FILE) {
 				$list[++$i] = ['name' => $block['file_name']];
 
 			// Append the file summaries to the current volume record
-			} elseif ($block['head_type'] == self::BLOCK_FILE) {
+			} elseif ($block['head_type'] === self::BLOCK_FILE) {
 				if ($skipDirs && !empty($block['is_dir'])) {
 					continue;
 				}
@@ -239,25 +239,46 @@ class SrrInfo extends RarInfo
 	}
 
 	// SRR files do not include any file contents
+	
+	/**
+	 * @param string $filename
+	 *
+	 * @return bool|string
+	 */
 	public function getFileData($filename)
 	{
 		return false;
 	}
-
+	
+	/**
+	 * @param string $filename
+	 * @param string $destination
+	 *
+	 * @return bool|int
+	 */
 	public function saveFileData($filename, $destination)
 	{
 		return false;
 	}
-
+	
+	/**
+	 * @param string $filename
+	 * @param null   $destination
+	 * @param null   $password
+	 *
+	 * @return bool|mixed
+	 */
 	public function extractFile($filename, $destination = null, $password = null)
 	{
 		return false;
 	}
-
+	
 	/**
 	 * Parses the SRR data and stores a list of valid blocks locally.
 	 *
 	 * @return  boolean  false if parsing fails
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	protected function analyze()
 	{
@@ -271,68 +292,75 @@ class SrrInfo extends RarInfo
 		$this->seek($startPos);
 
 		// Analyze all valid blocks
-		while ($this->offset < $this->length) try {
-
-			// Get the next block header
-			$block = $this->getNextBlock();
-
-			// Block type: SRR MARKER
-			if ($block['head_type'] == self::SRR_BLOCK_MARK) {
-				if ($block['head_flags'] & self::APP_NAME_PRESENT) {
-					$block += self::unpack('vapp_name_size', $this->read(2), false);
-					$block['app_name'] = $this->read($block['app_name_size']);
-					$this->client = $block['app_name'];
+		while ($this->offset < $this->length) {
+			try {
+				
+				// Get the next block header
+				$block = $this->getNextBlock();
+				
+				// Block type: SRR MARKER
+				if ($block['head_type'] === self::SRR_BLOCK_MARK) {
+					if ($block['head_flags'] & self::APP_NAME_PRESENT) {
+						$block += self::unpack('vapp_name_size', $this->read(2), false);
+						$block['app_name'] = $this->read($block['app_name_size']);
+						$this->client = $block['app_name'];
+					}
+					if ($block['head_flags'] > 1 || $this->offset !== $block['next_offset']) {
+						$this->error = 'Could not find Marker block, not a valid SRR file';
+						
+						return false;
+					}
+					
+					// Block type: STORED FILE
+				} else if ($block['head_type'] === self::SRR_STORED_FILE) {
+					$block += self::unpack('vname_size', $this->read(2), false);
+					$block['file_name'] = $this->read($block['name_size']);
+					$block['file_data'] = isset($block['add_size']) ?
+						$this->read($block['add_size']) :
+						'';
+					
+					// Block type: OSO HASH
+				} else if ($block['head_type'] === self::SRR_OSO_HASH) {
+					$block += self::unpack(self::FORMAT_SRR_OSO_HASH, $this->read(18));
+					$block['file_hash'] = strrev($block['file_hash']);
+					$block['file_size'] = self::int64($block['file_size'], $block['file_size_high']);
+					$block['file_name'] = $this->read($block['name_size']);
+					
+					// Block type: SRR RAR FILE
+				} else if ($block['head_type'] === self::SRR_RAR_FILE) {
+					$block += self::unpack('vname_size', $this->read(2), false);
+					$block['file_name'] = $this->read($block['name_size']);
+					
+					// Default to RAR block processing
+				} else {
+					parent::processBlock($block);
 				}
-				if ($block['head_flags'] > 1 || $this->offset != $block['next_offset']) {
-					$this->error = 'Could not find Marker block, not a valid SRR file';
+				
+				// Add current block to the list
+				$this->blocks[] = $block;
+				
+				// Skip to the next block, if any
+				if ($this->offset !== $block['next_offset']) {
+					$this->seek($block['next_offset']);
+				}
+				
+				// Sanity check
+				if ($block['offset'] === $this->offset) {
+					$this->error = 'Parsing seems to be stuck';
+					$this->close();
+					
 					return false;
 				}
-
-			// Block type: STORED FILE
-			} elseif ($block['head_type'] == self::SRR_STORED_FILE) {
-				$block += self::unpack('vname_size', $this->read(2), false);
-				$block['file_name'] = $this->read($block['name_size']);
-				$block['file_data'] = isset($block['add_size']) ? $this->read($block['add_size']) : '';
-
-			// Block type: OSO HASH
-			} elseif ($block['head_type'] == self::SRR_OSO_HASH) {
-				$block += self::unpack(self::FORMAT_SRR_OSO_HASH, $this->read(18));
-				$block['file_hash'] = strrev($block['file_hash']);
-				$block['file_size'] = self::int64($block['file_size'], $block['file_size_high']);
-				$block['file_name'] = $this->read($block['name_size']);
-
-			// Block type: SRR RAR FILE
-			} elseif ($block['head_type'] == self::SRR_RAR_FILE) {
-				$block += self::unpack('vname_size', $this->read(2), false);
-				$block['file_name'] = $this->read($block['name_size']);
-
-			// Default to RAR block processing
-			} else {
-				parent::processBlock($block);
+				
+				// No more readable data, or read error
+			} catch (\Exception $e) {
+				if ($this->error) {
+					$this->close();
+					
+					return false;
+				}
+				break;
 			}
-
-			// Add current block to the list
-			$this->blocks[] = $block;
-
-			// Skip to the next block, if any
-			if ($this->offset != $block['next_offset']) {
-				$this->seek($block['next_offset']);
-			}
-
-			// Sanity check
-			if ($block['offset'] == $this->offset) {
-				$this->error = 'Parsing seems to be stuck';
-				$this->close();
-				return false;
-			}
-
-		// No more readable data, or read error
-		} catch (\Exception $e) {
-			if ($this->error) {
-				$this->close();
-				return false;
-			}
-			break;
 		}
 
 		// Analysis was successful

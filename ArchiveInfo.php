@@ -66,7 +66,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    2.3
+ * @version    2.4
  */
 class ArchiveInfo extends ArchiveReader
 {
@@ -171,7 +171,7 @@ class ArchiveInfo extends ArchiveReader
 		$this->extensions = $extensions;
 		$this->archives = [];
 	}
-
+	
 	/**
 	 * Convenience method that outputs a summary list of the archive information,
 	 * useful for pretty-printing.
@@ -180,8 +180,10 @@ class ArchiveInfo extends ArchiveReader
 	 * summary of all the embedded archive contents in the 'archives' field, keyed
 	 * to the archive filenames.
 	 *
-	 * @param   boolean  $full  return a full summary?
+	 * @param   boolean $full return a full summary?
+	 *
 	 * @return  array    archive summary
+	 * @throws \BadMethodCallException
 	 */
 	public function getSummary($full = false)
 	{
@@ -208,12 +210,13 @@ class ArchiveInfo extends ArchiveReader
 		}
 		return $summary;
 	}
-
+	
 	/**
 	 * Returns a list of records for each of the files in the archive by delegation
 	 * to the stored reader.
 	 *
 	 * @return  array|boolean  list of file records, or false if none are available
+	 * @throws \BadMethodCallException
 	 */
 	public function getFileList()
 	{
@@ -319,7 +322,7 @@ class ArchiveInfo extends ArchiveReader
 				if ($extensions && !preg_match($extensions, pathinfo($file['name'], PATHINFO_EXTENSION)))
 					continue;
 				if (($archive = $this->getArchive($file['name']))
-				 && ($archive->type != self::TYPE_NONE || empty($archive->readers))
+				 && ($archive->type !== self::TYPE_NONE || empty($archive->readers))
 				) {
 					$this->archives[$file['name']] = $archive;
 				}
@@ -361,7 +364,7 @@ class ArchiveInfo extends ArchiveReader
 		}
 
 		foreach ($this->reader->getFileList() as $file) {
-			if ($file['name'] == $filename && isset($file['range'])) {
+			if ($file['name'] === $filename && isset($file['range'])) {
 
 				// Create the new archive object
 				$archive = new self;
@@ -372,7 +375,7 @@ class ArchiveInfo extends ArchiveReader
 				}
 
 				// Extract any compressed data to a temporary file if supported
-				if ($this->canExtract() && !empty($file['compressed']) && empty($file['pass'])) {
+				if (!empty($file['compressed']) && empty($file['pass']) && $this->canExtract()) {
 					list($hash, $temp) = $this->getTempFileName("{$file['name']}:{$file['range']}");
 					if (!isset($this->tempFiles[$hash])) {
 						$this->reader->extractFile($file['name'], $temp);
@@ -406,7 +409,7 @@ class ArchiveInfo extends ArchiveReader
 				if (!empty($file['compressed'])) {
 					$archive->error = 'The archive is compressed and cannot be read';
 				}
-				if (!empty($file['pass']) || !empty($archive->isEncrypted)) {
+				if (!empty($archive->isEncrypted) || !empty($file['pass'])) {
 					$archive->error = 'The archive is encrypted and cannot be read';
 				}
 
@@ -447,7 +450,7 @@ class ArchiveInfo extends ArchiveReader
 		$ret = [];
 
 		// Start with the main parent
-		if ($source == null) {
+		if ($source === null) {
 			$source = self::MAIN_SOURCE;
 			if ($ret = $this->reader->getFileList()) {
 				$ret = $this->flattenFileList($ret, $source, $all);
@@ -466,15 +469,15 @@ class ArchiveInfo extends ArchiveReader
 
 				// We should append any errors
 				if ($archive->error || !($files = $archive->reader->getFileList())) {
-					$error = $archive->error ? $archive->error : 'No files found';
+					$error = $archive->error ? : 'No files found';
 					$ret[] = ['error' => $error, 'source' => $branch];
 					continue;
 				}
 
 				// Otherwise merge recursively
-				$ret = array_merge($ret, $this->flattenFileList($files, $branch, $all));
+				$ret[] = $this->flattenFileList($files, $branch, $all);
 				if ($archive->containsArchive()) {
-					$ret = array_merge($ret, $archive->getArchiveFileList(true, $all, $branch));
+					$ret[] = $archive->getArchiveFileList(true, $all, $branch);
 				}
 			}
 		}
@@ -485,7 +488,7 @@ class ArchiveInfo extends ArchiveReader
 	/**
 	 * Retrieves the archive reader object described by the given source path string.
 	 *
-	 * @param   string  $source  archive source path of the file
+	 * @param   string|array  $source  archive source path of the file
 	 * @return  ArchiveReader|boolean  archive reader object, or false on error
 	 */
 	public function getArchiveFromSource($source)
@@ -494,7 +497,7 @@ class ArchiveInfo extends ArchiveReader
 		$source = explode(' > ', $source);
 		$archive = false;
 		foreach ($source as $file) {
-			$archive = ($file == self::MAIN_SOURCE) ? $this : $archive->getArchive($file);
+			$archive = ($file === self::MAIN_SOURCE) ? $this : $archive->getArchive($file);
 			if (!$archive) {
 				break;
 			}
@@ -514,7 +517,7 @@ class ArchiveInfo extends ArchiveReader
 	public function getFileData($filename, $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid data source is available
-		if (!$this->reader || ($this->reader->data == '' && $this->reader->handle == null))
+		if (!$this->reader || ($this->reader->data === '' && $this->reader->handle === null))
 			return false;
 
 		// Get the absolute start/end positions
@@ -527,20 +530,24 @@ class ArchiveInfo extends ArchiveReader
 
 		return $this->reader->getRange(explode('-', $info['range']));
 	}
-
+	
 	/**
 	 * Saves the raw data for the given filename and optionally archive source path
 	 * to the given destination (e.g. 'main' or 'main > child.rar', etc.).
 	 *
-	 * @param   string  $filename     name of the file to extract
-	 * @param   string  $destination  full path of the file to create
-	 * @param   string  $source       archive source path of the file
+	 * @param   string $filename    name of the file to extract
+	 * @param   string $destination full path of the file to create
+	 * @param   string $source      archive source path of the file
+	 *
 	 * @return  integer|boolean  number of bytes saved or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	public function saveFileData($filename, $destination, $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid data source is available
-		if (!$this->reader || ($this->reader->data == '' && $this->reader->handle == null)) {
+		if (!$this->reader || ($this->reader->data === '' && $this->reader->handle === null)) {
 			return false;
 		}
 
@@ -616,12 +623,15 @@ class ArchiveInfo extends ArchiveReader
 
 		return false;
 	}
-
+	
 	/**
 	 * Magic method for accessing the properties of the stored reader.
 	 *
-	 * @param   string  $name  the property name
+	 * @param   string $name the property name
+	 *
 	 * @return  mixed   the property value
+	 * @throws \LogicException
+	 * @throws \RuntimeException
 	 */
 	public function __get($name)
 	{
@@ -729,10 +739,8 @@ class ArchiveInfo extends ArchiveReader
 		}
 
 		// Delegate some properties to the reader
-		unset($this->markerPosition);
-		unset($this->fileCount);
-		unset($this->error);
-
+		unset($this->markerPosition, $this->fileCount, $this->error);
+		
 		// Let the reader handle any files
 		if ($this->file) {
 			$this->close();
@@ -804,7 +812,7 @@ class ArchiveInfo extends ArchiveReader
 		}
 		foreach ($this->getArchiveFileList(true) as $file) {
 			if (!empty($file['name']) && empty($file['is_dir'])
-			 && $file['name'] == $filename && $file['source'] == $source
+			 && $file['name'] === $filename && $file['source'] === $source
 			) {
 				return $file;
 			}
@@ -828,15 +836,19 @@ class ArchiveInfo extends ArchiveReader
 		$children = [];
 		foreach ($files as &$file) {
 			$file['source'] = $source;
-			if ($source != self::MAIN_SOURCE) {
+			if ($source !== self::MAIN_SOURCE) {
 				unset($file['next_offset']);
 			}
-			if ($all && !empty($file['files'])) foreach ($file['files'] as $child) {
-				$child['source'] = $source.' > '.$file['name'];
-				unset($child['next_offset']);
-				$children[] = $child;
+			if ($all && !empty($file['files'])) {
+				foreach ($file['files'] as $child) {
+					$child['source'] = $source . ' > ' . $file['name'];
+					unset($child['next_offset']);
+					$children[] = $child;
+				}
 			}
 		}
+		unset($file);
+		
 		if (!empty($children)) {
 			$files = array_merge($files, $children);
 		}

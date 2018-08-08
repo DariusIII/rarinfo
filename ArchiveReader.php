@@ -1,13 +1,15 @@
 <?php
 namespace dariusiii\rarinfo;
 
+use COM;
+
 /**
  * Abstract base class for all archive file inspectors.
  *
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    3.1
+ * @version    3.2
  */
 abstract class ArchiveReader
 {
@@ -34,7 +36,7 @@ abstract class ArchiveReader
 			$codes = explode('/', $format);
 			foreach ($unpacked as $key => $value) {
 				$code = array_shift($codes);
-				if (strpos($longs, $code[0]) !== false && $value < 0) {
+				if ($value < 0 && strpos($longs, $code[0]) !== false) {
 					$unpacked[$key] = $value + 0x100000000; // converts to float
 				}
 			}
@@ -116,21 +118,22 @@ abstract class ArchiveReader
 	public static function getFileSize($file)
 	{
 		// 64-bit systems should be OK
-		if (PHP_INT_SIZE > 4)
+		if (PHP_INT_SIZE > 4) {
 			return filesize($file);
+		}
 
 		// Hack for Windows
 		if (DIRECTORY_SEPARATOR === '\\') {
 			if (! extension_loaded('com_dotnet')) {
 				return trim(shell_exec('for %f in ('.escapeshellarg($file).') do @echo %~zf')) + 0;
 			}
-			$com = new \COM('Scripting.FileSystemObject');
+			$com = new COM('Scripting.FileSystemObject');
 			$f = $com->GetFile($file);
 			return $f->Size + 0;
 		}
 
 		// Hack for *nix
-		$os = php_uname();
+		$os = PHP_OS;
 		if (stripos($os, 'Darwin') !== false) {
 			$command = 'stat -f %z '.escapeshellarg($file);
 		} elseif (stripos($os, 'DiskStation') !== false) {
@@ -156,20 +159,24 @@ abstract class ArchiveReader
 		}
 		return round($bytes, $round).' '.$suffix[$i];
 	}
-
+	
 	/**
 	 * Creates a directory if it doesn't already exist.
 	 *
-	 * @param   string   $dir  the directory path
+	 * @param   string $dir the directory path
+	 *
 	 * @return  boolean  false if the directory already exists
+	 * @throws \RuntimeException
 	 */
 	public static function makeDirectory($dir)
 	{
 		if (file_exists($dir)) {
 			return false;
 		}
-
-		mkdir($dir, 0777, TRUE);
+		
+		if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+			throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+		}
 		chmod($dir, 0777);
 
 		return true;
@@ -192,7 +199,7 @@ abstract class ArchiveReader
 		$results = [];
 
 		foreach ((array) $needle as $key => $value) {
-			if (($vlen = strlen($value)) == 0) {
+			if (($vlen = strlen($value)) === 0) {
 				continue;
 			}
 			while ($offset < $hlen && ($pos = strpos($haystack, $value, $offset)) !== false) {
@@ -278,17 +285,20 @@ abstract class ArchiveReader
 
 		return $this->analyze();
 	}
-
+	
 	/**
 	 * Loads data up to maxReadBytes and analyzes the archive contents, optionally
 	 * within a defined byte range only.
 	 *
 	 * This method is recommended when dealing with file fragments.
 	 *
-	 * @param   string   $data        archive data to be analyzed
-	 * @param   boolean  $isFragment  true if data is an archive fragment
-	 * @param   array    $range       the start and end byte positions
+	 * @param   string  $data       archive data to be analyzed
+	 * @param   boolean $isFragment true if data is an archive fragment
+	 * @param   array   $range      the start and end byte positions
+	 *
 	 * @return  boolean  false if archive analysis fails
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function setData($data, $isFragment = false, array $range = null)
 	{
@@ -298,7 +308,7 @@ abstract class ArchiveReader
 			return false;
 		}
 
-		if (($dsize = strlen($data)) == 0) {
+		if (($dsize = strlen($data)) === 0) {
 			$this->error = 'No data was passed, nothing to analyze';
 			return false;
 		}
@@ -367,7 +377,7 @@ abstract class ArchiveReader
 	public function __get($name)
 	{
 		// For backwards compatibility
-		if ($name == 'file') {
+		if ($name === 'file') {
 			return $this->file;
 		}
 
@@ -515,7 +525,7 @@ abstract class ArchiveReader
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
 
-		if ($start != $range[0] || $end != $range[1] || $start < 0 || $end < 0) {
+		if ($start < 0 || $end < 0 || $start !== $range[0] || $end !== $range[1]) {
 			$this->error = "Start ($start) and end ($end) points must be positive integers";
 			return false;
 		}
@@ -547,12 +557,16 @@ abstract class ArchiveReader
 
 		return true;
 	}
-
+	
 	/**
 	 * Returns data within the given absolute byte range of the current file/data.
 	 *
-	 * @param   array  $range   the absolute start and end positions
+	 * @param   array $range the absolute start and end positions
+	 *
 	 * @return  string|boolean  the requested data or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	protected function getRange(array $range)
 	{
@@ -572,14 +586,18 @@ abstract class ArchiveReader
 
 		return $data;
 	}
-
+	
 	/**
 	 * Saves data within the given absolute byte range of the current file/data to
 	 * the destination file.
 	 *
-	 * @param   array   $range        the absolute start and end positions
-	 * @param   string  $destination  full path of the file to create
+	 * @param   array  $range       the absolute start and end positions
+	 * @param   string $destination full path of the file to create
+	 *
 	 * @return  integer|boolean  number of bytes written or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	protected function saveRange(array $range, $destination)
 	{
@@ -619,7 +637,7 @@ abstract class ArchiveReader
 	 */
 	protected function read($num)
 	{
-		if ($num == 0) {
+		if ($num === 0) {
 			return '';
 		}
 
@@ -695,11 +713,13 @@ abstract class ArchiveReader
 
 		return $this->start + $this->offset;
 	}
-
+	
 	/**
 	 * Sets the file/data offset pointer to the starting position.
 	 *
 	 * @return  void
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	protected function rewind()
 	{
@@ -727,13 +747,15 @@ abstract class ArchiveReader
 
 		return $this->tempFiles[$hash] = $dest;
 	}
-
+	
 	/**
 	 * Calculates a temporary file name based on hashes of the given data string
 	 * or the stored data.
 	 *
-	 * @param   string  $data  the source data to be hashed
+	 * @param   string $data the source data to be hashed
+	 *
 	 * @return  array   the hash and temporary file path values
+	 * @throws \RuntimeException
 	 */
 	protected function getTempFileName($data = null)
 	{
@@ -742,12 +764,13 @@ abstract class ArchiveReader
 
 		return [$hash, $path];
 	}
-
+	
 	/**
 	 * Returns the absolute path to the directory for storing temporary files,
 	 * and creates any parent directories if they don't already exist.
 	 *
 	 * @return  string  the temporary directory path
+	 * @throws \RuntimeException
 	 */
 	protected function getTempDirectory()
 	{

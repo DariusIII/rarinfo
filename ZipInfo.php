@@ -49,7 +49,7 @@ namespace dariusiii\rarinfo;
  * @author     Hecks
  * @copyright  (c) 2010-2013 Hecks
  * @license    Modified BSD
- * @version    2.1
+ * @version    2.2
  */
 class ZipInfo extends ArchiveReader
 {
@@ -274,12 +274,15 @@ class ZipInfo extends ArchiveReader
 
 		return $ret;
 	}
-
+	
 	/**
 	 * Parses the stored records and returns a list of each of the file entries,
 	 * optionally using the Central Directory File record instead of the (more
 	 * limited) Local File record data. Valid file records include directory entries,
 	 * but these can be skipped.
+	 *
+	 * @param bool $skipDirs
+	 * @param bool $central
 	 *
 	 * @return  array  list of file records, empty if none are available
 	 */
@@ -287,8 +290,8 @@ class ZipInfo extends ArchiveReader
 	{
 		$ret = [];
 		foreach ($this->records as $record) {
-			if (($central && $record['type'] == self::RECORD_CENTRAL_FILE)
-			|| (!$central && $record['type'] == self::RECORD_LOCAL_FILE)
+			if (($central && $record['type'] === self::RECORD_CENTRAL_FILE)
+			|| (!$central && $record['type'] === self::RECORD_LOCAL_FILE)
 			) {
 				if ($skipDirs && !empty($record['is_dir'])) {
 					continue;
@@ -299,18 +302,22 @@ class ZipInfo extends ArchiveReader
 
 		return $ret;
 	}
-
+	
 	/**
 	 * Retrieves the raw data for the given filename. Note that this is only useful
 	 * if the file hasn't been compressed or encrypted.
 	 *
-	 * @param   string  $filename  name of the file to retrieve
+	 * @param   string $filename name of the file to retrieve
+	 *
 	 * @return  mixed   file data, or false if no file records available
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	public function getFileData($filename)
 	{
 		// Check that records are stored and data source is available
-		if (empty($this->records) || ($this->data == '' && $this->handle == null)) {
+		if (empty($this->records) || ($this->data === '' && $this->handle === null)) {
 			return false;
 		}
 
@@ -323,19 +330,23 @@ class ZipInfo extends ArchiveReader
 
 		return $this->getRange(explode('-', $info['range']));
 	}
-
+	
 	/**
 	 * Saves the raw data for the given filename to the given destination. Note that
 	 * this is only useful if the file isn't compressed or encrypted.
 	 *
-	 * @param   string   $filename     name of the file to extract
-	 * @param   string   $destination  full path of the file to create
+	 * @param   string $filename    name of the file to extract
+	 * @param   string $destination full path of the file to create
+	 *
 	 * @return  integer|boolean  number of bytes saved or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	public function saveFileData($filename, $destination)
 	{
 		// Check that records are stored and data source is available
-		if (empty($this->records) || ($this->data == '' && $this->handle == null)) {
+		if (empty($this->records) || ($this->data === '' && $this->handle === null)) {
 			return false;
 		}
 
@@ -364,15 +375,17 @@ class ZipInfo extends ArchiveReader
 
 		$this->externalClient = $client;
 	}
-
+	
 	/**
 	 * Extracts a compressed or encrypted file using the configured external 7za
 	 * client, optionally returning the data or saving it to file.
 	 *
-	 * @param   string  $filename     name of the file to extract
-	 * @param   string  $destination  full path of the file to create
-	 * @param   string  $password     password to use for decryption
+	 * @param   string $filename    name of the file to extract
+	 * @param   string $destination full path of the file to create
+	 * @param   string $password    password to use for decryption
+	 *
 	 * @return  mixed   extracted data, number of bytes saved or false on error
+	 * @throws \InvalidArgumentException
 	 */
 	public function extractFile($filename, $destination = null, $password = null)
 	{
@@ -386,13 +399,13 @@ class ZipInfo extends ArchiveReader
 			$this->error = "Could not find file info for: ({$filename})";
 			return false;
 		}
-		if (!empty($info['pass']) && $password == null) {
+		if (!empty($info['pass']) && $password === null) {
 			$this->error = "The file is passworded: ({$filename})";
 			return false;
 		}
 
 		// Set the data file source
-		$source = $this->file ? $this->file : $this->createTempDataFile();
+		$source = $this->file ? : $this->createTempDataFile();
 
 		// Set the external command
 		$pass = $password ? '-p'.escapeshellarg($password) : '';
@@ -476,7 +489,7 @@ class ZipInfo extends ArchiveReader
 		];
 		if (!empty($record['is_dir'])) {
 			$ret['is_dir'] = 1;
-		} elseif ($record['type'] == self::RECORD_LOCAL_FILE) {
+		} elseif ($record['type'] === self::RECORD_LOCAL_FILE) {
 			$start = $this->start + $record['offset'] + 30 + $record['file_name_length'] + $record['extra_length'];
 			$end   = min($this->end, $start + $record['uncompressed_size'] - 1);
 			$ret['range'] = "{$start}-{$end}";
@@ -497,7 +510,7 @@ class ZipInfo extends ArchiveReader
 	protected function getFileInfo($filename)
 	{
 		foreach ($this->getFileList(true) as $file) {
-			if (isset($file['name']) && $file['name'] == $filename) {
+			if (isset($file['name']) && $file['name'] === $filename) {
 				return $file;
 			}
 		}
@@ -534,11 +547,13 @@ class ZipInfo extends ArchiveReader
 		// Otherwise this could be an empty ZIP file
 		return $this->markerPosition = strpos($buff, pack('V', self::RECORD_ENDCENTRAL));
 	}
-
+	
 	/**
 	 * Parses the ZIP data and stores a list of valid records locally.
 	 *
 	 * @return  boolean  false if parsing fails
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	protected function analyze()
 	{
@@ -550,38 +565,42 @@ class ZipInfo extends ArchiveReader
 		$this->seek($startPos);
 
 		// Analyze all records
-		while ($this->offset < $this->length) try {
-
-			// Get the next record header
-			if (($record = $this->getNextRecord()) === false) {
-				continue;
+		while ($this->offset < $this->length) {
+			try {
+				
+				// Get the next record header
+				if (($record = $this->getNextRecord()) === false) {
+					continue;
+				}
+				
+				// Process the current record by type
+				$this->processRecord($record);
+				
+				// Add the current record to the list
+				$this->records[] = $record;
+				
+				// Skip to the next record, if any
+				if ($this->offset != $record['next_offset']) {
+					$this->seek($record['next_offset']);
+				}
+				
+				// Sanity check
+				if ($record['offset'] == $this->offset) {
+					$this->error = 'Parsing seems to be stuck';
+					$this->close();
+					
+					return false;
+				}
+				
+				// No more readable data, or read error
+			} catch (\Exception $e) {
+				if ($this->error) {
+					$this->close();
+					
+					return false;
+				}
+				break;
 			}
-
-			// Process the current record by type
-			$this->processRecord($record);
-
-			// Add the current record to the list
-			$this->records[] = $record;
-
-			// Skip to the next record, if any
-			if ($this->offset != $record['next_offset']) {
-				$this->seek($record['next_offset']);
-			}
-
-			// Sanity check
-			if ($record['offset'] == $this->offset) {
-				$this->error = 'Parsing seems to be stuck';
-				$this->close();
-				return false;
-			}
-
-		// No more readable data, or read error
-		} catch (\Exception $e) {
-			if ($this->error) {
-				$this->close();
-				return false;
-			}
-			break;
 		}
 
 		// Check for valid records
@@ -593,12 +612,15 @@ class ZipInfo extends ArchiveReader
 		// Analysis was successful
 		return true;
 	}
-
+	
 	/**
 	 * Reads the start of the next record header and checks the header signature
 	 * before further processing by record type.
 	 *
 	 * @return  mixed  the next record info, or false on invalid signature
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	protected function getNextRecord()
 	{
@@ -617,18 +639,22 @@ class ZipInfo extends ArchiveReader
 		// Return the record info
 		return $record;
 	}
-
+	
 	/**
 	 * Processes a record passed by reference based on its type. We start with just
 	 * the header signature, and unpack the rest of each header/body from there.
 	 *
-	 * @param   array  $record  the record to process
+	 * @param   array $record the record to process
+	 *
 	 * @return  void
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	protected function processRecord(&$record)
 	{
 		// Record type: LOCAL FILE
-		if ($record['type'] == self::RECORD_LOCAL_FILE) {
+		if ($record['type'] === self::RECORD_LOCAL_FILE) {
 			$record += self::unpack(self::FORMAT_LOCAL_FILE, $this->read(26));
 			$record['file_name'] = $this->read($record['file_name_length']);
 			if ($record['extra_length'] > 0) {
@@ -650,7 +676,7 @@ class ZipInfo extends ArchiveReader
 		}
 
 		// Record type: CENTRAL FILE
-		elseif ($record['type'] == self::RECORD_CENTRAL_FILE) {
+		elseif ($record['type'] === self::RECORD_CENTRAL_FILE) {
 			$record += self::unpack(self::FORMAT_CENTRAL_FILE, $this->read(42));
 			$record['file_name'] = $this->read($record['file_name_length']);
 			if ($record['extra_length'] > 0) {
@@ -663,7 +689,7 @@ class ZipInfo extends ArchiveReader
 		}
 
 		// Record type: END OF CENTRAL DIRECTORY
-		elseif ($record['type'] == self::RECORD_ENDCENTRAL) {
+		elseif ($record['type'] === self::RECORD_ENDCENTRAL) {
 			$record += self::unpack(self::FORMAT_ENDCENTRAL, $this->read(18));
 			if ($record['comment_length'] > 0) {
 				$record['comment'] = $this->read($record['comment_length']);
@@ -673,14 +699,14 @@ class ZipInfo extends ArchiveReader
 		}
 
 		// Record type: ZIP64 END OF CENTRAL DIRECTORY
-		elseif ($record['type'] == self::RECORD_Z64_ENDCENTRAL) {
+		elseif ($record['type'] === self::RECORD_Z64_ENDCENTRAL) {
 			$record += self::unpack(self::FORMAT_Z64_ENDCENTRAL, $this->read(50));
 			$record['next_offset'] = $record['offset'] + self::int64($record['central_size'], $record['central_size_high']);
 			$this->fileCount = self::int64($record['entries_disk'], $record['entries_disk_high']);
 		}
 
 		// Record type: ZIP64 END OF CENTRAL DIRECTORY LOCATOR
-		elseif ($record['type'] == self::RECORD_Z64_ENDCENTRAL_LOC) {
+		elseif ($record['type'] === self::RECORD_Z64_ENDCENTRAL_LOC) {
 			$record += self::unpack(self::FORMAT_Z64_ENDCENTRAL_LOC, $this->read(16));
 			$record['next_offset'] = $this->offset;
 		}
@@ -710,7 +736,7 @@ class ZipInfo extends ArchiveReader
 			$record['need_host_os'] = isset($this->hostOSNames[$os]) ? $this->hostOSNames[$os] : 'Unknown';
 		}
 
-		if ($record['type'] == self::RECORD_LOCAL_FILE || $record['type'] == self::RECORD_CENTRAL_FILE) {
+		if ($record['type'] === self::RECORD_LOCAL_FILE || $record['type'] === self::RECORD_CENTRAL_FILE) {
 
 			// Is the file encrypted?
 			if ($record['flags'] & self::FILE_ENCRYPTED) {
@@ -723,7 +749,7 @@ class ZipInfo extends ArchiveReader
 			}
 
 			// Is this a directory entry? (quick check)
-			if ($record['file_name'][$record['file_name_length'] - 1] == '/') {
+			if ($record['file_name'][$record['file_name_length'] - 1] === '/') {
 				$record['is_dir'] = true;
 			}
 
@@ -733,12 +759,15 @@ class ZipInfo extends ArchiveReader
 			}
 		}
 	}
-
+	
 	/**
 	 * Processes Extra Field blocks for the current record.
 	 *
-	 * @param   array  $record  the current record to process
+	 * @param   array $record the current record to process
+	 *
 	 * @return  void
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
 	 */
 	protected function processExtraFields(&$record)
 	{
@@ -750,29 +779,29 @@ class ZipInfo extends ArchiveReader
 			$field['type_name'] = isset($this->extraFieldNames[$field['headerID']]) ? $this->extraFieldNames[$field['headerID']] : 'Unknown';
 
 			// Field: ZIP64 format
-			if ($field['headerID'] == self::EXTRA_ZIP64) {
+			if ($field['headerID'] === self::EXTRA_ZIP64) {
 
 				// Values are only included if the record values are set to 0xFFFFFFFF or 0xFFFF
-				if ($record['uncompressed_size'] == 0xFFFFFFFF) {
+				if ($record['uncompressed_size'] === 0xFFFFFFFF) {
 					$field += self::unpack('Vuncompressed_size/Vuncompressed_size_high', $this->read(8));
 					$record['uncompressed_size'] = self::int64($field['uncompressed_size'], $field['uncompressed_size_high']);
 				}
-				if ($record['compressed_size'] == 0xFFFFFFFF) {
+				if ($record['compressed_size'] === 0xFFFFFFFF) {
 					$field += self::unpack('Vcompressed_size/Vcompressed_size_high', $this->read(8));
 					$record['compressed_size'] = self::int64($field['compressed_size'], $field['compressed_size_high']);
 				}
-				if (isset($record['rel_offset']) && $record['rel_offset'] == 0xFFFFFFFF) {
+				if (isset($record['rel_offset']) && $record['rel_offset'] === 0xFFFFFFFF) {
 					$field += self::unpack('Vrel_offset/Vrel_offset_high', $this->read(8));
 					$record['rel_offset'] = self::int64($field['rel_offset'], $field['rel_offset_high']);
 				}
-				if (isset($record['disk_start']) && $record['disk_start'] == 0xFFFF) {
+				if (isset($record['disk_start']) && $record['disk_start'] === 0xFFFF) {
 					$field += self::unpack('Vdisk_start', $this->read(4));
 					$record['disk_start'] = $field['disk_start'];
 				}
 			}
 
 			// Field: UNIXTIME
-			elseif ($field['headerID'] == self::EXTRA_UNIXTIME) {
+			elseif ($field['headerID'] === self::EXTRA_UNIXTIME) {
 				// Probably could do something with this
 				$this->read($field['data_size']);
 
