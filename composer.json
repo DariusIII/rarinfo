@@ -3,7 +3,7 @@
   "description": "PHP archive reader helper class",
   "type": "library",
   "minimum-stability": "stable",
-  "license": "Modified BSD",
+  "license": "BSD-3-Clause",
   "authors": [
     {
       "name": "DariusIII",
