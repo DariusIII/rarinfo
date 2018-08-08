@@ -181,14 +181,16 @@ abstract class ArchiveReader
 
 		return true;
 	}
-
+	
 	/**
 	 * Returns all the positions of a case-sensitive needle in a haystack string.
 	 * With an array of needles, the result will be a sorted list with the positions
 	 * as keys and a list of all matching needle keys as the values.
 	 *
-	 * @param   string         $haystack  the string to search
-	 * @param   string|array   $needle    the string or list of strings to find
+	 * @param   string       $haystack the string to search
+	 * @param   string|array $needle   the string or list of strings to find
+	 * @param int            $offset
+	 *
 	 * @return  array|boolean  the needle positions, or false if none found
 	 */
 	public static function strposall($haystack, $needle, $offset = 0)
@@ -233,13 +235,16 @@ abstract class ArchiveReader
 	 * @var integer
 	 */
 	public $fileCount = 0;
-
+	
 	/**
 	 * Default constructor for loading and analyzing archive files.
 	 *
 	 * @param   string  $file       path to the archive file
 	 * @param   boolean $isFragment true if file is an archive fragment
 	 * @param   array   $range      the start and end byte positions
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function __construct($file = null, $isFragment = false, array $range = null)
 	{
@@ -247,15 +252,18 @@ abstract class ArchiveReader
 			$this->open($file, $isFragment, $range);
 		}
 	}
-
+	
 	/**
 	 * Opens a handle to the archive file and analyzes the archive contents,
 	 * optionally within a defined byte range only.
 	 *
-	 * @param   string   $file        path to the file
-	 * @param   boolean  $isFragment  true if file is an archive fragment
-	 * @param   array    $range       the start and end byte positions
+	 * @param   string  $file       path to the file
+	 * @param   boolean $isFragment true if file is an archive fragment
+	 * @param   array   $range      the start and end byte positions
+	 *
 	 * @return  boolean  false if archive analysis fails
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function open($file, $isFragment = false, array $range = null)
 	{
@@ -525,7 +533,7 @@ abstract class ArchiveReader
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
 
-		if ($start < 0 || $end < 0 || $start !== $range[0] || $end !== $range[1]) {
+		if ($start !== (int) $range[0] || $end !== (int) $range[1] || $start < 0 || $end < 0) {
 			$this->error = "Start ($start) and end ($end) points must be positive integers";
 			return false;
 		}
