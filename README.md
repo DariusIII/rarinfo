@@ -1,6 +1,6 @@
 A set of basic utility classes for working with RAR archives and related parity
 and verification files in pure PHP (no external dependencies). See the [Releases]
-(https://github.com/zeebinz/rarinfo/releases) page for versioned releases of the
+(https://github.com/DariusIII/rarinfo/releases) page for versioned releases of the
 whole library, which contains:
 
 ArchiveReader
@@ -204,7 +204,7 @@ A utility class for handling the piped output of an external command.
 
 Testing
 -------------------------------
-Some basic unit tests using [PHPUnit](http://phpunit.de/manual/current/en/installation.html)
+Some basic unit tests using [PHPUnit](https://phpunit.readthedocs.io/en/7.3/)
 are in `/tests`, with sample files in `/tests/fixtures` (run `generate.php` from there first
 and on each pull), more coverage and any Github-friendly samples are always welcome. Some
 optional tests require external binaries (see `/tests/bin/README.md`). Enjoy :)
