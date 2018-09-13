@@ -1,3 +1,10 @@
+
+[![Latest Stable Version](https://poser.pugx.org/dariusiii/rarinfo/v/stable)](https://packagist.org/packages/dariusiii/rarinfo)
+[![Total Downloads](https://poser.pugx.org/dariusiii/rarinfo/downloads)](https://packagist.org/packages/dariusiii/rarinfo)
+[![License](https://poser.pugx.org/dariusiii/rarinfo/license)](https://packagist.org/packages/dariusiii/rarinfo)
+
+
+
 A set of basic utility classes for working with RAR archives and related parity
 and verification files in pure PHP (no external dependencies). See the [Releases]
 (https://github.com/DariusIII/rarinfo/releases) page for versioned releases of the
