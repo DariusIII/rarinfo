@@ -895,7 +895,7 @@ class ArchiveInfo extends ArchiveReader
 			if ($files = $archive->reader->getFileList()) {
 				foreach ($files as $file) {
 					if (!empty($file['compressed']) && empty($file['pass'])) {
-						list($hash, $temp) = $this->getTempFileName("{$name}:{$archive->start}-{$archive->end}");
+						[$hash, $temp] = $this->getTempFileName("{$name}:{$archive->start}-{$archive->end}");
 						if (!isset($this->tempFiles[$hash])) {
 							$archive->reader->saveRange([$archive->start, $archive->end], $temp);
 							@chmod($temp, 0777);

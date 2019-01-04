@@ -393,7 +393,7 @@ class SzipInfo extends ArchiveReader
 			.escapeshellarg($source).' '.escapeshellarg($filename);
 
 		// Set STDERR to write to a temporary file
-		list($hash, $errorFile) = $this->getTempFileName($source.'errors');
+		[$hash, $errorFile] = $this->getTempFileName($source.'errors');
 		$this->tempFiles[$hash] = $errorFile;
 		$command .= ' 2> '.escapeshellarg($errorFile);
 

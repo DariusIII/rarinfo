@@ -765,7 +765,7 @@ abstract class ArchiveReader
 	 */
 	protected function createTempDataFile()
 	{
-		list($hash, $dest) = $this->getTempFileName();
+		[$hash, $dest] = $this->getTempFileName();
 
 		if (file_exists($dest)) {
 			return $this->tempFiles[$hash] = $dest;
