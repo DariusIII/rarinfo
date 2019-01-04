@@ -16,7 +16,7 @@ class Par2InfoTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		$this->fixturesDir = realpath(dirname(__FILE__).'/fixtures/par2');
+		$this->fixturesDir = realpath(__DIR__ .'/fixtures/par2');
 	}
 
 	/**

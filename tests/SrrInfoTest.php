@@ -16,7 +16,7 @@ class SrrInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		$this->fixturesDir = realpath(dirname(__FILE__).'/fixtures/srr');
+		$this->fixturesDir = realpath(__DIR__ .'/fixtures/srr');
 	}
 
 	/**

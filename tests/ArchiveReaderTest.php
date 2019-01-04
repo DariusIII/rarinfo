@@ -17,7 +17,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 	protected function setUp()
 	{
 		$ds = DIRECTORY_SEPARATOR;
-		$this->fixturesDir = realpath(dirname(__FILE__).'/fixtures');
+		$this->fixturesDir = realpath(__DIR__ .'/fixtures');
 		$this->testFile = $this->fixturesDir.$ds.'rar'.$ds.'4mb.rar';
 	}
 

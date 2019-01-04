@@ -16,7 +16,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		$this->fixturesDir = realpath(dirname(__FILE__).'/fixtures/rar');
+		$this->fixturesDir = realpath(__DIR__ .'/fixtures/rar');
 	}
 
 	/**
@@ -45,7 +45,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	public function providerTestFixtures()
 	{
 		$ds = DIRECTORY_SEPARATOR;
-		$fixturesDir = realpath(dirname(__FILE__).'/fixtures/rar');
+		$fixturesDir = realpath(__DIR__ .'/fixtures/rar');
 		$fixtures = [];
 
 		foreach (glob($fixturesDir.$ds.'*.rar') as $rarfile) {

@@ -54,20 +54,20 @@ class SrrInfo extends RarInfo
 	 */
 
 	// SRR Block types
-	const SRR_BLOCK_MARK      = 0x69;
-	const SRR_STORED_FILE     = 0x6a;
-	const SRR_OSO_HASH        = 0x6b;
-	const SRR_RAR_FILE        = 0x71;
+	public const SRR_BLOCK_MARK      = 0x69;
+	public const SRR_STORED_FILE     = 0x6a;
+	public const SRR_OSO_HASH        = 0x6b;
+	public const SRR_RAR_FILE        = 0x71;
 
 	// Flags for SRR Marker block
-	const APP_NAME_PRESENT    = 0x0001;
+	public const APP_NAME_PRESENT    = 0x0001;
 
 	/**#@-*/
 
 	/**
 	 * Format for unpacking any OSO hash blocks.
 	 */
-	const FORMAT_SRR_OSO_HASH = 'Vfile_size/Vfile_size_high/h16file_hash/vname_size';
+	public const FORMAT_SRR_OSO_HASH = 'Vfile_size/Vfile_size_high/h16file_hash/vname_size';
 
 
 	// ------ Instance variables and methods ---------------------------------------
@@ -103,13 +103,16 @@ class SrrInfo extends RarInfo
 	 * @var string
 	 */
 	public $client = '';
-
+	
 	/**
 	 * Initializes the class instance.
 	 *
 	 * @param null  $file
 	 * @param bool  $isFragment
 	 * @param array $range
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function __construct($file = null, $isFragment = false, array $range = null)
 	{
@@ -169,7 +172,7 @@ class SrrInfo extends RarInfo
 			if ($block['head_type'] === self::SRR_STORED_FILE) {
 				$b = [
 					'name' => $block['file_name'],
-					'size' => isset($block['add_size']) ? $block['add_size'] : '',
+					'size' => $block['add_size'] ?? '',
 				];
 				if ($extract) {
 					$b['data'] = $block['file_data'];

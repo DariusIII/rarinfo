@@ -50,64 +50,64 @@ class SzipInfo extends ArchiveReader
 	 */
 
 	// Main header types
-	const PROPERTY_HEADER                  = 0x01;
-	const PROPERTY_ARCHIVE_PROPERTIES      = 0x02;
-	const PROPERTY_ADDITIONAL_STREAMS_INFO = 0x03;
-	const PROPERTY_MAIN_STREAMS_INFO       = 0x04;
-	const PROPERTY_FILES_INFO              = 0x05;
-	const PROPERTY_ENCODED_HEADER          = 0x17;
+	public const PROPERTY_HEADER                  = 0x01;
+	public const PROPERTY_ARCHIVE_PROPERTIES      = 0x02;
+	public const PROPERTY_ADDITIONAL_STREAMS_INFO = 0x03;
+	public const PROPERTY_MAIN_STREAMS_INFO       = 0x04;
+	public const PROPERTY_FILES_INFO              = 0x05;
+	public const PROPERTY_ENCODED_HEADER          = 0x17;
 
 	// Streams Info
-	const PROPERTY_PACK_INFO               = 0x06;
-	const PROPERTY_UNPACK_INFO             = 0x07;
-	const PROPERTY_SUBSTREAMS_INFO         = 0x08;
+	public const PROPERTY_PACK_INFO               = 0x06;
+	public const PROPERTY_UNPACK_INFO             = 0x07;
+	public const PROPERTY_SUBSTREAMS_INFO         = 0x08;
 
 	// Pack Info etc.
-	const PROPERTY_SIZE                    = 0x09;
-	const PROPERTY_CRC                     = 0x0a;
+	public const PROPERTY_SIZE                    = 0x09;
+	public const PROPERTY_CRC                     = 0x0a;
 
 	// Unpack Info
-	const PROPERTY_FOLDER                  = 0x0b;
-	const PROPERTY_CODERS_UNPACK_SIZE      = 0x0c;
+	public const PROPERTY_FOLDER                  = 0x0b;
+	public const PROPERTY_CODERS_UNPACK_SIZE      = 0x0c;
 
 	// Substreams Info
-	const PROPERTY_NUM_UNPACK_STREAM       = 0x0d;
+	public const PROPERTY_NUM_UNPACK_STREAM       = 0x0d;
 
 	// Files Info
-	const PROPERTY_EMPTY_STREAM            = 0x0e;
-	const PROPERTY_EMPTY_FILE              = 0x0f;
-	const PROPERTY_ANTI                    = 0x10;
-	const PROPERTY_NAME                    = 0x11;
-	const PROPERTY_CREATION_TIME           = 0x12;
-	const PROPERTY_LAST_ACCESS_TIME        = 0x13;
-	const PROPERTY_LAST_WRITE_TIME         = 0x14;
-	const PROPERTY_ATTRIBUTES              = 0x15;
+	public const PROPERTY_EMPTY_STREAM            = 0x0e;
+	public const PROPERTY_EMPTY_FILE              = 0x0f;
+	public const PROPERTY_ANTI                    = 0x10;
+	public const PROPERTY_NAME                    = 0x11;
+	public const PROPERTY_CREATION_TIME           = 0x12;
+	public const PROPERTY_LAST_ACCESS_TIME        = 0x13;
+	public const PROPERTY_LAST_WRITE_TIME         = 0x14;
+	public const PROPERTY_ATTRIBUTES              = 0x15;
 
 	// General properties
-	const PROPERTY_END                     = 0x00;
-	const PROPERTY_COMMENT                 = 0x16;
-	const PROPERTY_START_POSITION          = 0x18;
-	const PROPERTY_DUMMY                   = 0x19;
+	public const PROPERTY_END                     = 0x00;
+	public const PROPERTY_COMMENT                 = 0x16;
+	public const PROPERTY_START_POSITION          = 0x18;
+	public const PROPERTY_DUMMY                   = 0x19;
 
 	// Encoding methods
-	const METHOD_COPY      = '00';
-	const METHOD_LZMA      = '03';
-	const METHOD_CRYPTO    = '06';
-	const METHOD_7Z_AES    = '06f10701';
+	public const METHOD_COPY      = '00';
+	public const METHOD_LZMA      = '03';
+	public const METHOD_CRYPTO    = '06';
+	public const METHOD_7Z_AES    = '06f10701';
 
 	/**#@-*/
 
 	/**
 	 * Byte string marking the start of the file/data.
 	 */
-	const MARKER_SIGNATURE = "7z\xbc\xaf\x27\x1c";
+	public const MARKER_SIGNATURE = "7z\xbc\xaf\x27\x1c";
 
 	/**
 	 * Type, format and size of the Start header following the signature.
 	 */
-	const START_HEADER         = 0x100;
-	const START_HEADER_FORMAT  = 'Cversion_major/Cversion_minor/Vhead_crc/Vnext_head_offset/Vnext_head_offset_high/Vnext_head_size/Vnext_head_size_high/Vnext_head_crc';
-	const START_HEADER_SIZE    = 26;
+	public const START_HEADER         = 0x100;
+	public const START_HEADER_FORMAT  = 'Cversion_major/Cversion_minor/Vhead_crc/Vnext_head_offset/Vnext_head_offset_high/Vnext_head_size/Vnext_head_size_high/Vnext_head_crc';
+	public const START_HEADER_SIZE    = 26;
 
 
 	// ------ Instance variables and methods ---------------------------------------
@@ -191,7 +191,7 @@ class SzipInfo extends ArchiveReader
 
 		foreach ($this->headers as $header) {
 			$h = [];
-			$h['type_name'] = isset($this->headerNames[$header['type']]) ? $this->headerNames[$header['type']] : 'Unknown';
+			$h['type_name'] = $this->headerNames[$header['type']] ?? 'Unknown';
 			$h += $header;
 			$ret[] = $h;
 		}
@@ -231,7 +231,7 @@ class SzipInfo extends ArchiveReader
 			$item = [
 				'name' => substr($file['file_name'], 0, $this->maxFilenameLength),
 				'size' => ($file['has_stream'] && isset($unpackSizes[$sizeIndex])) ? $unpackSizes[$sizeIndex] : 0,
-				'date' => isset($file['utime']) ? $file['utime'] : 0,
+				'date' => $file['utime'] ?? 0,
 				'pass' => 0,
 				'compressed' => 0,
 			];
@@ -364,6 +364,7 @@ class SzipInfo extends ArchiveReader
 	 *
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function extractFile($filename, $destination = null, $password = null)
 	{
@@ -776,7 +777,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processUnpackInfo(&$header)
+	protected function processUnpackInfo(&$header): bool
 	{
 		$nid = ord($this->read(1));
 
@@ -832,7 +833,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processFolders(&$header)
+	protected function processFolders(&$header): void
 	{
 		$header['folders'] = [];
 
@@ -922,7 +923,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processSubstreamsInfo(&$header)
+	protected function processSubstreamsInfo(&$header): bool
 	{
 		if (empty($header['folders'])) {
 			$this->error = 'No folders found, cannot process substreams info';
@@ -1185,7 +1186,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   string   $nid  the property ID
 	 * @return  boolean  false on error
 	 */
-	protected function checkIsEnd($nid)
+	protected function checkIsEnd($nid): bool
 	{
 		if ($nid !== self::PROPERTY_END) {
 			$this->error = "Expecting PROPERTY_END but found: {$nid} at: ".($this->offset - 1);
@@ -1202,7 +1203,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function checkExternal()
+	protected function checkExternal(): bool
 	{
 		$external = ord($this->read(1));
 		if ($external !== 0) {
@@ -1219,7 +1220,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   integer  $limit   the minimum failure threshold
 	 * @return  boolean  false if the sanity check fails
 	 */
-	protected function sanityCheckStreamsInfo($header, $limit=3)
+	protected function sanityCheckStreamsInfo($header, $limit=3): bool
 	{
 		$fail = (!isset($header['pack_offset']) || $header['pack_offset'] > PHP_INT_MAX)
 		      + (empty($header['pack_sizes'])   || $header['pack_sizes'][0] > PHP_INT_MAX)
@@ -1283,7 +1284,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function readBooleans($count, $checkAll = false)
+	protected function readBooleans($count, $checkAll = false): array
 	{
 		if ($checkAll) {
 			$allDefined = ord($this->read(1));
@@ -1293,7 +1294,7 @@ class SzipInfo extends ArchiveReader
 		}
 		$result = [];
 		$byte = $mask = 0;
-		for ($i = 0; $i < $count; $i++) {
+		foreach ($result as $i => $iValue) {
 			if ($mask === 0) {
 				$byte = ord($this->read(1));
 				$mask = 0x80;
@@ -1301,7 +1302,7 @@ class SzipInfo extends ArchiveReader
 			$result[$i] = (int) (($byte & $mask) !== 0);
 			$mask >>= 1;
 		}
-
+		
 		return $result;
 	}
 	
@@ -1314,7 +1315,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function readDigests($count)
+	protected function readDigests($count): array
 	{
 		$digests = [
 			'defined' => $this->readBooleans($count, true),
@@ -1340,7 +1341,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   string   $type    the type of bind pair ('in' or 'out')
 	 * @return  integer  the bind pair index, or -1 if none found
 	 */
-	protected function findBindPair($pairs, $index, $type)
+	protected function findBindPair($pairs, $index, $type): int
 	{
 		foreach ($pairs as $idx => $pair) {
 			if ($pair[$type] === $index) {
@@ -1356,13 +1357,13 @@ class SzipInfo extends ArchiveReader
 	 * @param   array    $folder   a valid folder record
 	 * @return  integer  the final unpack size in bytes
 	 */
-	protected function getFolderUnpackSize($folder)
+	protected function getFolderUnpackSize($folder): int
 	{
 		if (empty($folder['unpack_sizes'])) {
 			return 0;
 		}
 
-		$pairs = isset($folder['bind_pairs']) ?  $folder['bind_pairs'] : [];
+		$pairs = $folder['bind_pairs'] ?? [];
 		for ($i = count($folder['unpack_sizes']) - 1; $i >= 0; $i--) {
 			if ($this->findBindPair($pairs, $i, 'out') < 0) {
 				return $folder['unpack_sizes'][$i];
@@ -1516,8 +1517,9 @@ class SzipInfo extends ArchiveReader
 	 *
 	 * @return  boolean  true if extraction was successful
 	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
-	protected function extractHeaders()
+	protected function extractHeaders(): bool
 	{
 		if (!$this->externalClient) {
 			$this->error = 'A valid external client is needed to extract headers';
@@ -1577,7 +1579,7 @@ class SzipInfo extends ArchiveReader
 		$start .= $startData;                                      // remainder
 
 		// Save the dummy to a temporary file
-		list($hash, $temp) = $this->getTempFileName($data);
+		[$hash, $temp] = $this->getTempFileName($data);
 		$this->tempFiles[$hash] = $temp;
 		file_put_contents($temp, $start.$data.$head);
 		unset($start, $data, $head);

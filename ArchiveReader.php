@@ -127,8 +127,7 @@ abstract class ArchiveReader
 			if (! extension_loaded('com_dotnet')) {
 				return trim(shell_exec('for %f in ('.escapeshellarg($file).') do @echo %~zf')) + 0;
 			}
-			$com = new COM('Scripting.FileSystemObject');
-			$f = $com->GetFile($file);
+			$f = (new COM('Scripting.FileSystemObject'))->GetFile($file);
 			return $f->Size + 0;
 		}
 
@@ -395,7 +394,28 @@ abstract class ArchiveReader
 
 		throw new \LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
 	}
-
+	
+	/**
+	 * @param $name
+	 * @param $value
+	 *
+	 * @return mixed
+	 */
+	public function __set($name, $value)
+	{
+		return $this->$name = $value;
+	}
+	
+	/**
+	 * @param $name
+	 *
+	 * @return bool
+	 */
+	public function __isset($name)
+	{
+		return isset($this->$name);
+	}
+	
 	/**
 	 * Class destructor.
 	 *
@@ -581,7 +601,7 @@ abstract class ArchiveReader
 		// Check that the requested range is valid
 		$original = [$this->start, $this->end, $this->length];
 		if (!$this->setRange($range)) {
-			list($this->start, $this->end, $this->length) = $original;
+			[$this->start, $this->end, $this->length] = $original;
 			return false;
 		}
 
@@ -590,7 +610,7 @@ abstract class ArchiveReader
 		$data = $this->read($this->length);
 
 		// Restore the original range
-		list($this->start, $this->end, $this->length) = $original;
+		[$this->start, $this->end, $this->length] = $original;
 
 		return $data;
 	}
@@ -612,7 +632,7 @@ abstract class ArchiveReader
 		// Check that the requested range is valid
 		$original = [$this->start, $this->end, $this->length];
 		if (!$this->setRange($range)) {
-			list($this->start, $this->end, $this->length) = $original;
+			[$this->start, $this->end, $this->length] = $original;
 			return false;
 		}
 
@@ -629,7 +649,7 @@ abstract class ArchiveReader
 		fclose($fh);
 
 		// Restore the original range
-		list($this->start, $this->end, $this->length) = $original;
+		[$this->start, $this->end, $this->length] = $original;
 
 		return $written;
 	}
@@ -664,7 +684,7 @@ abstract class ArchiveReader
 
 		// Confirm the read length
 		if (!isset($read) || (($rlen = strlen($read)) < $num)) {
-			$rlen = isset($rlen) ? $rlen : 'none';
+			$rlen = $rlen ?? 'none';
 			$this->error = "Not enough data to read ({$num} bytes requested, {$rlen} available)";
 			throw new \RangeException($this->error);
 		}
@@ -736,11 +756,12 @@ abstract class ArchiveReader
 		}
 		$this->seek(0);
 	}
-
+	
 	/**
 	 * Saves the current stored data to a temporary file and returns its name.
 	 *
 	 * @return  string  path to the temporary file
+	 * @throws \RuntimeException
 	 */
 	protected function createTempDataFile()
 	{

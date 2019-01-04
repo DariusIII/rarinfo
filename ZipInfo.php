@@ -60,92 +60,92 @@ class ZipInfo extends ArchiveReader
 	 */
 
 	// Record type signatures
-	const RECORD_CENTRAL_FILE         = 0x02014b50;
-	const RECORD_LOCAL_FILE           = 0x04034b50;
-	const RECORD_SIGNATURE            = 0x05054b50;
-	const RECORD_ENDCENTRAL           = 0x06054b50;
-	const RECORD_Z64_ENDCENTRAL       = 0x06064b50;
-	const RECORD_Z64_ENDCENTRAL_LOC   = 0x07064b50;
-	const RECORD_ARCHIVE_EXTRA        = 0x08064b50;
-	const RECORD_DATA_DESCR           = 0x08074b50;
+	public const RECORD_CENTRAL_FILE         = 0x02014b50;
+	public const RECORD_LOCAL_FILE           = 0x04034b50;
+	public const RECORD_SIGNATURE            = 0x05054b50;
+	public const RECORD_ENDCENTRAL           = 0x06054b50;
+	public const RECORD_Z64_ENDCENTRAL       = 0x06064b50;
+	public const RECORD_Z64_ENDCENTRAL_LOC   = 0x07064b50;
+	public const RECORD_ARCHIVE_EXTRA        = 0x08064b50;
+	public const RECORD_DATA_DESCR           = 0x08074b50;
 
 	// General purpose flags
-	const FILE_ENCRYPTED              = 0x0001;
-	const FILE_DESCRIPTOR_USED        = 0x0008;
-	const FILE_STRONG_ENCRYPTED       = 0x0040;
-	const FILE_EFS_UTF8               = 0x0800;
-	const FILE_CDR_ENCRYPTED          = 0x2000;
+	public const FILE_ENCRYPTED              = 0x0001;
+	public const FILE_DESCRIPTOR_USED        = 0x0008;
+	public const FILE_STRONG_ENCRYPTED       = 0x0040;
+	public const FILE_EFS_UTF8               = 0x0800;
+	public const FILE_CDR_ENCRYPTED          = 0x2000;
 
 	// Extra Field IDs
-	const EXTRA_ZIP64                 = 0x0001;
-	const EXTRA_NTFS                  = 0x000a;
-	const EXTRA_UNIX                  = 0x000d;
-	const EXTRA_STRONG_ENCR           = 0x0017;
-	const EXTRA_POSZIP                = 0x4690;
-	const EXTRA_UNIXTIME              = 0x5455;
-	const EXTRA_IZUNIX                = 0x5855;
-	const EXTRA_IZUNIX2               = 0x7855;
-	const EXTRA_IZUNIX3               = 0x7875;
-	const EXTRA_WZ_AES                = 0x9901;
+	public const EXTRA_ZIP64                 = 0x0001;
+	public const EXTRA_NTFS                  = 0x000a;
+	public const EXTRA_UNIX                  = 0x000d;
+	public const EXTRA_STRONG_ENCR           = 0x0017;
+	public const EXTRA_POSZIP                = 0x4690;
+	public const EXTRA_UNIXTIME              = 0x5455;
+	public const EXTRA_IZUNIX                = 0x5855;
+	public const EXTRA_IZUNIX2               = 0x7855;
+	public const EXTRA_IZUNIX3               = 0x7875;
+	public const EXTRA_WZ_AES                = 0x9901;
 
 	// OS Types
-	const OS_FAT      = 0;
-	const OS_AMIGA    = 1;
-	const OS_VMS      = 2;
-	const OS_UNIX     = 3;
-	const OS_VM_CMS   = 4;
-	const OS_ATARI    = 5;
-	const OS_HPFS     = 6;
-	const OS_MAC      = 7;
-	const OS_Z_SYSTEM = 8;
-	const OS_CPM      = 9;
-	const OS_NTFS     = 10;
-	const OS_MVS      = 11;
-	const OS_VSE      = 12;
-	const OS_ACORN    = 13;
-	const OS_VFAT     = 14;
-	const OS_ALT_MVS  = 15;
-	const OS_BEOS     = 16;
-	const OS_TANDEM   = 17;
-	const OS_OS400    = 18;
-	const OS_OSX      = 19;
+	public const OS_FAT      = 0;
+	public const OS_AMIGA    = 1;
+	public const OS_VMS      = 2;
+	public const OS_UNIX     = 3;
+	public const OS_VM_CMS   = 4;
+	public const OS_ATARI    = 5;
+	public const OS_HPFS     = 6;
+	public const OS_MAC      = 7;
+	public const OS_Z_SYSTEM = 8;
+	public const OS_CPM      = 9;
+	public const OS_NTFS     = 10;
+	public const OS_MVS      = 11;
+	public const OS_VSE      = 12;
+	public const OS_ACORN    = 13;
+	public const OS_VFAT     = 14;
+	public const OS_ALT_MVS  = 15;
+	public const OS_BEOS     = 16;
+	public const OS_TANDEM   = 17;
+	public const OS_OS400    = 18;
+	public const OS_OSX      = 19;
 
 	/**#@-*/
 
 	/**
 	 * Format for unpacking Local File records.
 	 */
-	const FORMAT_LOCAL_FILE = 'Cversion_need_num/Cversion_need_os/vflags/vmethod/vlast_mod_time/vlast_mod_date/Vcrc32/Vcompressed_size/Vuncompressed_size/vfile_name_length/vextra_length';
+	public const FORMAT_LOCAL_FILE = 'Cversion_need_num/Cversion_need_os/vflags/vmethod/vlast_mod_time/vlast_mod_date/Vcrc32/Vcompressed_size/Vuncompressed_size/vfile_name_length/vextra_length';
 
 	/**
 	 * Format for unpacking Central File records.
 	 */
-	const FORMAT_CENTRAL_FILE = 'Cversion_made_num/Cversion_made_os/Cversion_need_num/Cversion_need_os/vflags/vmethod/vlast_mod_time/vlast_mod_date/Vcrc32/Vcompressed_size/Vuncompressed_size/vfile_name_length/vextra_length/vcomment_length/vdisk_start/vattr_int/Vattr_ext/Vrel_offset';
+	public const FORMAT_CENTRAL_FILE = 'Cversion_made_num/Cversion_made_os/Cversion_need_num/Cversion_need_os/vflags/vmethod/vlast_mod_time/vlast_mod_date/Vcrc32/Vcompressed_size/Vuncompressed_size/vfile_name_length/vextra_length/vcomment_length/vdisk_start/vattr_int/Vattr_ext/Vrel_offset';
 
 	/**
 	 * Format for unpacking End of Central Directory records.
 	 */
-	const FORMAT_ENDCENTRAL = 'vdisk_num/vstart_disk/ventries_disk/ventries_total/Vcentral_size/Vcentral_offset/vcomment_length';
+	public const FORMAT_ENDCENTRAL = 'vdisk_num/vstart_disk/ventries_disk/ventries_total/Vcentral_size/Vcentral_offset/vcomment_length';
 
 	/**
 	 * Format for unpacking ZIP64 format End of Central Directory records.
 	 */
-	const FORMAT_Z64_ENDCENTRAL = 'Vcentral_size/Vcentral_size_high/Cversion_made_num/Cversion_made_os/Cversion_need_num/Cversion_need_os/Vdisk_num/Vstart_disk/Ventries_disk/Ventries_disk_high/Ventries_total/Ventries_total_high/Vcentral_offset/Vcentral_offset_high';
+	public const FORMAT_Z64_ENDCENTRAL = 'Vcentral_size/Vcentral_size_high/Cversion_made_num/Cversion_made_os/Cversion_need_num/Cversion_need_os/Vdisk_num/Vstart_disk/Ventries_disk/Ventries_disk_high/Ventries_total/Ventries_total_high/Vcentral_offset/Vcentral_offset_high';
 
 	/**
 	 * Format for unpacking ZIP64 format End of Central Directory Locator records.
 	 */
-	const FORMAT_Z64_ENDCENTRAL_LOC = 'Vstart_disk/Vcentral_offset/Vcentral_offset_high/Vtotal_disks';
+	public const FORMAT_Z64_ENDCENTRAL_LOC = 'Vstart_disk/Vcentral_offset/Vcentral_offset_high/Vtotal_disks';
 
 	/**
 	 * Format for unpacking Data Descriptor blocks.
 	 */
-	const FORMAT_DATA_DESCR = 'Vsignature/Vcrc32/Vcompressed_size/Vuncompressed_size';
+	public const FORMAT_DATA_DESCR = 'Vsignature/Vcrc32/Vcompressed_size/Vuncompressed_size';
 
 	/**
 	 * Format for unpacking Extra Field blocks.
 	 */
-	const FORMAT_EXTRA_FIELD = 'vheaderID/vdata_size';
+	public const FORMAT_EXTRA_FIELD = 'vheaderID/vdata_size';
 
 
 	// ------ Instance variables and methods ---------------------------------------
@@ -367,7 +367,7 @@ class ZipInfo extends ArchiveReader
 	 * @return  void
 	 * @throws  \InvalidArgumentException
 	 */
-	public function setExternalClient($client)
+	public function setExternalClient($client): void
 	{
 		if ($client && (!is_file($client) || !is_executable($client))) {
 			throw new \InvalidArgumentException("Not a valid client: {$client}");
@@ -386,6 +386,7 @@ class ZipInfo extends ArchiveReader
 	 *
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function extractFile($filename, $destination = null, $password = null)
 	{
@@ -399,7 +400,7 @@ class ZipInfo extends ArchiveReader
 			$this->error = "Could not find file info for: ({$filename})";
 			return false;
 		}
-		if (!empty($info['pass']) && $password === null) {
+		if ($password === null && !empty($info['pass'])) {
 			$this->error = "The file is passworded: ({$filename})";
 			return false;
 		}
@@ -414,7 +415,7 @@ class ZipInfo extends ArchiveReader
 			.escapeshellarg($source).' '.escapeshellarg($filename);
 
 		// Set STDERR to write to a temporary file
-		list($hash, $errorFile) = $this->getTempFileName($source.'errors');
+		[$hash, $errorFile] = $this->getTempFileName($source.'errors');
 		$this->tempFiles[$hash] = $errorFile;
 		$command .= ' 2> '.escapeshellarg($errorFile);
 
@@ -477,7 +478,7 @@ class ZipInfo extends ArchiveReader
 	 * @param   array  $record  a valid file record
 	 * @return  array  summary information
 	 */
-	protected function getFileRecordSummary($record)
+	protected function getFileRecordSummary($record): array
 	{
 		$ret = [
 			'name' => substr($record['file_name'], 0, $this->maxFilenameLength),
@@ -729,11 +730,11 @@ class ZipInfo extends ArchiveReader
 		// Process Host OS info
 		if (isset($record['version_made_os'])) {
 			$os = $record['version_made_os'];
-			$record['made_host_os'] = isset($this->hostOSNames[$os]) ? $this->hostOSNames[$os] : 'Unknown';
+			$record['made_host_os'] = $this->hostOSNames[$os] ?? 'Unknown';
 		}
 		if (isset($record['version_need_os'])) {
 			$os = $record['version_need_os'];
-			$record['need_host_os'] = isset($this->hostOSNames[$os]) ? $this->hostOSNames[$os] : 'Unknown';
+			$record['need_host_os'] = $this->hostOSNames[$os] ?? 'Unknown';
 		}
 
 		if ($record['type'] === self::RECORD_LOCAL_FILE || $record['type'] === self::RECORD_CENTRAL_FILE) {
@@ -769,14 +770,14 @@ class ZipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processExtraFields(&$record)
+	protected function processExtraFields(&$record): void
 	{
 		$end = $this->offset + $record['extra_length'];
 		while ($this->offset < $end)
 		{
 			$field = ['type_name' => ''];
 			$field += self::unpack(self::FORMAT_EXTRA_FIELD, $this->read(4));
-			$field['type_name'] = isset($this->extraFieldNames[$field['headerID']]) ? $this->extraFieldNames[$field['headerID']] : 'Unknown';
+			$field['type_name'] = $this->extraFieldNames[$field['headerID']] ?? 'Unknown';
 
 			// Field: ZIP64 format
 			if ($field['headerID'] === self::EXTRA_ZIP64) {

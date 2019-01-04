@@ -59,188 +59,188 @@ class RarInfo extends ArchiveReader
 	 */
 
 	// Block types
-	const BLOCK_MARK          = 0x72;
-	const BLOCK_MAIN          = 0x73;
-	const BLOCK_FILE          = 0x74;
-	const BLOCK_OLD_COMMENT   = 0x75;
-	const BLOCK_OLD_EXTRA     = 0x76;
-	const BLOCK_OLD_SUB       = 0x77;
-	const BLOCK_OLD_RECOVERY  = 0x78;
-	const BLOCK_OLD_AUTH      = 0x79;
-	const BLOCK_SUB           = 0x7a;
-	const BLOCK_ENDARC        = 0x7b;
-	const BLOCK_NULL          = 0x00;
+	public const BLOCK_MARK          = 0x72;
+	public const BLOCK_MAIN          = 0x73;
+	public const BLOCK_FILE          = 0x74;
+	public const BLOCK_OLD_COMMENT   = 0x75;
+	public const BLOCK_OLD_EXTRA     = 0x76;
+	public const BLOCK_OLD_SUB       = 0x77;
+	public const BLOCK_OLD_RECOVERY  = 0x78;
+	public const BLOCK_OLD_AUTH      = 0x79;
+	public const BLOCK_SUB           = 0x7a;
+	public const BLOCK_ENDARC        = 0x7b;
+	public const BLOCK_NULL          = 0x00;
 
 	// Flags for BLOCK_MAIN
-	const MAIN_VOLUME         = 0x0001;
-	const MAIN_COMMENT        = 0x0002;
-	const MAIN_LOCK           = 0x0004;
-	const MAIN_SOLID          = 0x0008;
-	const MAIN_NEWNUMBERING   = 0x0010;
-	const MAIN_AUTH           = 0x0020;
-	const MAIN_RECOVERY       = 0x0040;
-	const MAIN_PASSWORD       = 0x0080;
-	const MAIN_FIRSTVOLUME    = 0x0100;
-	const MAIN_ENCRYPTVER     = 0x0200;
+	public const MAIN_VOLUME         = 0x0001;
+	public const MAIN_COMMENT        = 0x0002;
+	public const MAIN_LOCK           = 0x0004;
+	public const MAIN_SOLID          = 0x0008;
+	public const MAIN_NEWNUMBERING   = 0x0010;
+	public const MAIN_AUTH           = 0x0020;
+	public const MAIN_RECOVERY       = 0x0040;
+	public const MAIN_PASSWORD       = 0x0080;
+	public const MAIN_FIRSTVOLUME    = 0x0100;
+	public const MAIN_ENCRYPTVER     = 0x0200;
 
 	// Flags for BLOCK_FILE
-	const FILE_SPLIT_BEFORE   = 0x0001;
-	const FILE_SPLIT_AFTER    = 0x0002;
-	const FILE_PASSWORD       = 0x0004;
-	const FILE_COMMENT        = 0x0008;
-	const FILE_SOLID          = 0x0010;
-	const FILE_DICTMASK       = 0x00e0;
-	const FILE_DICT64         = 0x0000;
-	const FILE_DICT128        = 0x0020;
-	const FILE_DICT256        = 0x0040;
-	const FILE_DICT512        = 0x0060;
-	const FILE_DICT1024       = 0x0080;
-	const FILE_DICT2048       = 0x00a0;
-	const FILE_DICT4096       = 0x00c0;
-	const FILE_DIRECTORY      = 0x00e0;
-	const FILE_LARGE          = 0x0100;
-	const FILE_UNICODE        = 0x0200;
-	const FILE_SALT           = 0x0400;
-	const FILE_VERSION        = 0x0800;
-	const FILE_EXTTIME        = 0x1000;
-	const FILE_EXTFLAGS       = 0x2000;
+	public const FILE_SPLIT_BEFORE   = 0x0001;
+	public const FILE_SPLIT_AFTER    = 0x0002;
+	public const FILE_PASSWORD       = 0x0004;
+	public const FILE_COMMENT        = 0x0008;
+	public const FILE_SOLID          = 0x0010;
+	public const FILE_DICTMASK       = 0x00e0;
+	public const FILE_DICT64         = 0x0000;
+	public const FILE_DICT128        = 0x0020;
+	public const FILE_DICT256        = 0x0040;
+	public const FILE_DICT512        = 0x0060;
+	public const FILE_DICT1024       = 0x0080;
+	public const FILE_DICT2048       = 0x00a0;
+	public const FILE_DICT4096       = 0x00c0;
+	public const FILE_DIRECTORY      = 0x00e0;
+	public const FILE_LARGE          = 0x0100;
+	public const FILE_UNICODE        = 0x0200;
+	public const FILE_SALT           = 0x0400;
+	public const FILE_VERSION        = 0x0800;
+	public const FILE_EXTTIME        = 0x1000;
+	public const FILE_EXTFLAGS       = 0x2000;
 
 	// Flags for BLOCK_ENDARC
-	const ENDARC_NEXT_VOLUME  = 0x0001;
-	const ENDARC_DATACRC      = 0x0002;
-	const ENDARC_REVSPACE     = 0x0004;
-	const ENDARC_VOLNR        = 0x0008;
+	public const ENDARC_NEXT_VOLUME  = 0x0001;
+	public const ENDARC_DATACRC      = 0x0002;
+	public const ENDARC_REVSPACE     = 0x0004;
+	public const ENDARC_VOLNR        = 0x0008;
 
 	// Flags for all blocks
-	const SKIP_IF_UNKNOWN     = 0x4000;
-	const LONG_BLOCK          = 0x8000;
+	public const SKIP_IF_UNKNOWN     = 0x4000;
+	public const LONG_BLOCK          = 0x8000;
 
 	// Subtypes for BLOCK_SUB
-	const SUBTYPE_COMMENT     = 'CMT';
-	const SUBTYPE_ACL         = 'ACL';
-	const SUBTYPE_STREAM      = 'STM';
-	const SUBTYPE_UOWNER      = 'UOW';
-	const SUBTYPE_AUTHVER     = 'AV';
-	const SUBTYPE_RECOVERY    = 'RR';
-	const SUBTYPE_OS2EA       = 'EA2';
-	const SUBTYPE_BEOSEA      = 'EABE';
+	public const SUBTYPE_COMMENT     = 'CMT';
+	public const SUBTYPE_ACL         = 'ACL';
+	public const SUBTYPE_STREAM      = 'STM';
+	public const SUBTYPE_UOWNER      = 'UOW';
+	public const SUBTYPE_AUTHVER     = 'AV';
+	public const SUBTYPE_RECOVERY    = 'RR';
+	public const SUBTYPE_OS2EA       = 'EA2';
+	public const SUBTYPE_BEOSEA      = 'EABE';
 
 	// Compression methods
-	const METHOD_STORE        = 0x30;
-	const METHOD_FASTEST      = 0x31;
-	const METHOD_FAST         = 0x32;
-	const METHOD_NORMAL       = 0x33;
-	const METHOD_GOOD         = 0x34;
-	const METHOD_BEST         = 0x35;
+	public const METHOD_STORE        = 0x30;
+	public const METHOD_FASTEST      = 0x31;
+	public const METHOD_FAST         = 0x32;
+	public const METHOD_NORMAL       = 0x33;
+	public const METHOD_GOOD         = 0x34;
+	public const METHOD_BEST         = 0x35;
 
 	// OS types
-	const OS_MSDOS = 0;
-	const OS_OS2   = 1;
-	const OS_WIN32 = 2;
-	const OS_UNIX  = 3;
-	const OS_MACOS = 4;
-	const OS_BEOS  = 5;
+	public const OS_MSDOS = 0;
+	public const OS_OS2   = 1;
+	public const OS_WIN32 = 2;
+	public const OS_UNIX  = 3;
+	public const OS_MACOS = 4;
+	public const OS_BEOS  = 5;
 
 	/**#@-*/
 
 	/**
 	 * Size in bytes of the main part of each block header.
 	 */
-	const HEADER_SIZE = 7;
+	public const HEADER_SIZE = 7;
 
 	/**
 	 * Format for unpacking the main part of each block header.
 	 */
-	const FORMAT_BLOCK_HEADER = 'vhead_crc/Chead_type/vhead_flags/vhead_size';
+	public const FORMAT_BLOCK_HEADER = 'vhead_crc/Chead_type/vhead_flags/vhead_size';
 
 	/**
 	 * Format for unpacking the remainder of a File block header.
 	 */
-	const FORMAT_FILE_HEADER = 'Vpack_size/Vunp_size/Chost_os/Vfile_crc/Vftime/Cunp_ver/Cmethod/vname_size/Vattr';
+	public const FORMAT_FILE_HEADER = 'Vpack_size/Vunp_size/Chost_os/Vfile_crc/Vftime/Cunp_ver/Cmethod/vname_size/Vattr';
 
 	/**
 	 * RAR archive format version.
 	 */
-	const FMT_RAR14 = '1.4';
-	const FMT_RAR15 = '1.5';
-	const FMT_RAR50 = '5.0';
+	public const FMT_RAR14 = '1.4';
+	public const FMT_RAR15 = '1.5';
+	public const FMT_RAR50 = '5.0';
 
 	/**#@+
 	 * RAR 5.0 archive format values
 	 */
 
 	// Block types
-	const R50_BLOCK_MAIN         = 0x01;
-	const R50_BLOCK_FILE         = 0x02;
-	const R50_BLOCK_SERVICE      = 0x03;
-	const R50_BLOCK_CRYPT        = 0x04;
-	const R50_BLOCK_ENDARC       = 0x05;
+	public const R50_BLOCK_MAIN         = 0x01;
+	public const R50_BLOCK_FILE         = 0x02;
+	public const R50_BLOCK_SERVICE      = 0x03;
+	public const R50_BLOCK_CRYPT        = 0x04;
+	public const R50_BLOCK_ENDARC       = 0x05;
 
 	// Flags for all block types
-	const R50_HAS_EXTRA          = 0x0001;
-	const R50_HAS_DATA           = 0x0002;
-	const R50_SKIP_IF_UNKNOWN    = 0x0004;
-	const R50_SPLIT_BEFORE       = 0x0008;
-	const R50_SPLIT_AFTER        = 0x0010;
-	const R50_IS_CHILD           = 0x0020;
-	const R50_INHERITED          = 0x0040;
+	public const R50_HAS_EXTRA          = 0x0001;
+	public const R50_HAS_DATA           = 0x0002;
+	public const R50_SKIP_IF_UNKNOWN    = 0x0004;
+	public const R50_SPLIT_BEFORE       = 0x0008;
+	public const R50_SPLIT_AFTER        = 0x0010;
+	public const R50_IS_CHILD           = 0x0020;
+	public const R50_INHERITED          = 0x0040;
 
 	// Service block types
-	const R50_SERVICE_COMMENT    = 'CMT';
-	const R50_SERVICE_QUICKOPEN  = 'QO';
-	const R50_SERVICE_ACL        = 'ACL';
-	const R50_SERVICE_STREAM     = 'STM';
-	const R50_SERVICE_RECOVERY   = 'RR';
+	public const R50_SERVICE_COMMENT    = 'CMT';
+	public const R50_SERVICE_QUICKOPEN  = 'QO';
+	public const R50_SERVICE_ACL        = 'ACL';
+	public const R50_SERVICE_STREAM     = 'STM';
+	public const R50_SERVICE_RECOVERY   = 'RR';
 
 	// Flags for R50_BLOCK_MAIN
-	const R50_MAIN_VOLUME        = 0x0001;
-	const R50_MAIN_VOLNUMBER     = 0x0002;
-	const R50_MAIN_SOLID         = 0x0004;
-	const R50_MAIN_RECOVERY      = 0x0008;
-	const R50_MAIN_LOCK          = 0x0010;
+	public const R50_MAIN_VOLUME        = 0x0001;
+	public const R50_MAIN_VOLNUMBER     = 0x0002;
+	public const R50_MAIN_SOLID         = 0x0004;
+	public const R50_MAIN_RECOVERY      = 0x0008;
+	public const R50_MAIN_LOCK          = 0x0010;
 
 	// Flags for R50_BLOCK_FILE
-	const R50_FILE_DIRECTORY     = 0x0001;
-	const R50_FILE_UTIME         = 0x0002;
-	const R50_FILE_CRC32         = 0x0004;
-	const R50_FILE_UNPUNKNOWN    = 0x0008;
+	public const R50_FILE_DIRECTORY     = 0x0001;
+	public const R50_FILE_UTIME         = 0x0002;
+	public const R50_FILE_CRC32         = 0x0004;
+	public const R50_FILE_UNPUNKNOWN    = 0x0008;
 
 	// Flags for R50_BLOCK_ENDARC
-	const R50_ENDARC_NEXT_VOLUME = 0x0001;
+	public const R50_ENDARC_NEXT_VOLUME = 0x0001;
 
 	// Extra record types for R50_BLOCK_MAIN
-	const R50_MEXTRA_LOCATOR     = 0x01;
+	public const R50_MEXTRA_LOCATOR     = 0x01;
 
 	// Flags for R50_MEXTRA_LOCATOR
-	const R50_MEXTRA_LOC_QLIST   = 0x0001;
-	const R50_MEXTRA_LOC_RR      = 0x0002;
+	public const R50_MEXTRA_LOC_QLIST   = 0x0001;
+	public const R50_MEXTRA_LOC_RR      = 0x0002;
 
 	// Extra record types for R50_BLOCK_FILE
-	const R50_FEXTRA_CRYPT       = 0x01;
-	const R50_FEXTRA_HASH        = 0x02;
-	const R50_FEXTRA_HTIME       = 0x03;
-	const R50_FEXTRA_VERSION     = 0x04;
-	const R50_FEXTRA_REDIR       = 0x05;
-	const R50_FEXTRA_UOWNER      = 0x06;
-	const R50_FEXTRA_SUBDATA     = 0x07;
+	public const R50_FEXTRA_CRYPT       = 0x01;
+	public const R50_FEXTRA_HASH        = 0x02;
+	public const R50_FEXTRA_HTIME       = 0x03;
+	public const R50_FEXTRA_VERSION     = 0x04;
+	public const R50_FEXTRA_REDIR       = 0x05;
+	public const R50_FEXTRA_UOWNER      = 0x06;
+	public const R50_FEXTRA_SUBDATA     = 0x07;
 
 	// Flags for R50_FEXTRA_HTIME
-	const R50_FEXTRA_HT_UNIX     = 0x0001;
-	const R50_FEXTRA_HT_MTIME    = 0x0002;
-	const R50_FEXTRA_HT_CTIME    = 0x0004;
-	const R50_FEXTRA_HT_ATIME    = 0x0008;
+	public const R50_FEXTRA_HT_UNIX     = 0x0001;
+	public const R50_FEXTRA_HT_MTIME    = 0x0002;
+	public const R50_FEXTRA_HT_CTIME    = 0x0004;
+	public const R50_FEXTRA_HT_ATIME    = 0x0008;
 
 	// Compression methods
-	const R50_METHOD_STORE       = 0;
-	const R50_METHOD_FASTEST     = 1;
-	const R50_METHOD_FAST        = 2;
-	const R50_METHOD_NORMAL      = 3;
-	const R50_METHOD_GOOD        = 4;
-	const R50_METHOD_BEST        = 5;
+	public const R50_METHOD_STORE       = 0;
+	public const R50_METHOD_FASTEST     = 1;
+	public const R50_METHOD_FAST        = 2;
+	public const R50_METHOD_NORMAL      = 3;
+	public const R50_METHOD_GOOD        = 4;
+	public const R50_METHOD_BEST        = 5;
 
 	// OS types
-	const R50_OS_WIN32 = 0;
-	const R50_OS_UNIX  = 1;
+	public const R50_OS_WIN32 = 0;
+	public const R50_OS_UNIX  = 1;
 
 	/**#@-*/
 
@@ -558,6 +558,7 @@ class RarInfo extends ArchiveReader
 	 *
 	 * @return  mixed   extracted data, number of bytes saved or false on error
 	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function extractFile($filename, $destination = null, $password = null)
 	{
@@ -571,7 +572,7 @@ class RarInfo extends ArchiveReader
 			$this->error = "Could not find file info for: ({$filename})";
 			return false;
 		}
-		if (!empty($info['pass']) && $password === null) {
+		if ($password === null && !empty($info['pass'])) {
 			$this->error = "The file is passworded: ({$filename})";
 			return false;
 		}
@@ -591,7 +592,7 @@ class RarInfo extends ArchiveReader
 			.escapeshellarg($source).' '.escapeshellarg($filename);
 
 		// Set STDERR to write to a temporary file
-		list($hash, $errorFile) = $this->getTempFileName($source.'errors');
+		[$hash, $errorFile] = $this->getTempFileName($source.'errors');
 		$this->tempFiles[$hash] = $errorFile;
 		$command .= ' 2> '.escapeshellarg($errorFile);
 
@@ -667,7 +668,7 @@ class RarInfo extends ArchiveReader
 		$b = [];
 
 		// Add block descriptors
-		$b['type'] = isset($this->blockNames[$block['head_type']]) ? $this->blockNames[$block['head_type']] : 'Unknown';
+		$b['type'] = $this->blockNames[$block['head_type']] ?? 'Unknown';
 		if ($block['head_type'] === self::BLOCK_SUB && !empty($block['file_name'])
 		 && isset($this->subblockNames[$block['file_name']])
 		) {
@@ -705,7 +706,7 @@ class RarInfo extends ArchiveReader
 	{
 		$ret = [
 			'name' => !empty($block['file_name']) ? substr($block['file_name'], 0, $this->maxFilenameLength) : 'Unknown',
-			'size' => isset($block['unp_size']) ? $block['unp_size'] : 0,
+			'size' => $block['unp_size'] ?? 0,
 			'date' => !empty($block['utime']) ? $block['utime'] : (!empty($block['ftime']) ? self::dos2unixtime($block['ftime']) : 0),
 			'pass' => isset($block['has_password']) ? ((int) $block['has_password']) : 0,
 			'compressed' => isset($block['method']) ? (int) ($block['method'] !== self::METHOD_STORE && $block['method'] !== self::R50_METHOD_STORE) : '',
@@ -772,26 +773,29 @@ class RarInfo extends ArchiveReader
 			return false;
 		}
 
-		foreach ($positions as $offset) try {
-			$offset += $start;
-			$this->seek($offset - 2);
-
-			// Run a File header CRC & sanity check
-			$block = $this->getNextBlock();
-			if ($this->checkFileHeaderCRC($block)) {
-				$this->seek($block['offset'] + self::HEADER_SIZE);
-				$this->processBlock($block);
-				if ($this->sanityCheckFileHeader($block)) {
-
-					// A valid File header was found
-					$this->format = self::FMT_RAR15;
-					return $this->markerPosition = $block['offset'];
+		foreach ($positions as $offset) {
+			try {
+				$offset += $start;
+				$this->seek($offset - 2);
+				
+				// Run a File header CRC & sanity check
+				$block = $this->getNextBlock();
+				if ($this->checkFileHeaderCRC($block)) {
+					$this->seek($block['offset'] + self::HEADER_SIZE);
+					$this->processBlock($block);
+					if ($this->sanityCheckFileHeader($block)) {
+						
+						// A valid File header was found
+						$this->format = self::FMT_RAR15;
+						
+						return $this->markerPosition = $block['offset'];
+					}
 				}
+				
+				// No more readable data, or read error
+			} catch (\Exception $e) {
+				continue;
 			}
-
-		// No more readable data, or read error
-		} catch (\Exception $e) {
-			continue;
 		}
 
 		return false;
@@ -1256,11 +1260,11 @@ class RarInfo extends ArchiveReader
 			$block['file_name'] = $this->read($block['name_size']);
 
 			// Increment the file count
-			if ($block['head_type'] === self::R50_BLOCK_FILE && !$quickOpen) {
+			if (! $quickOpen && $block['head_type'] === self::R50_BLOCK_FILE) {
 				$this->fileCount++;
 			}
 
-			if ($block['head_type'] === self::R50_BLOCK_SERVICE && !$quickOpen) {
+			if (! $quickOpen && $block['head_type'] === self::R50_BLOCK_SERVICE) {
 
 				// Add any archive comments
 				if ($block['file_name'] === self::R50_SERVICE_COMMENT) {

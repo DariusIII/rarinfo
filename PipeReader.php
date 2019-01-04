@@ -121,7 +121,7 @@ class PipeReader
 		// Move the data pointer
 		$this->offset = $this->tell();
 
-		return isset($read) ? $read : '';
+		return $read ?? '';
 	}
 	
 	/**
@@ -130,7 +130,7 @@ class PipeReader
 	 * @return  string  the remaining output data
 	 * @throws \InvalidArgumentException
 	 */
-	public function readAll()
+	public function readAll(): string
 	{
 		$data = '';
 		while ($read = $this->read($this->maxReadBytes, false)) {
@@ -169,7 +169,7 @@ class PipeReader
 	 * @return  void
 	 * @throws  \InvalidArgumentException
 	 */
-	public function seek($pos)
+	public function seek($pos): void
 	{
 		if ($pos < 0) {
 			throw new \InvalidArgumentException("Could not seek to offset: {$pos}");
@@ -192,7 +192,7 @@ class PipeReader
 	 *
 	 * @return  integer  the absolute position
 	 */
-	public function tell()
+	public function tell(): int
 	{
 		if ($this->command && is_resource($this->handle)) {
 			return ftell($this->handle);
@@ -207,7 +207,7 @@ class PipeReader
 	 * @param   integer  $bytes  the max bytes to read
 	 * @return  void
 	 */
-	public function setMaxReadBytes($bytes)
+	public function setMaxReadBytes($bytes): void
 	{
 		if (is_int($bytes) && $bytes > 0) {
 			$this->maxReadBytes = $bytes;
@@ -243,7 +243,7 @@ class PipeReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		$this->close();
 		$this->error = '';

@@ -16,7 +16,7 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		$this->fixturesDir = realpath(dirname(__FILE__).'/fixtures/szip');
+		$this->fixturesDir = realpath(__DIR__ .'/fixtures/szip');
 	}
 
 	/**

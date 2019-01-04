@@ -49,23 +49,23 @@ class Par2Info extends ArchiveReader
 	 */
 
 	// Packet Marker
-	const PACKET_MARKER            = "PAR2\x00PKT";
+	public const PACKET_MARKER            = "PAR2\x00PKT";
 
 	// Core packet types
-	const PACKET_MAIN              = "PAR 2.0\x00Main\x00\x00\x00\x00";
-	const PACKET_FILEDESC          = "PAR 2.0\x00FileDesc";
-	const PACKET_FILEVER           = "PAR 2.0\x00IFSC\x00\x00\x00\x00";
-	const PACKET_RECOVERY          = "PAR 2.0\x00RecvSlic";
-	const PACKET_CREATOR           = "PAR 2.0\x00Creator\x00";
+	public const PACKET_MAIN              = "PAR 2.0\x00Main\x00\x00\x00\x00";
+	public const PACKET_FILEDESC          = "PAR 2.0\x00FileDesc";
+	public const PACKET_FILEVER           = "PAR 2.0\x00IFSC\x00\x00\x00\x00";
+	public const PACKET_RECOVERY          = "PAR 2.0\x00RecvSlic";
+	public const PACKET_CREATOR           = "PAR 2.0\x00Creator\x00";
 
 	// Optional packet types
-	const PACKET_FILENAME_UC       = "PAR 2.0\x00UniFileN";
-	const PACKET_COMMENT_ASCII     = "PAR 2.0\x00CommASCI";
-	const PACKET_COMMENT_UC        = "PAR 2.0\x00CommUni\x00";
-	const PACKET_INPUT_BLOCK       = "PAR 2.0\x00FileSlic";
-	const PACKET_RECOVERY_VER      = "PAR 2.0\x00RFSC\x00\x00\x00\x00";
-	const PACKET_PACKED_MAIN       = "PAR 2.0\x00PkdMain\x00";
-	const PACKET_PACKED_RECOVERY   = "PAR 2.0\x00PkdRecvS";
+	public const PACKET_FILENAME_UC       = "PAR 2.0\x00UniFileN";
+	public const PACKET_COMMENT_ASCII     = "PAR 2.0\x00CommASCI";
+	public const PACKET_COMMENT_UC        = "PAR 2.0\x00CommUni\x00";
+	public const PACKET_INPUT_BLOCK       = "PAR 2.0\x00FileSlic";
+	public const PACKET_RECOVERY_VER      = "PAR 2.0\x00RFSC\x00\x00\x00\x00";
+	public const PACKET_PACKED_MAIN       = "PAR 2.0\x00PkdMain\x00";
+	public const PACKET_PACKED_RECOVERY   = "PAR 2.0\x00PkdRecvS";
 
 	/**#@-*/
 
@@ -73,18 +73,18 @@ class Par2Info extends ArchiveReader
 	 * Format for unpacking each PAR2 packet header, in standard and Perl-compatible
 	 * (PHP >= 5.5.0) versions.
 	 */
-	const FORMAT_PACKET_HEADER     = 'A8head_marker/Vhead_length/Vhead_length_high/H32head_hash/H32head_set_id/A16head_type';
-	const PL_FORMAT_PACKET_HEADER  = 'a8head_marker/Vhead_length/Vhead_length_high/H32head_hash/H32head_set_id/a16head_type';
+	public const FORMAT_PACKET_HEADER     = 'A8head_marker/Vhead_length/Vhead_length_high/H32head_hash/H32head_set_id/A16head_type';
+	public const PL_FORMAT_PACKET_HEADER  = 'a8head_marker/Vhead_length/Vhead_length_high/H32head_hash/H32head_set_id/a16head_type';
 
 	/**
 	 * Format for unpacking the body of a Main packet.
 	 */
-	const FORMAT_PACKET_MAIN = 'Vblock_size/Vblock_size_high/Vrec_file_count';
+	public const FORMAT_PACKET_MAIN = 'Vblock_size/Vblock_size_high/Vrec_file_count';
 
 	/**
 	 * Format for unpacking the body of a File Description packet.
 	 */
-	const FORMAT_PACKET_FILEDESC = 'H32file_id/H32file_hash/H32file_hash_16K/Vfile_length/Vfile_length_high';
+	public const FORMAT_PACKET_FILEDESC = 'H32file_id/H32file_hash/H32file_hash_16K/Vfile_length/Vfile_length_high';
 
 
 	// ------ Instance variables and methods ---------------------------------------
@@ -180,7 +180,7 @@ class Par2Info extends ArchiveReader
 			}
 
 			$p = [];
-			$p['type_name'] = isset($this->packetNames[$packet['head_type']]) ? $this->packetNames[$packet['head_type']] : 'Unknown';
+			$p['type_name'] = $this->packetNames[$packet['head_type']] ?? 'Unknown';
 			$p += $packet;
 
 			// Sanity check filename length
@@ -199,7 +199,7 @@ class Par2Info extends ArchiveReader
 	 *
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList()
+	public function getFileList(): array
 	{
 		$ret = [];
 		foreach ($this->packets as $packet) {
@@ -232,11 +232,11 @@ class Par2Info extends ArchiveReader
 	 * @param   array  $packet  a valid File Description packet
 	 * @return  array  summary information
 	 */
-	protected function getFilePacketSummary($packet)
+	protected function getFilePacketSummary($packet): array
 	{
 		return [
 			'name' => !empty($packet['file_name']) ? substr($packet['file_name'], 0, $this->maxFilenameLength) : 'Unknown',
-			'size' => isset($packet['file_length']) ? $packet['file_length'] : 0,
+			'size' => $packet['file_length'] ?? 0,
 			'hash' => $packet['file_hash'],
 			'hash_16K' => $packet['file_hash_16K'],
 			'blocks' => 0,
@@ -343,7 +343,7 @@ class Par2Info extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function getNextPacket()
+	protected function getNextPacket(): array
 	{
 		// Start the packet info
 		$packet = ['offset' => $this->offset];
@@ -372,7 +372,7 @@ class Par2Info extends ArchiveReader
 	 * @throws \RangeException
 	 * @throws \RuntimeException
 	 */
-	protected function verifyPacket($packet)
+	protected function verifyPacket($packet): bool
 	{
 		$offset = $this->offset;
 
@@ -393,7 +393,7 @@ class Par2Info extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processPacket(&$packet)
+	protected function processPacket(&$packet): void
 	{
 		// Packet type: MAIN
 		if ($packet['head_type'] === self::PACKET_MAIN) {

@@ -73,20 +73,20 @@ class ArchiveInfo extends ArchiveReader
 	/**#@+
 	 * Supported archive types.
 	 */
-	const TYPE_NONE    = 0x0000;
-	const TYPE_RAR     = 0x0002;
-	const TYPE_ZIP     = 0x0004;
-	const TYPE_SRR     = 0x0008;
-	const TYPE_SFV     = 0x0010;
-	const TYPE_PAR2    = 0x0020;
-	const TYPE_SZIP    = 0x0040;
+	public const TYPE_NONE    = 0x0000;
+	public const TYPE_RAR     = 0x0002;
+	public const TYPE_ZIP     = 0x0004;
+	public const TYPE_SRR     = 0x0008;
+	public const TYPE_SFV     = 0x0010;
+	public const TYPE_PAR2    = 0x0020;
+	public const TYPE_SZIP    = 0x0040;
 
 	/**#@-*/
 
 	/**
 	 * Source path label of the main archive.
 	 */
-	const MAIN_SOURCE  = 'main';
+	public const MAIN_SOURCE  = 'main';
 
 	/**
 	 * The default list of the supported archive reader classes.
@@ -188,7 +188,7 @@ class ArchiveInfo extends ArchiveReader
 	public function getSummary($full = false)
 	{
 		$summary = [
-			'main_info' => isset($this->readers[$this->type]) ? $this->readers[$this->type] : 'Unknown',
+			'main_info' => $this->readers[$this->type] ?? 'Unknown',
 			'main_type' => $this->type,
 			'file_name' => $this->file,
 			'file_size' => $this->fileSize,
@@ -341,7 +341,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return $this->archives;
 	}
-
+	
 	/**
 	 * Returns an ArchiveInfo object for an embedded archive file with the contents
 	 * analyzed (initially without recursion). Calls to this method can also be
@@ -349,8 +349,11 @@ class ArchiveInfo extends ArchiveReader
 	 *
 	 *    $rar->getArchive('parent.rar')->getArchive('child.zip')->getFileList();
 	 *
-	 * @param   string   $filename   the embedded archive filename
+	 * @param   string $filename the embedded archive filename
+	 *
 	 * @return  ArchiveInfo|boolean  false if an object can't be returned
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function getArchive($filename)
 	{
@@ -376,7 +379,7 @@ class ArchiveInfo extends ArchiveReader
 
 				// Extract any compressed data to a temporary file if supported
 				if (!empty($file['compressed']) && empty($file['pass']) && $this->canExtract()) {
-					list($hash, $temp) = $this->getTempFileName("{$file['name']}:{$file['range']}");
+					[$hash, $temp] = $this->getTempFileName("{$file['name']}:{$file['range']}");
 					if (!isset($this->tempFiles[$hash])) {
 						$this->reader->extractFile($file['name'], $temp);
 						@chmod($temp, 0777);
@@ -503,16 +506,20 @@ class ArchiveInfo extends ArchiveReader
 			}
 		}
 
-		return isset($archive) ? $archive : false;
+		return $archive ?? false;
 	}
-
+	
 	/**
 	 * Retrieves the raw data for the given filename and optionally the archive
 	 * source (e.g. 'main' or 'main > child.rar', etc.).
 	 *
-	 * @param   string  $filename  name of the file to extract
-	 * @param   string  $source    archive source path of the file
+	 * @param   string $filename name of the file to extract
+	 * @param   string $source   archive source path of the file
+	 *
 	 * @return  string|boolean  file data, or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RangeException
+	 * @throws \RuntimeException
 	 */
 	public function getFileData($filename, $source = self::MAIN_SOURCE)
 	{
@@ -641,7 +648,18 @@ class ArchiveInfo extends ArchiveReader
 
 		return parent::__get($name);
 	}
-
+	
+	/**
+	 * @param $name
+	 * @param $value
+	 *
+	 * @return mixed
+	 */
+	public function __set($name, $value)
+	{
+		return $this->reader->$name = $value;
+	}
+	
 	/**
 	 * Magic method for testing whether properties of the stored reader are set.
 	 * Note that if called via empty(), if the method returns TRUE a second call
@@ -779,7 +797,7 @@ class ArchiveInfo extends ArchiveReader
 
 			// Store the reader with the earliest marker
 			if (($marker = $reader->findMarker()) !== false) {
-				$start = !isset($start) ? $marker : $start;
+				$start = $start ?? $marker;
 				if ($marker <= $start) {
 					$start = $marker;
 					if (!empty($this->externalClients[$type])) {
@@ -855,12 +873,13 @@ class ArchiveInfo extends ArchiveReader
 
 		return $files;
 	}
-
+	
 	/**
 	 * Extracts any embedded archives that contain compressed files using the
 	 * configured external clients to allow recursive inspection and extraction.
 	 *
 	 * @return  boolean  false on error
+	 * @throws \RuntimeException
 	 */
 	protected function extractArchives()
 	{
