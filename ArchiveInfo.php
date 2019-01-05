@@ -727,7 +727,7 @@ class ArchiveInfo extends ArchiveReader
 	 * List of any external clients to use for extraction.
 	 * @var array
 	 */
-	protected $externalClients = [];
+	public $externalClients = [];
 
 	/**
 	 * Is the current archive being processed from a temporary file?

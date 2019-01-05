@@ -274,7 +274,7 @@ class ZipInfo extends ArchiveReader
 
 		return $ret;
 	}
-	
+
 	/**
 	 * Parses the stored records and returns a list of each of the file entries,
 	 * optionally using the Central Directory File record instead of the (more
@@ -302,7 +302,7 @@ class ZipInfo extends ArchiveReader
 
 		return $ret;
 	}
-	
+
 	/**
 	 * Retrieves the raw data for the given filename. Note that this is only useful
 	 * if the file hasn't been compressed or encrypted.
@@ -330,7 +330,7 @@ class ZipInfo extends ArchiveReader
 
 		return $this->getRange(explode('-', $info['range']));
 	}
-	
+
 	/**
 	 * Saves the raw data for the given filename to the given destination. Note that
 	 * this is only useful if the file isn't compressed or encrypted.
@@ -375,7 +375,7 @@ class ZipInfo extends ArchiveReader
 
 		$this->externalClient = $client;
 	}
-	
+
 	/**
 	 * Extracts a compressed or encrypted file using the configured external 7za
 	 * client, optionally returning the data or saving it to file.
@@ -470,7 +470,7 @@ class ZipInfo extends ArchiveReader
 	 * Full path to the external 7za client.
 	 * @var string
 	 */
-	protected $externalClient = '';
+	public $externalClient = '';
 
 	/**
 	 * Returns a processed summary of a Local or Central File record.
@@ -548,7 +548,7 @@ class ZipInfo extends ArchiveReader
 		// Otherwise this could be an empty ZIP file
 		return $this->markerPosition = strpos($buff, pack('V', self::RECORD_ENDCENTRAL));
 	}
-	
+
 	/**
 	 * Parses the ZIP data and stores a list of valid records locally.
 	 *
@@ -568,36 +568,36 @@ class ZipInfo extends ArchiveReader
 		// Analyze all records
 		while ($this->offset < $this->length) {
 			try {
-				
+
 				// Get the next record header
 				if (($record = $this->getNextRecord()) === false) {
 					continue;
 				}
-				
+
 				// Process the current record by type
 				$this->processRecord($record);
-				
+
 				// Add the current record to the list
 				$this->records[] = $record;
-				
+
 				// Skip to the next record, if any
 				if ($this->offset != $record['next_offset']) {
 					$this->seek($record['next_offset']);
 				}
-				
+
 				// Sanity check
 				if ($record['offset'] == $this->offset) {
 					$this->error = 'Parsing seems to be stuck';
 					$this->close();
-					
+
 					return false;
 				}
-				
+
 				// No more readable data, or read error
 			} catch (\Exception $e) {
 				if ($this->error) {
 					$this->close();
-					
+
 					return false;
 				}
 				break;
@@ -613,7 +613,7 @@ class ZipInfo extends ArchiveReader
 		// Analysis was successful
 		return true;
 	}
-	
+
 	/**
 	 * Reads the start of the next record header and checks the header signature
 	 * before further processing by record type.
@@ -640,7 +640,7 @@ class ZipInfo extends ArchiveReader
 		// Return the record info
 		return $record;
 	}
-	
+
 	/**
 	 * Processes a record passed by reference based on its type. We start with just
 	 * the header signature, and unpack the rest of each header/body from there.
@@ -760,7 +760,7 @@ class ZipInfo extends ArchiveReader
 			}
 		}
 	}
-	
+
 	/**
 	 * Processes Extra Field blocks for the current record.
 	 *

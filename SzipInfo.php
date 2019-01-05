@@ -269,7 +269,7 @@ class SzipInfo extends ArchiveReader
 
 		return $ret;
 	}
-	
+
 	/**
 	 * Retrieves the raw data for the given filename. Note that this is only useful
 	 * if the file hasn't been compressed or encrypted.
@@ -297,7 +297,7 @@ class SzipInfo extends ArchiveReader
 
 		return $this->getRange(explode('-', $info['range']));
 	}
-	
+
 	/**
 	 * Saves the raw data for the given filename to the given destination. Note
 	 * that this is only useful if the file isn't compressed or encrypted.
@@ -353,7 +353,7 @@ class SzipInfo extends ArchiveReader
 
 		$this->externalClient = $client;
 	}
-	
+
 	/**
 	 * Extracts a compressed or encrypted file using the configured external 7za
 	 * client, optionally returning the data or saving it to file.
@@ -479,8 +479,8 @@ class SzipInfo extends ArchiveReader
 	 * Full path to the external 7za client.
 	 * @var string
 	 */
-	protected $externalClient = '';
-	
+	public $externalClient = '';
+
 	/**
 	 * Parses the 7z data and stores a list of valid headers locally.
 	 *
@@ -499,7 +499,7 @@ class SzipInfo extends ArchiveReader
 			return false;
 
 		}
-		
+
 		if ($startPos !== false) {
 
 			// Unpack the Start header
@@ -519,37 +519,37 @@ class SzipInfo extends ArchiveReader
 			}
 			$this->seek($startPos);
 		}
-		
+
 		// Analyze all headers
 		while ($this->offset < $this->length) {
 			try {
-				
+
 				// Get the next header
 				if (($header = $this->readNextHeader()) === false) {
 					break;
 				}
-				
+
 				// Add the current header to the list
 				$this->headers[] = $header;
-				
+
 				// Skip to the next header, if any
 				if ($this->offset !== $header['next_offset']) {
 					$this->seek($header['next_offset']);
 				}
-				
+
 				// Sanity check
 				if ($header['offset'] === $this->offset) {
 					$this->error = 'Parsing seems to be stuck';
 					$this->close();
-					
+
 					return false;
 				}
-				
+
 				// No more readable data, or read error
 			} catch (\Exception $e) {
 				if ($this->error) {
 					$this->close();
-					
+
 					return false;
 				}
 				break;
@@ -600,12 +600,12 @@ class SzipInfo extends ArchiveReader
 				$this->seek(($matches[0] === 'encoded') ?
 					$offset :
 					$offset + 1);
-				
+
 				// Verify the Header or Encoded Header data
 				if (($header = $this->readNextHeader()) && $this->sanityCheckStreamsInfo($header)) {
 					return $this->markerPosition = $offset;
 				}
-				
+
 				// No more readable data, or read error
 			} catch (\Exception $e) {
 				continue;
@@ -638,7 +638,7 @@ class SzipInfo extends ArchiveReader
 
 		return $header;
 	}
-	
+
 	/**
 	 * Reads the start of the next header before further processing by type.
 	 *
@@ -677,7 +677,7 @@ class SzipInfo extends ArchiveReader
 				return $header;
 		}
 	}
-	
+
 	/**
 	 * Reads & parses info about various archive streams from the current offset,
 	 * and adds it to the given header record.
@@ -727,7 +727,7 @@ class SzipInfo extends ArchiveReader
 
 		return $header;
 	}
-	
+
 	/**
 	 * Reads & parses basic info about the packed streams in the archive.
 	 *
@@ -767,7 +767,7 @@ class SzipInfo extends ArchiveReader
 
 		return $this->checkIsEnd($nid);
 	}
-	
+
 	/**
 	 * Reads & parses further info about the contents of the packed streams.
 	 *
@@ -804,9 +804,9 @@ class SzipInfo extends ArchiveReader
 				$folder['unpack_sizes'][] = $this->readNumber();
 			}
 		}
-		
+
 		unset($folder);
-		
+
 		$nid = ord($this->read(1));
 
 		// Unpack digests
@@ -821,7 +821,7 @@ class SzipInfo extends ArchiveReader
 
 		return $this->checkIsEnd($nid);
 	}
-	
+
 	/**
 	 * Reads & parses info about the packed 'folders' or stream blocks. These
 	 * may combine data from multiple files as substreams to improve compression,
@@ -913,7 +913,7 @@ class SzipInfo extends ArchiveReader
 			$header['folders'][] = $folder;
 		}
 	}
-	
+
 	/**
 	 * Reads & parses info about the substreams in each packed 'folder'.
 	 *
@@ -996,7 +996,7 @@ class SzipInfo extends ArchiveReader
 		$header['substreams'] = $subs;
 		return $this->checkIsEnd($nid);
 	}
-	
+
 	/**
 	 * Reads & parses information about the files stored in the archive.
 	 *
@@ -1025,7 +1025,7 @@ class SzipInfo extends ArchiveReader
 				$this->error = "Invalid type, must be below 256: {$type} at: ".($this->offset - 1);
 				return false;
 			}
-			
+
 			if ($type === self::PROPERTY_END) {
 				break;
 			}
@@ -1047,7 +1047,7 @@ class SzipInfo extends ArchiveReader
 						$name .= $data;
 					}
 				}
-				
+
 				unset($file);
 			}
 
@@ -1075,7 +1075,7 @@ class SzipInfo extends ArchiveReader
 						$file['attributes'] = null;
 					}
 				}
-				
+
 				unset($file);
 			}
 
@@ -1093,7 +1093,7 @@ class SzipInfo extends ArchiveReader
 						$file['start_pos'] = null;
 					}
 				}
-				
+
 				unset($file);
 			}
 
@@ -1135,7 +1135,7 @@ class SzipInfo extends ArchiveReader
 		$header['next_offset'] = $this->offset;
 		return $header;
 	}
-	
+
 	/**
 	 * Reads & parses info about the given file time properties.
 	 *
@@ -1194,7 +1194,7 @@ class SzipInfo extends ArchiveReader
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Determines whether an external switch has been set at the current offset
 	 * and sets an error if it has, since the feature isn't supported.
@@ -1230,7 +1230,7 @@ class SzipInfo extends ArchiveReader
 
 		return $fail < $limit;
 	}
-	
+
 	/**
 	 * Reads a variable length integer value from the current offset, which may be
 	 * an unsigned integer or float depending on the size and system.
@@ -1273,7 +1273,7 @@ class SzipInfo extends ArchiveReader
 
 		return 0;
 	}
-	
+
 	/**
 	 * Reads a list of boolean bit flags from the current offset.
 	 *
@@ -1302,10 +1302,10 @@ class SzipInfo extends ArchiveReader
 			$result[$i] = (int) (($byte & $mask) !== 0);
 			$mask >>= 1;
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Reads a list of CRC digests from the current offset.
 	 *
@@ -1508,7 +1508,7 @@ class SzipInfo extends ArchiveReader
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Extracts any encoded headers by creating a dummy archive with the encoded
 	 * header data as the file, and extracting that file with an external client.
