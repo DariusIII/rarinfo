@@ -649,17 +649,6 @@ class ArchiveInfo extends ArchiveReader
 		return parent::__get($name);
 	}
 
-    /**
-     * @param $name
-     * @param $value
-     */
-	public function __set($name, $value)
-	{
-	    if (! empty($value)) {
-            $this->reader->$name = $value;
-        }
-	}
-
 	/**
 	 * Magic method for testing whether properties of the stored reader are set.
 	 * Note that if called via empty(), if the method returns TRUE a second call

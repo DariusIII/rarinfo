@@ -395,17 +395,6 @@ abstract class ArchiveReader
 		throw new \LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
 	}
 
-    /**
-     * @param $name
-     * @param $value
-     */
-	public function __set($name, $value)
-	{
-		if (! empty($value)) {
-            $this->$name = $value;
-        }
-	}
-
 	/**
 	 * @param $name
 	 *
