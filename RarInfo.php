@@ -715,8 +715,9 @@ class RarInfo extends ArchiveReader
 		if (!empty($block['is_dir'])) {
 			$ret['is_dir'] = 1;
 		} elseif (!$quickOpen && !in_array(self::BLOCK_FILE, $this->headersOnly['type'], false)) {
+			$packSize = empty($block['pack_size']) ? 0 : $block['pack_size'];
 			$start = $this->start + $block['offset'] + $block['head_size'];
-			$end   = min($this->end, $start + $block['pack_size'] - 1);
+			$end   = min($this->end, $start + $packSize - 1);
 			$ret['range'] = "{$start}-{$end}";
 		}
 		if (!empty($block['file_crc'])) {
