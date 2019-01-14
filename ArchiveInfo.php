@@ -171,7 +171,7 @@ class ArchiveInfo extends ArchiveReader
 		$this->extensions = $extensions;
 		$this->archives = [];
 	}
-	
+
 	/**
 	 * Convenience method that outputs a summary list of the archive information,
 	 * useful for pretty-printing.
@@ -210,7 +210,7 @@ class ArchiveInfo extends ArchiveReader
 		}
 		return $summary;
 	}
-	
+
 	/**
 	 * Returns a list of records for each of the files in the archive by delegation
 	 * to the stored reader.
@@ -341,7 +341,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return $this->archives;
 	}
-	
+
 	/**
 	 * Returns an ArchiveInfo object for an embedded archive file with the contents
 	 * analyzed (initially without recursion). Calls to this method can also be
@@ -508,7 +508,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return $archive ?? false;
 	}
-	
+
 	/**
 	 * Retrieves the raw data for the given filename and optionally the archive
 	 * source (e.g. 'main' or 'main > child.rar', etc.).
@@ -537,7 +537,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return $this->reader->getRange(explode('-', $info['range']));
 	}
-	
+
 	/**
 	 * Saves the raw data for the given filename and optionally archive source path
 	 * to the given destination (e.g. 'main' or 'main > child.rar', etc.).
@@ -630,7 +630,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return false;
 	}
-	
+
 	/**
 	 * Magic method for accessing the properties of the stored reader.
 	 *
@@ -648,18 +648,7 @@ class ArchiveInfo extends ArchiveReader
 
 		return parent::__get($name);
 	}
-	
-	/**
-	 * @param $name
-	 * @param $value
-	 *
-	 * @return mixed
-	 */
-	public function __set($name, $value)
-	{
-		return $this->reader->$name = $value;
-	}
-	
+
 	/**
 	 * Magic method for testing whether properties of the stored reader are set.
 	 * Note that if called via empty(), if the method returns TRUE a second call
@@ -727,7 +716,7 @@ class ArchiveInfo extends ArchiveReader
 	 * List of any external clients to use for extraction.
 	 * @var array
 	 */
-	protected $externalClients = [];
+	public $externalClients = [];
 
 	/**
 	 * Is the current archive being processed from a temporary file?
@@ -758,7 +747,7 @@ class ArchiveInfo extends ArchiveReader
 
 		// Delegate some properties to the reader
 		unset($this->markerPosition, $this->fileCount, $this->error);
-		
+
 		// Let the reader handle any files
 		if ($this->file) {
 			$this->close();
@@ -866,14 +855,14 @@ class ArchiveInfo extends ArchiveReader
 			}
 		}
 		unset($file);
-		
+
 		if (!empty($children)) {
 			$files = array_merge($files, $children);
 		}
 
 		return $files;
 	}
-	
+
 	/**
 	 * Extracts any embedded archives that contain compressed files using the
 	 * configured external clients to allow recursive inspection and extraction.

@@ -474,7 +474,7 @@ class RarInfo extends ArchiveReader
 
 		return $ret;
 	}
-	
+
 	/**
 	 * Retrieves the raw data for the given filename. Note that this is only useful
 	 * if the file isn't compressed.
@@ -502,7 +502,7 @@ class RarInfo extends ArchiveReader
 
 		return $this->getRange(explode('-', $info['range']));
 	}
-	
+
 	/**
 	 * Saves the raw data for the given filename to the given destination. This
 	 * is only useful if the file isn't compressed.
@@ -547,7 +547,7 @@ class RarInfo extends ArchiveReader
 
 		$this->externalClient = $client;
 	}
-	
+
 	/**
 	 * Extracts a compressed or encrypted file using the configured external Unrar
 	 * client, optionally returning the data or saving it to file.
@@ -654,7 +654,7 @@ class RarInfo extends ArchiveReader
 	 * Full path to the external Unrar client.
 	 * @var string
 	 */
-	protected $externalClient = '';
+	public $externalClient = '';
 
 	/**
 	 * Returns block data in human-readable format (for debugging purposes only).
@@ -778,21 +778,21 @@ class RarInfo extends ArchiveReader
 			try {
 				$offset += $start;
 				$this->seek($offset - 2);
-				
+
 				// Run a File header CRC & sanity check
 				$block = $this->getNextBlock();
 				if ($this->checkFileHeaderCRC($block)) {
 					$this->seek($block['offset'] + self::HEADER_SIZE);
 					$this->processBlock($block);
 					if ($this->sanityCheckFileHeader($block)) {
-						
+
 						// A valid File header was found
 						$this->format = self::FMT_RAR15;
-						
+
 						return $this->markerPosition = $block['offset'];
 					}
 				}
-				
+
 				// No more readable data, or read error
 			} catch (\Exception $e) {
 				continue;
@@ -874,7 +874,7 @@ class RarInfo extends ArchiveReader
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Parses the RAR data and stores a list of valid blocks locally.
 	 *
@@ -914,48 +914,48 @@ class RarInfo extends ArchiveReader
 		// Analyze all valid blocks
 		while ($this->offset < $this->length) {
 			try {
-				
+
 				// Get the next block header
 				$block = $this->getNextBlock();
-				
+
 				// Process the current block by type
 				$this->processBlock($block);
-				
+
 				// Add the current block to the list
 				$this->blocks[] = $block;
-				
+
 				// Bail if this is an encrypted archive
 				if ($this->isEncrypted) {
 					break;
 				}
-				
+
 				// Skip to the next block, if any
 				if ($this->offset !== $block['next_offset']) {
 					$this->seek($block['next_offset']);
 				}
-				
+
 				// Sanity check
 				if ($block['offset'] === $this->offset) {
 					$this->error = 'Parsing seems to be stuck';
 					$this->close();
-					
+
 					return false;
 				}
-				
+
 				// No more readable data, or read error
 			} catch (\Exception $e) {
 				if ($this->error) {
 					$this->close();
-					
+
 					return false;
 				}
 				break;
 			}
-			
+
 			// Check for valid blocks
 			if (empty($this->blocks)) {
 				$this->error = 'No valid RAR blocks were found';
-				
+
 				return false;
 			}
 		}
@@ -963,7 +963,7 @@ class RarInfo extends ArchiveReader
 		// Analysis was successful
 		return true;
 	}
-	
+
 	/**
 	 * Reads the start of the next block header and returns the common block
 	 * info before further processing by block type.
@@ -1003,7 +1003,7 @@ class RarInfo extends ArchiveReader
 		// Return the block info
 		return $block;
 	}
-	
+
 	/**
 	 * Processes a block passed by reference based on its type.
 	 *
@@ -1147,7 +1147,7 @@ class RarInfo extends ArchiveReader
 			$block['av_created_by'] = $this->read($block['av_cname_size']);
 		}
 	}
-	
+
 	/**
 	 * Reads the start of the next Rar 5.0 block header and returns the common
 	 * block info before further processing by block type.
@@ -1188,7 +1188,7 @@ class RarInfo extends ArchiveReader
 		// Return the block info
 		return $block;
 	}
-	
+
 	/**
 	 * Processes a RAR 5.0 block passed by reference based on its type.
 	 *
@@ -1293,7 +1293,7 @@ class RarInfo extends ArchiveReader
 			$this->processExtraRecords($block);
 		}
 	}
-	
+
 	/**
 	 * Processes the RAR 5.0 Quick Open block data and stores any cached headers.
 	 *
@@ -1330,7 +1330,7 @@ class RarInfo extends ArchiveReader
 			}
 		}
 	}
-	
+
 	/**
 	 * Processes the extra records of a RAR 5.0 block passed by reference.
 	 *
@@ -1429,7 +1429,7 @@ class RarInfo extends ArchiveReader
 			}
 		}
 	}
-	
+
 	/**
 	 * Reads a RAR 5.0 variable length integer value from the current offset,
 	 * which may be an unsigned integer or float depending on the size and system.

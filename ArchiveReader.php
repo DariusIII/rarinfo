@@ -158,7 +158,7 @@ abstract class ArchiveReader
 		}
 		return round($bytes, $round).' '.$suffix[$i];
 	}
-	
+
 	/**
 	 * Creates a directory if it doesn't already exist.
 	 *
@@ -172,7 +172,7 @@ abstract class ArchiveReader
 		if (file_exists($dir)) {
 			return false;
 		}
-		
+
 		if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
 			throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
 		}
@@ -180,7 +180,7 @@ abstract class ArchiveReader
 
 		return true;
 	}
-	
+
 	/**
 	 * Returns all the positions of a case-sensitive needle in a haystack string.
 	 * With an array of needles, the result will be a sorted list with the positions
@@ -234,7 +234,7 @@ abstract class ArchiveReader
 	 * @var integer
 	 */
 	public $fileCount = 0;
-	
+
 	/**
 	 * Default constructor for loading and analyzing archive files.
 	 *
@@ -251,7 +251,7 @@ abstract class ArchiveReader
 			$this->open($file, $isFragment, $range);
 		}
 	}
-	
+
 	/**
 	 * Opens a handle to the archive file and analyzes the archive contents,
 	 * optionally within a defined byte range only.
@@ -292,7 +292,7 @@ abstract class ArchiveReader
 
 		return $this->analyze();
 	}
-	
+
 	/**
 	 * Loads data up to maxReadBytes and analyzes the archive contents, optionally
 	 * within a defined byte range only.
@@ -394,18 +394,7 @@ abstract class ArchiveReader
 
 		throw new \LogicException('Cannot access protected property '.get_class($this).'::$'.$name);
 	}
-	
-	/**
-	 * @param $name
-	 * @param $value
-	 *
-	 * @return mixed
-	 */
-	public function __set($name, $value)
-	{
-		return $this->$name = $value;
-	}
-	
+
 	/**
 	 * @param $name
 	 *
@@ -415,7 +404,7 @@ abstract class ArchiveReader
 	{
 		return isset($this->$name);
 	}
-	
+
 	/**
 	 * Class destructor.
 	 *
@@ -585,7 +574,7 @@ abstract class ArchiveReader
 
 		return true;
 	}
-	
+
 	/**
 	 * Returns data within the given absolute byte range of the current file/data.
 	 *
@@ -614,7 +603,7 @@ abstract class ArchiveReader
 
 		return $data;
 	}
-	
+
 	/**
 	 * Saves data within the given absolute byte range of the current file/data to
 	 * the destination file.
@@ -741,7 +730,7 @@ abstract class ArchiveReader
 
 		return $this->start + $this->offset;
 	}
-	
+
 	/**
 	 * Sets the file/data offset pointer to the starting position.
 	 *
@@ -756,7 +745,7 @@ abstract class ArchiveReader
 		}
 		$this->seek(0);
 	}
-	
+
 	/**
 	 * Saves the current stored data to a temporary file and returns its name.
 	 *
@@ -776,7 +765,7 @@ abstract class ArchiveReader
 
 		return $this->tempFiles[$hash] = $dest;
 	}
-	
+
 	/**
 	 * Calculates a temporary file name based on hashes of the given data string
 	 * or the stored data.
@@ -793,7 +782,7 @@ abstract class ArchiveReader
 
 		return [$hash, $path];
 	}
-	
+
 	/**
 	 * Returns the absolute path to the directory for storing temporary files,
 	 * and creates any parent directories if they don't already exist.
