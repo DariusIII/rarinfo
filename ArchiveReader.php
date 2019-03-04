@@ -14,8 +14,9 @@ use COM;
 abstract class ArchiveReader
 {
 	// ------ Class variables and methods -----------------------------------------
+    public $externalClient;
 
-	/**
+    /**
 	 * Unpacks data from a binary string.
 	 *
 	 * This method helps in particular to fix unpacking of unsigned longs on 32-bit
@@ -370,7 +371,7 @@ abstract class ArchiveReader
 	 */
 	public function __toString()
 	{
-		return print_r($this->getSummary(true), true);
+		return (string) print_r($this->getSummary(true), true);
 	}
 
 	/**
@@ -405,7 +406,16 @@ abstract class ArchiveReader
 		return isset($this->$name);
 	}
 
-	/**
+    /**
+     * @param $name
+     * @param $value
+     */
+	public function __set($name, $value)
+    {
+        $this->name = $value;
+    }
+
+    /**
 	 * Class destructor.
 	 *
 	 * @return  void
