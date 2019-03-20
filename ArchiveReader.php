@@ -14,9 +14,10 @@ use COM;
 abstract class ArchiveReader
 {
 	// ------ Class variables and methods -----------------------------------------
-    public $externalClient;
-
-    /**
+    public  $externalClient;
+	private $name;
+	
+	/**
 	 * Unpacks data from a binary string.
 	 *
 	 * This method helps in particular to fix unpacking of unsigned longs on 32-bit
@@ -27,7 +28,7 @@ abstract class ArchiveReader
 	 * @param   boolean  $fixLongs  should unsigned longs be fixed?
 	 * @return  array    the unpacked data
 	 */
-	public static function unpack($format, $data, $fixLongs = true)
+	public static function unpack($format, $data, $fixLongs = true): array
 	{
 		$unpacked = unpack($format, $data);
 		$longs = 'VNL';
@@ -67,7 +68,7 @@ abstract class ArchiveReader
 	 * @param   integer  $dostime  DOS timestamp
 	 * @return  integer  UNIX timestamp
 	 */
-	public static function dos2unixtime($dostime)
+	public static function dos2unixtime($dostime): int
 	{
 		$sec  = 2 * ($dostime & 0x1f);
 		$min  = ($dostime >> 5) & 0x3f;
@@ -86,7 +87,7 @@ abstract class ArchiveReader
 	 * @param   integer  $high  the high 32 bits
 	 * @return  integer  UNIX timestamp
 	 */
-	public static function win2unixtime($low, $high)
+	public static function win2unixtime($low, $high): int
 	{
 		$ushift = 116444736000000000;
 		$ftime  = self::int64($low, $high);
@@ -100,7 +101,7 @@ abstract class ArchiveReader
 	 * @param   mixed  $value  the numeric value to convert
 	 * @return  void
 	 */
-	public static function convert2hex(&$value)
+	public static function convert2hex(&$value): void
 	{
 		if (is_numeric($value)) {
 			$value = base_convert($value, 10, 16);
@@ -151,7 +152,7 @@ abstract class ArchiveReader
 	 * @param   integer  $round  decimal places limit
 	 * @return  string   human-readable size
 	 */
-	public static function formatSize($bytes, $round=1)
+	public static function formatSize($bytes, $round=1): string
 	{
 		$suffix = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		for ($i = 0; $bytes > 1024 && isset($suffix[$i+1]); $i++) {
@@ -168,7 +169,7 @@ abstract class ArchiveReader
 	 * @return  boolean  false if the directory already exists
 	 * @throws \RuntimeException
 	 */
-	public static function makeDirectory($dir)
+	public static function makeDirectory($dir): bool
 	{
 		if (file_exists($dir)) {
 			return false;
@@ -265,7 +266,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function open($file, $isFragment = false, array $range = null)
+	public function open($file, $isFragment = false, array $range = null): bool
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
@@ -308,7 +309,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function setData($data, $isFragment = false, array $range = null)
+	public function setData($data, $isFragment = false, array $range = null): bool
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
@@ -341,7 +342,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  void
 	 */
-	public function close()
+	public function close(): void
 	{
 		if (is_resource($this->handle)) {
 			fclose($this->handle);
@@ -356,7 +357,7 @@ abstract class ArchiveReader
 	 * @param   integer  $bytes  the max bytes to read
 	 * @return  void
 	 */
-	public function setMaxReadBytes($bytes)
+	public function setMaxReadBytes($bytes): void
 	{
 		if (is_int($bytes) && $bytes > 0) {
 			$this->maxReadBytes = $bytes;
@@ -432,7 +433,7 @@ abstract class ArchiveReader
 	 * @param   boolean  $full  return a full summary?
 	 * @return  array    archive summary
 	 */
-	abstract public function getSummary($full = false);
+	abstract public function getSummary($full = false): array;
 
 	/**
 	 * Parses the stored archive info and returns a list of records for each of the
@@ -440,7 +441,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  array  list of file records, empty if none are available
 	 */
-	abstract public function getFileList();
+	abstract public function getFileList(): array;
 
 	/**
 	 * Returns the position of the archive marker/signature.
@@ -454,7 +455,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  boolean  false if parsing fails
 	 */
-	abstract protected function analyze();
+	abstract protected function analyze(): bool;
 
 	/**
 	 * Path to the archive file (if any).
@@ -547,12 +548,12 @@ abstract class ArchiveReader
 	 * @param   array    $range  the start and end byte positions
 	 * @return  boolean  false if ranges are invalid
 	 */
-	protected function setRange(array $range = null)
+	protected function setRange(array $range = null): bool
 	{
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
 
-		if ($start !== (int) $range[0] || $end !== (int) $range[1] || $start < 0 || $end < 0) {
+		if ($start < 0 || $end < 0 || $start !== (int) $range[0] || $end !== (int) $range[1]) {
 			$this->error = "Start ($start) and end ($end) points must be positive integers";
 			return false;
 		}
@@ -572,7 +573,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  boolean
 	 */
-	protected function checkRange()
+	protected function checkRange(): bool
 	{
 		$this->length = $this->end - $this->start + 1;
 		$mlen = $this->file ? $this->fileSize : $this->dataSize;
@@ -662,7 +663,7 @@ abstract class ArchiveReader
 	 * @throws  \InvalidArgumentException
 	 * @throws  \RangeException
 	 */
-	protected function read($num)
+	protected function read($num): string
 	{
 		if ($num === 0) {
 			return '';
@@ -707,7 +708,7 @@ abstract class ArchiveReader
 	 * @throws  \RuntimeException
 	 * @throws  \InvalidArgumentException
 	 */
-	protected function seek($pos)
+	protected function seek($pos): void
 	{
 		if ($pos > $this->length || $pos < 0) {
 			throw new \InvalidArgumentException("Could not seek to {$pos} (max: {$this->length})");
@@ -732,7 +733,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  integer  the absolute file/data position
 	 */
-	protected function tell()
+	protected function tell(): int
 	{
 		if ($this->file && is_resource($this->handle)) {
 			return ftell($this->handle);
@@ -748,7 +749,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function rewind()
+	protected function rewind(): void
 	{
 		if ($this->file && is_resource($this->handle)) {
 			rewind($this->handle);
@@ -762,7 +763,7 @@ abstract class ArchiveReader
 	 * @return  string  path to the temporary file
 	 * @throws \RuntimeException
 	 */
-	protected function createTempDataFile()
+	protected function createTempDataFile(): string
 	{
 		[$hash, $dest] = $this->getTempFileName();
 
@@ -785,7 +786,7 @@ abstract class ArchiveReader
 	 * @return  array   the hash and temporary file path values
 	 * @throws \RuntimeException
 	 */
-	protected function getTempFileName($data = null)
+	protected function getTempFileName($data = null): array
 	{
 		$hash = $data ? md5($data) : md5(substr($this->data, 0, 16*1024));
 		$path = $this->getTempDirectory().DIRECTORY_SEPARATOR.$hash.'.tmp';
@@ -800,7 +801,7 @@ abstract class ArchiveReader
 	 * @return  string  the temporary directory path
 	 * @throws \RuntimeException
 	 */
-	protected function getTempDirectory()
+	protected function getTempDirectory(): string
 	{
 		$dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'archivereader';
 		self::makeDirectory($dir);
@@ -813,7 +814,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function deleteTempFiles()
+	protected function deleteTempFiles(): void
 	{
 		foreach ($this->tempFiles as $temp) {
 			@unlink($temp);
@@ -826,7 +827,7 @@ abstract class ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		$this->close();
 		$this->file = '';
