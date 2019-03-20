@@ -1,6 +1,13 @@
 <?php
 namespace dariusiii\rarinfo;
 
+use dariusiii\rarinfo\Par2Info;
+use dariusiii\rarinfo\RarInfo;
+use dariusiii\rarinfo\SfvInfo;
+use dariusiii\rarinfo\SrrInfo;
+use dariusiii\rarinfo\SzipInfo;
+use dariusiii\rarinfo\ZipInfo;
+
 /**
  * ArchiveInfo class.
  *
@@ -80,33 +87,33 @@ class ArchiveInfo extends ArchiveReader
 	public const TYPE_SFV     = 0x0010;
 	public const TYPE_PAR2    = 0x0020;
 	public const TYPE_SZIP    = 0x0040;
-
+	
 	/**#@-*/
-
+	
 	/**
 	 * Source path label of the main archive.
 	 */
 	public const MAIN_SOURCE  = 'main';
-
+	
 	/**
 	 * The default list of the supported archive reader classes.
 	 * @var array
 	 */
 	protected $readers = [
-		self::TYPE_RAR  => '\dariusiii\rarinfo\RarInfo',
-		self::TYPE_SRR  => '\dariusiii\rarinfo\SrrInfo',
-		self::TYPE_PAR2 => '\dariusiii\rarinfo\Par2Info',
-		self::TYPE_ZIP  => '\dariusiii\rarinfo\ZipInfo',
-		self::TYPE_SFV  => '\dariusiii\rarinfo\SfvInfo',
-		self::TYPE_SZIP => '\dariusiii\rarinfo\SzipInfo',
+		self::TYPE_RAR  => RarInfo::class,
+		self::TYPE_SRR  => SrrInfo::class,
+		self::TYPE_PAR2 => Par2Info::class,
+		self::TYPE_ZIP  => ZipInfo::class,
+		self::TYPE_SFV  => SfvInfo::class,
+		self::TYPE_SZIP => SzipInfo::class,
 	];
-
+	
 	/**
 	 * The current archive file/data type.
 	 * @var integer
 	 */
 	public $type = self::TYPE_NONE;
-
+	
 	/**
 	 * Sets the list of supported archive reader classes for the current instance,
 	 * overriding the defaults. The keys should be valid archive types:
@@ -121,7 +128,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $recursive  apply list to all embedded archives?
 	 * @return  void
 	 */
-	public function setReaders(array $readers, $recursive = false)
+	public function setReaders(array $readers, $recursive = false): void
 	{
 		$this->readers = $readers;
 		$this->inheritReaders = $recursive;
@@ -129,7 +136,7 @@ class ArchiveInfo extends ArchiveReader
 			$this->archives = [];
 		}
 	}
-
+	
 	/**
 	 * Sets the list of external clients configured for each reader type to allow
 	 * extraction of compressed files. The keys should be valid archive types:
@@ -145,19 +152,19 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   array  $clients  list of external clients
 	 * @return  void
 	 */
-	public function setExternalClients(array $clients)
+	public function setExternalClients(array $clients): void
 	{
 		if ($this->reader && isset($clients[$this->type])) {
 			$this->reader->setExternalClient($clients[$this->type]);
 		}
-
+		
 		$this->externalClients = $clients;
 		$this->archives = [];
 		if ($this->reader) {
 			unset($this->error);
 		}
 	}
-
+	
 	/**
 	 * Sets the regex string (minus delimiters and brackets) for filtering valid
 	 * archive extensions when inspecting archive contents recursively. This check
@@ -166,12 +173,12 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   string  $extensions  the regex of archive file extensions
 	 * @return  void
 	 */
-	public function setArchiveExtensions($extensions)
+	public function setArchiveExtensions($extensions): void
 	{
 		$this->extensions = $extensions;
 		$this->archives = [];
 	}
-
+	
 	/**
 	 * Convenience method that outputs a summary list of the archive information,
 	 * useful for pretty-printing.
@@ -184,8 +191,10 @@ class ArchiveInfo extends ArchiveReader
 	 *
 	 * @return  array    archive summary
 	 * @throws \BadMethodCallException
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
-	public function getSummary($full = false)
+	public function getSummary($full = false): array
 	{
 		$summary = [
 			'main_info' => $this->readers[$this->type] ?? 'Unknown',
@@ -210,7 +219,7 @@ class ArchiveInfo extends ArchiveReader
 		}
 		return $summary;
 	}
-
+	
 	/**
 	 * Returns a list of records for each of the files in the archive by delegation
 	 * to the stored reader.
@@ -224,10 +233,10 @@ class ArchiveInfo extends ArchiveReader
 			$args = func_get_args();
 			return $this->__call('getFileList', $args);
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Returns a list of the parsed data found in the source in human-readable
 	 * format (for debugging purposes only).
@@ -252,51 +261,53 @@ class ArchiveInfo extends ArchiveReader
 				return false;
 		}
 	}
-
+	
 	/**
 	 * Returns the stored archive reader instance for the file/data type.
 	 *
 	 * @return  ArchiveReader
 	 */
-	public function getReader()
+	public function getReader(): ArchiveReader
 	{
 		return $this->reader;
 	}
-
+	
 	/**
 	 * Determines whether the current archive type can contain other archives
 	 * through which it can search recursively.
 	 *
 	 * @return  boolean
 	 */
-	public function allowsRecursion()
+	public function allowsRecursion(): bool
 	{
 		return (bool) ($this->type & (self::TYPE_RAR | self::TYPE_ZIP | self::TYPE_SZIP));
 	}
-
+	
 	/**
 	 * Determines whether the current archive contains another archive.
 	 *
 	 * @return  boolean
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
-	public function containsArchive()
+	public function containsArchive(): bool
 	{
 		$this->getArchiveList();
 		return !empty($this->archives);
 	}
-
+	
 	/**
 	 * Determines whether the current reader can extract files using an external
 	 * client.
 	 *
 	 * @return  boolean
 	 */
-	public function canExtract()
+	public function canExtract(): bool
 	{
 		return $this->reader && (!empty($this->externalClients[$this->type])
-		    || !empty($this->reader->externalClient));
+				|| !empty($this->reader->externalClient));
 	}
-
+	
 	/**
 	 * Lists any embedded archives, either as raw ArchiveInfo objects or as file
 	 * summaries, and caches the object list locally. The optional filtering of
@@ -307,22 +318,26 @@ class ArchiveInfo extends ArchiveReader
 	 * This will mean that all files in the archive will be inspected, regardless
 	 * of their extensions - less efficient, more paranoid & probably buggier ;)
 	 *
-	 * @param   boolean  $summary  return file summaries?
+	 * @param   boolean $summary return file summaries?
+	 *
 	 * @return  array|boolean  list of stored objects/summaries, or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function getArchiveList($summary = false)
 	{
 		if (!$this->reader || !$this->allowsRecursion()) {
 			return false;
 		}
-
+		
 		if (empty($this->archives)) {
 			$extensions = !empty($this->extensions) ? "/^({$this->extensions})$/" : false;
 			foreach ($this->reader->getFileList() as $file) {
-				if ($extensions && !preg_match($extensions, pathinfo($file['name'], PATHINFO_EXTENSION)))
+				if ($extensions && !preg_match($extensions, pathinfo($file['name'], PATHINFO_EXTENSION))) {
 					continue;
+				}
 				if (($archive = $this->getArchive($file['name']))
-				 && ($archive->type !== self::TYPE_NONE || empty($archive->readers))
+					&& ($archive->type !== self::TYPE_NONE || empty($archive->readers))
 				) {
 					$this->archives[$file['name']] = $archive;
 				}
@@ -338,10 +353,10 @@ class ArchiveInfo extends ArchiveReader
 			}
 			return $ret;
 		}
-
+		
 		return $this->archives;
 	}
-
+	
 	/**
 	 * Returns an ArchiveInfo object for an embedded archive file with the contents
 	 * analyzed (initially without recursion). Calls to this method can also be
@@ -360,15 +375,15 @@ class ArchiveInfo extends ArchiveReader
 		if (!$this->reader || !$this->allowsRecursion()) {
 			return false;
 		}
-
+		
 		// Check the cache first
 		if (isset($this->archives[$filename])) {
 			return $this->archives[$filename];
 		}
-
+		
 		foreach ($this->reader->getFileList() as $file) {
 			if ($file['name'] === $filename && isset($file['range'])) {
-
+				
 				// Create the new archive object
 				$archive = new self;
 				$archive->externalClients = $this->externalClients;
@@ -376,7 +391,7 @@ class ArchiveInfo extends ArchiveReader
 				if ($this->inheritReaders) {
 					$archive->setReaders($this->readers, true);
 				}
-
+				
 				// Extract any compressed data to a temporary file if supported
 				if (!empty($file['compressed']) && empty($file['pass']) && $this->canExtract()) {
 					[$hash, $temp] = $this->getTempFileName("{$file['name']}:{$file['range']}");
@@ -394,12 +409,12 @@ class ArchiveInfo extends ArchiveReader
 					}
 					return $archive;
 				}
-
+				
 				// Otherwise we shouldn't process any files that are unreadable
 				if (!empty($file['compressed']) || !empty($file['pass'])) {
 					$archive->readers = [];
 				}
-
+				
 				// Try to parse the raw source file/data
 				$range = explode('-', $file['range']);
 				if ($this->file) {
@@ -407,7 +422,7 @@ class ArchiveInfo extends ArchiveReader
 				} else {
 					$archive->setData($this->data, $this->isFragment, $range);
 				}
-
+				
 				// Make error messages more specific
 				if (!empty($file['compressed'])) {
 					$archive->error = 'The archive is compressed and cannot be read';
@@ -415,15 +430,15 @@ class ArchiveInfo extends ArchiveReader
 				if (!empty($archive->isEncrypted) || !empty($file['pass'])) {
 					$archive->error = 'The archive is encrypted and cannot be read';
 				}
-
+				
 				return $archive;
 			}
 		}
-
+		
 		// Something went wrong
 		return false;
 	}
-
+	
 	/**
 	 * Provides the contents of the current archive in a flat list, optionally
 	 * recursing through all embedded archives as well, with a 'source' field
@@ -440,10 +455,13 @@ class ArchiveInfo extends ArchiveReader
 	 * It's really just handy for inspecting all known file names in the laziest
 	 * way possible, and not much more than that.
 	 *
-	 * @param   boolean  $recurse   list all archive contents recursively?
-	 * @param   string|bool   $all       include all supported archive file lists?
-	 * @param   string   $source    [ignore, for internal use only]
+	 * @param   boolean     $recurse list all archive contents recursively?
+	 * @param   string|bool $all     include all supported archive file lists?
+	 * @param   string      $source  [ignore, for internal use only]
+	 *
 	 * @return  array|boolean  the flat archive file list, or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function getArchiveFileList($recurse = true, $all = false, $source = null)
 	{
@@ -451,7 +469,7 @@ class ArchiveInfo extends ArchiveReader
 			return false;
 		}
 		$ret = [];
-
+		
 		// Start with the main parent
 		if ($source === null) {
 			$source = self::MAIN_SOURCE;
@@ -459,24 +477,24 @@ class ArchiveInfo extends ArchiveReader
 				$ret = $this->flattenFileList($ret, $source, $all);
 			}
 		}
-
+		
 		// Merge each archive file list
 		if ($recurse && $this->containsArchive()) {
 			foreach ($this->getArchiveList() as $name => $archive) {
-
+				
 				// Only include the file lists of types that allow recursion?
 				if (empty($archive->error) && !$all && !$archive->allowsRecursion()) {
 					continue;
 				}
 				$branch = $source.' > '.$name;
-
+				
 				// We should append any errors
 				if ($archive->error || !($files = $archive->reader->getFileList())) {
 					$error = $archive->error ? : 'No files found';
 					$ret[] = ['error' => $error, 'source' => $branch];
 					continue;
 				}
-
+				
 				// Otherwise merge recursively
 				$ret[] = $this->flattenFileList($files, $branch, $all);
 				if ($archive->containsArchive()) {
@@ -484,15 +502,18 @@ class ArchiveInfo extends ArchiveReader
 				}
 			}
 		}
-
+		
 		return $ret;
 	}
-
+	
 	/**
 	 * Retrieves the archive reader object described by the given source path string.
 	 *
-	 * @param   string|array  $source  archive source path of the file
+	 * @param   string|array $source archive source path of the file
+	 *
 	 * @return  ArchiveReader|boolean  archive reader object, or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function getArchiveFromSource($source)
 	{
@@ -505,10 +526,10 @@ class ArchiveInfo extends ArchiveReader
 				break;
 			}
 		}
-
+		
 		return $archive ?? false;
 	}
-
+	
 	/**
 	 * Retrieves the raw data for the given filename and optionally the archive
 	 * source (e.g. 'main' or 'main > child.rar', etc.).
@@ -526,7 +547,7 @@ class ArchiveInfo extends ArchiveReader
 		// Check that a valid data source is available
 		if (!$this->reader || ($this->reader->data === '' && $this->reader->handle === null))
 			return false;
-
+		
 		// Get the absolute start/end positions
 		if (!($info = $this->getFileInfo($filename, $source)) || empty($info['range'])) {
 			$in_source = $source ? " in: ({$source})" : '';
@@ -534,10 +555,10 @@ class ArchiveInfo extends ArchiveReader
 			return false;
 		}
 		unset($this->error);
-
+		
 		return $this->reader->getRange(explode('-', $info['range']));
 	}
-
+	
 	/**
 	 * Saves the raw data for the given filename and optionally archive source path
 	 * to the given destination (e.g. 'main' or 'main > child.rar', etc.).
@@ -557,7 +578,7 @@ class ArchiveInfo extends ArchiveReader
 		if (!$this->reader || ($this->reader->data === '' && $this->reader->handle === null)) {
 			return false;
 		}
-
+		
 		// Get the absolute start/end positions
 		if (!($info = $this->getFileInfo($filename, $source)) || empty($info['range'])) {
 			$in_source = $source ? " in: ({$source})" : '';
@@ -565,10 +586,10 @@ class ArchiveInfo extends ArchiveReader
 			return false;
 		}
 		unset($this->error);
-
+		
 		return $this->reader->saveRange(explode('-', $info['range']), $destination);
 	}
-
+	
 	/**
 	 * Extracts a compressed or encrypted file using one of the configured external
 	 * clients, optionally returning the data or saving it to file.
@@ -576,11 +597,14 @@ class ArchiveInfo extends ArchiveReader
 	 * Note that this method will fail with uncompressed or unencrypted files in
 	 * embedded archives - use getFileData() or saveFileData() instead.
 	 *
-	 * @param   string  $filename     name of the file to extract
-	 * @param   string  $destination  full path of the file to create
-	 * @param   string  $password     password to use for decryption
-	 * @param   string  $source       archive source path of the file to extract
+	 * @param   string $filename    name of the file to extract
+	 * @param   string $destination full path of the file to create
+	 * @param   string $password    password to use for decryption
+	 * @param   string $source      archive source path of the file to extract
+	 *
 	 * @return  mixed   extracted data, number of bytes saved or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	public function extractFile($filename, $destination = null, $password = null, $source = self::MAIN_SOURCE)
 	{
@@ -593,7 +617,7 @@ class ArchiveInfo extends ArchiveReader
 			$this->error = get_class($reader).' does not support the extractFile() method';
 			return false;
 		}
-
+		
 		// Get the result of the extraction
 		$result = $reader->extractFile($filename, $destination, $password);
 		if ($reader->error) {
@@ -601,10 +625,10 @@ class ArchiveInfo extends ArchiveReader
 			return false;
 		}
 		unset($this->error);
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Class destructor, cleanly removes any archive reader references.
 	 *
@@ -615,7 +639,7 @@ class ArchiveInfo extends ArchiveReader
 		$this->reset();
 		parent::__destruct();
 	}
-
+	
 	/**
 	 * Returns the position of the first archive marker/signature in the stored
 	 * data or file by delegation to the stored reader.
@@ -627,10 +651,10 @@ class ArchiveInfo extends ArchiveReader
 		if ($this->reader) {
 			return $this->reader->findMarker();
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Magic method for accessing the properties of the stored reader.
 	 *
@@ -645,10 +669,10 @@ class ArchiveInfo extends ArchiveReader
 		if ($this->reader && isset($this->reader->$name)) {
 			return $this->reader->$name;
 		}
-
+		
 		return parent::__get($name);
 	}
-
+	
 	/**
 	 * Magic method for testing whether properties of the stored reader are set.
 	 * Note that if called via empty(), if the method returns TRUE a second call
@@ -662,10 +686,10 @@ class ArchiveInfo extends ArchiveReader
 		if ($this->reader) {
 			return isset($this->reader->$name);
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Magic method for delegating method calls to the stored reader.
 	 *
@@ -679,7 +703,7 @@ class ArchiveInfo extends ArchiveReader
 		if (!$this->reader) {
 			throw new \BadMethodCallException(get_class($this) . "::$method() is not defined");
 		}
-
+		
 		switch (count($args)) {
 			case 0:
 				return $this->reader->$method();
@@ -693,50 +717,50 @@ class ArchiveInfo extends ArchiveReader
 				return call_user_func_array([$this->reader, $method], $args);
 		}
 	}
-
+	
 	/**
 	 * The stored archive reader instance.
 	 * @var ArchiveReader
 	 */
 	protected $reader;
-
+	
 	/**
 	 * Cached list of any embedded archive objects.
 	 * @var array
 	 */
 	protected $archives = [];
-
+	
 	/**
 	 * Should any embedded archives inherit the readers list from this instance?
 	 * @var boolean
 	 */
 	protected $inheritReaders = false;
-
+	
 	/**
 	 * List of any external clients to use for extraction.
 	 * @var array
 	 */
 	public $externalClients = [];
-
+	
 	/**
 	 * Is the current archive being processed from a temporary file?
 	 * @var boolean
 	 */
 	protected $isTemporary = false;
-
+	
 	/**
 	 * The regex for filtering any valid archive extensions.
 	 * @var string
 	 */
 	protected $extensions = 'rar|r[0-9]+|zip|srr|par2|sfv|7z|[0-9]+';
-
+	
 	/**
 	 * Parses the source file/data by delegation to one of the configured readers,
 	 * or returns false if the source is not a supported type.
 	 *
 	 * @return  boolean  false if parsing fails
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Create a reader to handle the file/data
 		if ($this->createReader() === false || $this->findMarker() === false) {
@@ -744,18 +768,18 @@ class ArchiveInfo extends ArchiveReader
 			$this->close();
 			return false;
 		}
-
+		
 		// Delegate some properties to the reader
 		unset($this->markerPosition, $this->fileCount, $this->error);
-
+		
 		// Let the reader handle any files
 		if ($this->file) {
 			$this->close();
 		}
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * Creates a reader instance for parsing the source file/data and stores it
 	 * locally for any later delegation.
@@ -767,12 +791,12 @@ class ArchiveInfo extends ArchiveReader
 	 *
 	 * @return  boolean  false if no reader could parse the source
 	 */
-	protected function createReader()
+	protected function createReader(): bool
 	{
 		$range = [$this->start, $this->end];
-
+		
 		foreach ($this->readers as $type => $class) {
-
+			
 			// Analyze the source with a new reader
 			$reader = new $class;
 			if ($this->file) {
@@ -783,7 +807,7 @@ class ArchiveInfo extends ArchiveReader
 			if ($reader->error) {
 				continue;
 			}
-
+			
 			// Store the reader with the earliest marker
 			if (($marker = $reader->findMarker()) !== false) {
 				$start = $start ?? $marker;
@@ -800,17 +824,20 @@ class ArchiveInfo extends ArchiveReader
 				}
 			}
 		}
-
+		
 		return isset($this->reader);
 	}
-
+	
 	/**
 	 * Returns information for the given filename and optionally archive source
 	 * in the current file/data.
 	 *
-	 * @param   string  $filename  the filename to search
-	 * @param   string  $source    archive source path of the file
+	 * @param   string $filename the filename to search
+	 * @param   string $source   archive source path of the file
+	 *
 	 * @return  array|boolean  the file info or false on error
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
 	protected function getFileInfo($filename, $source = self::MAIN_SOURCE)
 	{
@@ -819,15 +846,15 @@ class ArchiveInfo extends ArchiveReader
 		}
 		foreach ($this->getArchiveFileList(true) as $file) {
 			if (!empty($file['name']) && empty($file['is_dir'])
-			 && $file['name'] === $filename && $file['source'] === $source
+				&& $file['name'] === $filename && $file['source'] === $source
 			) {
 				return $file;
 			}
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Helper method that flattens a file list that may have children, removes keys
 	 * and re-indexes, then adds a source path field to each item.
@@ -837,7 +864,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @param   boolean  $all     should any child lists be included?
 	 * @return  array  the flat file list
 	 */
-	protected function flattenFileList(array $files, $source, $all = false)
+	protected function flattenFileList(array $files, $source, $all = false): array
 	{
 		$files = array_values($files);
 		$children = [];
@@ -855,14 +882,14 @@ class ArchiveInfo extends ArchiveReader
 			}
 		}
 		unset($file);
-
+		
 		if (!empty($children)) {
 			$files = array_merge($files, $children);
 		}
-
+		
 		return $files;
 	}
-
+	
 	/**
 	 * Extracts any embedded archives that contain compressed files using the
 	 * configured external clients to allow recursive inspection and extraction.
@@ -870,17 +897,17 @@ class ArchiveInfo extends ArchiveReader
 	 * @return  boolean  false on error
 	 * @throws \RuntimeException
 	 */
-	protected function extractArchives()
+	protected function extractArchives(): bool
 	{
 		if (!$this->reader || !$this->canExtract()) {
 			return false;
 		}
-
+		
 		foreach ($this->archives as $name => $archive) {
 			if ($archive->isTemporary || !$archive->canExtract()) {
 				continue;
 			}
-
+			
 			if ($files = $archive->reader->getFileList()) {
 				foreach ($files as $file) {
 					if (!empty($file['compressed']) && empty($file['pass'])) {
@@ -897,16 +924,16 @@ class ArchiveInfo extends ArchiveReader
 				}
 			}
 		}
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * Resets the instance variables before parsing new data.
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		$this->reader = null;
 		foreach ($this->archives as $archive) {
@@ -917,5 +944,5 @@ class ArchiveInfo extends ArchiveReader
 		$this->type = self::TYPE_NONE;
 		$this->isTemporary = false;
 	}
-
+	
 } // End ArchiveInfo class
