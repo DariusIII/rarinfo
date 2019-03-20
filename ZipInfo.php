@@ -224,7 +224,7 @@ class ZipInfo extends ArchiveReader
 	 * @param   boolean   $central   should Central File records be used?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full = false, $skipDirs = false, $central = false)
+	public function getSummary($full = false, $skipDirs = false, $central = false): array
 	{
 		$summary = [
 			'file_name'  => $this->file,
@@ -286,7 +286,7 @@ class ZipInfo extends ArchiveReader
 	 *
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs = false, $central = false)
+	public function getFileList($skipDirs = false, $central = false): array
 	{
 		$ret = [];
 		foreach ($this->records as $record) {
@@ -556,7 +556,7 @@ class ZipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Find the first record signature, if there is one
 		if (($startPos = $this->findMarker()) === false) {
@@ -581,12 +581,12 @@ class ZipInfo extends ArchiveReader
 				$this->records[] = $record;
 
 				// Skip to the next record, if any
-				if ($this->offset != $record['next_offset']) {
+				if ($this->offset !== $record['next_offset']) {
 					$this->seek($record['next_offset']);
 				}
 
 				// Sanity check
-				if ($record['offset'] == $this->offset) {
+				if ($record['offset'] === $this->offset) {
 					$this->error = 'Parsing seems to be stuck';
 					$this->close();
 
@@ -652,7 +652,7 @@ class ZipInfo extends ArchiveReader
 	 * @throws \RangeException
 	 * @throws \RuntimeException
 	 */
-	protected function processRecord(&$record)
+	protected function processRecord(&$record): void
 	{
 		// Record type: LOCAL FILE
 		if ($record['type'] === self::RECORD_LOCAL_FILE) {
@@ -823,7 +823,7 @@ class ZipInfo extends ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 
