@@ -18,17 +18,21 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/rar');
 	}
-
+	
 	/**
 	 * RAR files consist of a series of header blocks and optional bodies for
 	 * certain block types and subblocks. We should be abe to report an accurate
 	 * list of all blocks in summmary form.
 	 *
 	 * @dataProvider  providerTestFixtures
-	 * @param  string  $filename  sample rar filename
-	 * @param  string  $blocks    expected list of valid blocks
+	 *
+	 * @param  string $filename sample rar filename
+	 * @param  string $blocks   expected list of valid blocks
+	 *
+	 * @throws \InvalidArgumentException
+	 * @throws \RuntimeException
 	 */
-	public function testStoresListOfAllValidBlocks($filename, $blocks)
+	public function testStoresListOfAllValidBlocks($filename, $blocks): void
 	{
 		$rar = new RarInfo;
 		$rar->open($filename, true);
@@ -42,7 +46,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	/**
 	 * Provides test data from sample files.
 	 */
-	public function providerTestFixtures()
+	public function providerTestFixtures(): array
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$fixturesDir = realpath(__DIR__ .'/fixtures/rar');
@@ -64,7 +68,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 * We should be able to report on the contents of the RAR file, with some
 	 * simple processing of the raw File blocks to make them human-readable.
 	 */
-	public function testListsAllArchiveFiles()
+	public function testListsAllArchiveFiles(): void
 	{
 		$rar = new RarInfo;
 		$rar->open($this->fixturesDir.'/multi.part1.rar');
@@ -99,7 +103,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 * If the archive files are packed with the Store method, we should just be able
 	 * to extract the file data and use it as is, since it isn't compressed.
 	 */
-	public function testExtractsFileDataPackedWithStoreMethod()
+	public function testExtractsFileDataPackedWithStoreMethod(): void
 	{
 		$rar = new RarInfo;
 		$rarfile = $this->fixturesDir.'/store_method.rar';
@@ -137,7 +141,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 * earlier versions, but initially we just want to be able to detect the
 	 * the new format automatically and not break the basic public API.
 	 */
-	public function testBasicRar50Support()
+	public function testBasicRar50Support(): void
 	{
 		$rar = new RarInfo;
 		$rar->open($this->fixturesDir.'/rar50_encrypted_files.rar');
@@ -206,7 +210,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 * We should have an easy way to retrieve a list of cached file headers from
 	 * a RAR 5.0 Quick Open block, if it exists.
 	 */
-	public function testRar50ListsQuickOpenCachedFiles()
+	public function testRar50ListsQuickOpenCachedFiles(): void
 	{
 		$rar = new RarInfo;
 		$rar->open($this->fixturesDir.'/rar50_quickopen.rar');
@@ -240,7 +244,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 * We want to bail as early as possible when handling archives with encrypted
 	 * headers, as there's not much else we can do with them.
 	 */
-	public function testHandlesEncryptedArchivesGracefully()
+	public function testHandlesEncryptedArchivesGracefully(): void
 	{
 		$rar = new RarInfo;
 		$rar->open($this->fixturesDir.'/encrypted_headers.rar');
@@ -264,8 +268,8 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	protected function getUnrarPath()
 	{
 		$unrar = DIRECTORY_SEPARATOR === '\\'
-			? dirname(__FILE__).'\bin\unrar\UnRAR.exe'
-			: dirname(__FILE__).'/bin/unrar/unrar';
+			? __DIR__ .'\bin\unrar\UnRAR.exe'
+			: __DIR__ .'/bin/unrar/unrar';
 
 		if (file_exists($unrar))
 			return $unrar;
@@ -280,7 +284,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 *
 	 * @group  external
 	 */
-	public function testDecompressesWithExternalClient()
+	public function testDecompressesWithExternalClient(): void
 	{
 		if (!($unrar = $this->getUnrarPath())) {
 			$this->markTestSkipped();
@@ -325,7 +329,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 	 *
 	 * @depends  testBasicRar50Support
 	 */
-	public function testRar50BadExtraSize()
+	public function testRar50BadExtraSize(): void
 	{
 		$rar = new RarInfo;
 		$rar->open($this->fixturesDir.'/rar50_bad_extra_size.rar');
