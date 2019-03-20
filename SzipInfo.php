@@ -152,7 +152,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   boolean   $skipDirs  should directory entries be skipped?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full = false, $skipDirs = false)
+	public function getSummary($full = false, $skipDirs = false): array
 	{
 		$summary = [
 			'file_name'    => $this->file,
@@ -206,7 +206,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs = false)
+	public function getFileList($skipDirs = false): array
 	{
 		// Check that headers are stored
 		if (!($info = $this->getFilesHeaderInfo()) || empty($info['files'])) {
@@ -333,7 +333,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   string   $password  the password
 	 * @return  void
 	 */
-	public function setPassword($password)
+	public function setPassword($password): void
 	{
 		$this->password = $password;
 	}
@@ -345,7 +345,7 @@ class SzipInfo extends ArchiveReader
 	 * @return  void
 	 * @throws  \InvalidArgumentException
 	 */
-	public function setExternalClient($client)
+	public function setExternalClient($client): void
 	{
 		if ($client && (!is_file($client) || !is_executable($client))) {
 			throw new \InvalidArgumentException("Not a valid client: {$client}");
@@ -488,7 +488,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Find the marker signature, if there is one
 		$startPos = $this->findMarker();
@@ -608,7 +608,7 @@ class SzipInfo extends ArchiveReader
 
 				// No more readable data, or read error
 			} catch (\Exception $e) {
-				continue;
+				//Do nothing, we continue forward
 			}
 		}
 
@@ -737,7 +737,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processPackInfo(&$header)
+	protected function processPackInfo(&$header): bool
 	{
 		$header['pack_offset'] = $this->readNumber();
 		$header['num_streams'] = $this->readNumber();
@@ -1146,7 +1146,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processFileTimes(&$header, $type)
+	protected function processFileTimes(&$header, $type): ?bool
 	{
 		$defined = $this->readBooleans($header['num_files'], true);
 		if (!$this->checkExternal()) {
@@ -1173,7 +1173,7 @@ class SzipInfo extends ArchiveReader
 	 * @param   array    $header  a valid header record
 	 * @return  boolean  false on error
 	 */
-	protected function processArchiveProperties(&$header)
+	protected function processArchiveProperties(&$header): bool
 	{
 		$this->error = 'Archive properties not implemented, at: '.$this->offset;
 		return false;
@@ -1608,7 +1608,7 @@ class SzipInfo extends ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 		$this->headers = [];
