@@ -227,7 +227,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @return  array|boolean  list of file records, or false if none are available
 	 * @throws \BadMethodCallException
 	 */
-	public function getFileList()
+	public function getFileList(): array
 	{
 		if ($this->reader) {
 			$args = func_get_args();
