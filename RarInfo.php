@@ -354,7 +354,7 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean   $skipDirs  should directory entries be skipped?
 	 * @return  array     archive summary
 	 */
-	public function getSummary($full = false, $skipDirs = false)
+	public function getSummary($full = false, $skipDirs = false): array
 	{
 		$summary = [
 			'file_name'    => $this->file,
@@ -426,7 +426,7 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($skipDirs = false)
+	public function getFileList($skipDirs = false): array
 	{
 		$ret = [];
 		foreach ($this->blocks as $block) {
@@ -539,7 +539,7 @@ class RarInfo extends ArchiveReader
 	 * @return  void
 	 * @throws  \InvalidArgumentException
 	 */
-	public function setExternalClient($client)
+	public function setExternalClient($client): void
 	{
 		if ($client && (!is_file($client) || !is_executable($client))) {
 			throw new \InvalidArgumentException("Not a valid client: {$client}");
@@ -663,7 +663,7 @@ class RarInfo extends ArchiveReader
 	 * @param   boolean  $asHex  should numeric values be displayed as hexadecimal?
 	 * @return  array    the formatted block
 	 */
-	protected function formatBlock($block, $asHex = false)
+	protected function formatBlock($block, $asHex = false): array
 	{
 		$b = [];
 
@@ -702,7 +702,7 @@ class RarInfo extends ArchiveReader
 	 *
 	 * @return array summary information
 	 */
-	protected function getFileBlockSummary($block, $quickOpen = false)
+	protected function getFileBlockSummary($block, $quickOpen = false): array
 	{
 		$ret = [
 			'name' => !empty($block['file_name']) ? substr($block['file_name'], 0, $this->maxFilenameLength) : 'Unknown',
@@ -808,7 +808,7 @@ class RarInfo extends ArchiveReader
 	 * @param   array    $block  a valid File block
 	 * @return  boolean  false if CRC check fails
 	 */
-	protected function checkFileHeaderCRC($block)
+	protected function checkFileHeaderCRC($block): ?bool
 	{
 		// Not supported for RAR 5.0
 		if ($this->format === self::FMT_RAR50) {
@@ -833,7 +833,7 @@ class RarInfo extends ArchiveReader
 	 * @param   integer  $limit  the minimum failure threshold
 	 * @return  boolean  false if the sanity check fails
 	 */
-	protected function sanityCheckFileHeader($block, $limit=3)
+	protected function sanityCheckFileHeader($block, $limit=3): bool
 	{
 		// Not supported for RAR 5.0
 		if ($this->format === self::FMT_RAR50) {
@@ -882,7 +882,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Find the RAR marker, if there is one
 		$startPos = $this->findMarker();
@@ -972,7 +972,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function getNextBlock()
+	protected function getNextBlock(): array
 	{
 		if ($this->format === self::FMT_RAR50) {
 			return $this->getNextBlockR50();
@@ -1156,7 +1156,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function getNextBlockR50()
+	protected function getNextBlockR50(): array
 	{
 		// Start the block info
 		$block = ['offset' => $this->offset];
@@ -1199,7 +1199,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \RangeException
 	 * @throws \RuntimeException
 	 */
-	protected function processBlockR50(&$block, $quickOpen = false)
+	protected function processBlockR50(&$block, $quickOpen = false): void
 	{
 		// Block type: ARCHIVE
 		if ($block['head_type'] === self::R50_BLOCK_MAIN) {
@@ -1304,7 +1304,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \RangeException
 	 * @throws \RuntimeException
 	 */
-	protected function processQuickOpenRecords(&$block)
+	protected function processQuickOpenRecords(&$block): void
 	{
 		$end = min($this->offset + $block['data_size'], $this->length);
 		while ($this->offset < $end) {
@@ -1341,7 +1341,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \RangeException
 	 * @throws \RuntimeException
 	 */
-	protected function processExtraRecords(&$block)
+	protected function processExtraRecords(&$block): void
 	{
 		$end = min($this->offset + $block['extra_size'], $this->length);
 		while ($this->offset < $end) {
@@ -1475,7 +1475,7 @@ class RarInfo extends ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 		$this->isVolume = false;
@@ -1608,7 +1608,7 @@ class RarUnicodeFilename
 	 *
 	 * @return  integer  encoded byte value, or 0 on fail
 	 */
-	protected function encByte()
+	protected function encByte(): int
 	{
 		if (isset($this->encData[$this->encPos])) {
 			$ret = ord($this->encData[$this->encPos]);
@@ -1625,7 +1625,7 @@ class RarUnicodeFilename
 	 *
 	 * @return  integer  standard byte value, or placeholder on fail
 	 */
-	protected function stdByte()
+	protected function stdByte(): int
 	{
 		if (isset($this->stdName[$this->pos])) {
 			return ord($this->stdName[$this->pos]);
@@ -1641,7 +1641,7 @@ class RarUnicodeFilename
 	 * @param   integer  $high  high byte value
 	 * @return  void
 	 */
-	protected function put($low, $high)
+	protected function put($low, $high): void
 	{
 		$this->output .= chr($low);
 		$this->output .= chr($high);
