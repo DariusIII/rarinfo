@@ -130,7 +130,7 @@ class SrrInfo extends RarInfo
 	 * @param   boolean   $skipDirs  should RAR directory entries be skipped?
 	 * @return  array     SRR file summary
 	 */
-	public function getSummary($full = false, $skipDirs = false)
+	public function getSummary($full = false, $skipDirs = false): array
 	{
 		$summary = [
 			'file_name'    => $this->file,
@@ -218,7 +218,7 @@ class SrrInfo extends RarInfo
 	 * @param   boolean  $skipDirs  should directory entries be skipped?
 	 * @return  array|boolean  list of file records, or false if none are available
 	 */
-	public function getFileList($skipDirs = false)
+	public function getFileList($skipDirs = false): array
 	{
 		$list = [];
 		$i = -1;
@@ -283,7 +283,7 @@ class SrrInfo extends RarInfo
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Find the SRR MARKER block, or abort if none is found
 		if (($startPos = $this->findMarker()) === false) {
@@ -375,7 +375,7 @@ class SrrInfo extends RarInfo
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 		$this->client = '';
