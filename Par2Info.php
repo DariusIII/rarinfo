@@ -134,7 +134,7 @@ class Par2Info extends ArchiveReader
 	 * @param   boolean   $full  add file list to output?
 	 * @return  array     file/data summary
 	 */
-	public function getSummary($full = false)
+	public function getSummary($full = false): array
 	{
 		$summary = [
 			'file_name'   => $this->file,
@@ -270,7 +270,7 @@ class Par2Info extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Find the first Packet Marker, if there is one
 		if (($startPos = $this->findMarker()) === false) {
@@ -290,7 +290,7 @@ class Par2Info extends ArchiveReader
 				// Verify the packet
 				if ($this->verifyPacket($packet) === false) {
 					$this->error = "Packet failed checksum (offset: {$this->offset})";
-					throw new \Exception('Packet checksum failed');
+					throw new \RuntimeException('Packet checksum failed');
 				}
 				
 				// Process the current packet by type
@@ -462,7 +462,7 @@ class Par2Info extends ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 
