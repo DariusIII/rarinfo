@@ -14,9 +14,7 @@
     }
   ],
   "require": {
-    "php": ">=7.2.0",
-    "ext-com_dotnet": "*",
-    "ext-iconv": "*"
+    "php": ">=7.2.0"
   },
   "autoload": {
     "classmap": [
