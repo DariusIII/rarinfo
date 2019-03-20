@@ -49,7 +49,7 @@ class SfvInfo extends ArchiveReader
 	 *
 	 * @return  array    file record summary
 	 */
-	public function getSummary($full = false, $basenames = false)
+	public function getSummary($full = false, $basenames = false): array
 	{
 		$summary = [
 			'file_name'  => $this->file,
@@ -74,7 +74,7 @@ class SfvInfo extends ArchiveReader
 	 * @param   boolean  $basenames  don't include full file paths?
 	 * @return  array  list of file records, empty if none are available
 	 */
-	public function getFileList($basenames = false)
+	public function getFileList($basenames = false): array
 	{
 		if ($basenames) {
 			$ret = [];
@@ -109,7 +109,7 @@ class SfvInfo extends ArchiveReader
 	 *
 	 * @return  boolean  false if parsing fails
 	 */
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		// Get the available data up to the maximum allowed
 		try {
@@ -158,7 +158,7 @@ class SfvInfo extends ArchiveReader
 	 *
 	 * @return  void
 	 */
-	protected function reset()
+	protected function reset(): void
 	{
 		parent::reset();
 		$this->fileList = [];
