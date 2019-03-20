@@ -54,7 +54,7 @@ class PipeReader
 	 * @param   string   $command  the command to execute
 	 * @return  boolean  false if the pipe could not be openend
 	 */
-	public function open($command)
+	public function open($command): bool
 	{
 		$this->reset();
 
@@ -74,7 +74,7 @@ class PipeReader
 	 *
 	 * @return  void
 	 */
-	public function close()
+	public function close(): void
 	{
 		if (is_resource($this->handle)) {
 			$this->exitCode = pclose($this->handle);
@@ -92,7 +92,7 @@ class PipeReader
 	 * @return  string    the byte string
 	 * @throws  \InvalidArgumentException
 	 */
-	public function read($num, $confirm = true)
+	public function read($num, $confirm = true): string
 	{
 		if ($num < 1) {
 			throw new \InvalidArgumentException("Could not read {$num} bytes from offset {$this->offset}");
