@@ -1146,7 +1146,7 @@ class SzipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RangeException
 	 */
-	protected function processFileTimes(&$header, $type): ?bool
+	protected function processFileTimes(&$header, $type)
 	{
 		$defined = $this->readBooleans($header['num_files'], true);
 		if (!$this->checkExternal()) {
