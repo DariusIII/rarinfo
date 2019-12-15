@@ -553,7 +553,7 @@ abstract class ArchiveReader
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
 
-		if ($start < 0 || $end < 0 || $start !== (int) $range[0] || $end !== (int) $range[1]) {
+		if ($start < 0 || $end < 0) {
 			$this->error = "Start ($start) and end ($end) points must be positive integers";
 			return false;
 		}
