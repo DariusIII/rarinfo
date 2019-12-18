@@ -584,6 +584,9 @@ class RarInfo extends ArchiveReader
 		if (DIRECTORY_SEPARATOR !== '\\') {
 			$filename = str_replace('\\', '/', $filename);
 		}
+		
+		// Sanitize NULL bytes
+		$filename = $this->sanitizeString($filename);
 
 		// Set the external command
 		$pass = $password ? '-p'.escapeshellarg($password) : '-p-';
