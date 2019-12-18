@@ -825,7 +825,7 @@ abstract class ArchiveReader
 	/**
 	* Sanitize strings containing NULL bytes
 	*
-	* @param string $refName
+	* @param string $str
 	* @return string
 	*/
 	protected function sanitizeString($str)
