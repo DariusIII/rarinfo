@@ -821,6 +821,17 @@ abstract class ArchiveReader
 		}
 		$this->tempFiles = [];
 	}
+	
+	/**
+	* Sanitize strings containing NULL bytes
+	*
+	* @param string $refName
+	* @return string
+	*/
+	protected function sanitizeString($str)
+	{
+	return str_replace("\x00", '', $str);
+	}
 
 	/**
 	 * Resets the instance variables before parsing new data.
