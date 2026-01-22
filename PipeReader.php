@@ -38,7 +38,7 @@ class PipeReader
 	 * @param   string  $command  the command to execute
 	 * @return  void
 	 */
-	public function __construct($command = null)
+	public function __construct(?string $command = null)
 	{
 		if ($command) {
 			$this->open($command);

@@ -560,7 +560,7 @@ class RarInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function extractFile($filename, $destination = null, $password = null)
+	public function extractFile(string $filename, ?string $destination = null, ?string $password = null)
 	{
 		if (!$this->externalClient || (!$this->file && !$this->data)) {
 			$this->error = 'An external client and valid data source are needed';
@@ -1020,7 +1020,8 @@ class RarInfo extends ArchiveReader
 	protected function processBlock(&$block)
 	{
 		if ($this->format === self::FMT_RAR50) {
-			return $this->processBlockR50($block);
+			$this->processBlockR50($block);
+			return true;
 		}
 
 		// Block type: ARCHIVE
@@ -1149,6 +1150,8 @@ class RarInfo extends ArchiveReader
 			$block += self::unpack('vav_unknown/vav_cname_size', $this->read(4)); // guesswork
 			$block['av_created_by'] = $this->read($block['av_cname_size']);
 		}
+		
+		return true;
 	}
 
 	/**

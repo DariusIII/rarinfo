@@ -114,7 +114,7 @@ class SrrInfo extends RarInfo
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function __construct($file = null, $isFragment = false, array $range = null)
+	public function __construct(?string $file = null, bool $isFragment = false, ?array $range = null)
 	{
 		// Merge the SRR and RAR block names
 		$this->blockNames = $this->srrBlockNames + $this->blockNames;
@@ -271,7 +271,7 @@ class SrrInfo extends RarInfo
 	 *
 	 * @return bool|mixed
 	 */
-	public function extractFile($filename, $destination = null, $password = null)
+	public function extractFile(string $filename, ?string $destination = null, ?string $password = null)
 	{
 		return false;
 	}

@@ -451,9 +451,9 @@ class ArchiveInfo extends ArchiveReader
 	 *
 	 *     array('name'  => '...', 'source' => '...') or:
 	 *     array('error' => '...', 'source' => '...')
-	 *
-	 * It's really just handy for inspecting all known file names in the laziest
-	 * way possible, and not much more than that.
+	/**
+	 * Returns a flat list of all the files stored in the top-level archive and
+	 * any nested archives, with the source path info appended to each item.
 	 *
 	 * @param   boolean     $recurse list all archive contents recursively?
 	 * @param   string|bool $all     include all supported archive file lists?
@@ -463,7 +463,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function getArchiveFileList($recurse = true, $all = false, $source = null)
+	public function getArchiveFileList(bool $recurse = true, $all = false, ?string $source = null)
 	{
 		if (!$this->reader) {
 			return false;
@@ -606,7 +606,7 @@ class ArchiveInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function extractFile($filename, $destination = null, $password = null, $source = self::MAIN_SOURCE)
+	public function extractFile(string $filename, ?string $destination = null, ?string $password = null, string $source = self::MAIN_SOURCE)
 	{
 		// Check that a valid reader is available
 		if (!($archive = $this->getArchiveFromSource($source)) || !($reader = $archive->reader)) {

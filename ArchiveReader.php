@@ -247,7 +247,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function __construct($file = null, $isFragment = false, array $range = null)
+	public function __construct(?string $file = null, bool $isFragment = false, ?array $range = null)
 	{
 		if ($file) {
 			$this->open($file, $isFragment, $range);
@@ -266,7 +266,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function open($file, $isFragment = false, array $range = null): bool
+	public function open(string $file, bool $isFragment = false, ?array $range = null): bool
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
@@ -309,7 +309,7 @@ abstract class ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function setData($data, $isFragment = false, array $range = null): bool
+	public function setData(string $data, bool $isFragment = false, ?array $range = null): bool
 	{
 		$this->reset();
 		$this->isFragment = $isFragment;
@@ -413,7 +413,7 @@ abstract class ArchiveReader
      */
 	public function __set($name, $value)
     {
-        $this->name = $value;
+        $this->$name = $value;
     }
 
     /**
@@ -548,7 +548,7 @@ abstract class ArchiveReader
 	 * @param   array    $range  the start and end byte positions
 	 * @return  boolean  false if ranges are invalid
 	 */
-	protected function setRange(array $range = null): bool
+	protected function setRange(?array $range = null): bool
 	{
 		$start = isset($range[0]) ? (int) $range[0] : 0;
 		$end   = isset($range[1]) ? (int) $range[1] : 0;
@@ -786,7 +786,7 @@ abstract class ArchiveReader
 	 * @return  array   the hash and temporary file path values
 	 * @throws \RuntimeException
 	 */
-	protected function getTempFileName($data = null): array
+	protected function getTempFileName(?string $data = null): array
 	{
 		$hash = $data ? md5($data) : md5(substr($this->data, 0, 16*1024));
 		$path = $this->getTempDirectory().DIRECTORY_SEPARATOR.$hash.'.tmp';

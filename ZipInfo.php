@@ -388,7 +388,7 @@ class ZipInfo extends ArchiveReader
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
 	 */
-	public function extractFile($filename, $destination = null, $password = null)
+	public function extractFile(string $filename, ?string $destination = null, ?string $password = null)
 	{
 		if (!$this->externalClient || (!$this->file && !$this->data)) {
 			$this->error = 'An external client and valid data source are needed';
