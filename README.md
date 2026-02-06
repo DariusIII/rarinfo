@@ -44,6 +44,7 @@ ArchiveInfo (extends ArchiveReader)
 Example class that provides a facade for all the readers in the library, and also
 allows recursive inspection of archives packed within archives.
 
+- 2.4 Fixed getReader() return type to support nullable ArchiveReader
 - 2.3 Fixed empty() and isset() calls on reader properties
 - 2.2 Added option to override extensions filter via setArchiveExtensions()
 - 2.1 Added support for SzipInfo (7-zip archives)
@@ -63,6 +64,8 @@ RarInfo (extends ArchiveReader)
 -------------------------------
 Class for inspecting the contents of RAR archives.
 
+- 5.9 Enhanced RAR 5.0 support with symlink/hardlink and Unix owner parsing
+- 5.8 Fixed getFileList() to exclude service blocks (CMT, QO) from file list
 - 5.7 Fixes out of memory error with corrupt RAR50 files, issue #9
 - 5.6 Improved handling of corrupt RAR 5.0 archives
 - 5.5 Fixed conversion of external client file paths
@@ -194,6 +197,7 @@ SzipInfo (extends ArchiveReader)
 --------------------------------
 Class for inspecting the contents of 7-zip (.7z) archives.
 
+- 1.5 Added support for additional compression methods (LZMA2, PPMd, BCJ, ARM, ZSTD, etc.)
 - 1.4 Improved processing of substreams info
 - 1.3 Fixed getPackedRanges() output
 - 1.2 Added CRC32 checksums to the file list output
@@ -215,3 +219,32 @@ Some basic unit tests using [PHPUnit](https://phpunit.readthedocs.io/en/7.3/)
 are in `/tests`, with sample files in `/tests/fixtures` (run `generate.php` from there first
 and on each pull), more coverage and any Github-friendly samples are always welcome. Some
 optional tests require external binaries (see `/tests/bin/README.md`). Enjoy :)
+
+Recent Compatibility Updates (February 2026)
+-------------------------------
+
+### RAR Format Support
+- **RAR 1.4, 1.5-4.x, and 5.0**: Fully supported across all versions
+- **WinRAR 6.x and 7.x**: Compatible (use RAR 5.0 format internally)
+- **Enhanced RAR 5.0 features**:
+  - Symlink/hardlink support (Unix and Windows)
+  - Unix owner information (UID/GID/username/groupname)
+  - Nanosecond precision timestamps
+  - Proper file list filtering (excludes comment and quick-open service blocks)
+
+### 7-Zip Format Support
+- **Compression Methods**: Added support for LZMA2, PPMd, BCJ, BCJ2, ARM, ARMT, ARM64, BZIP2, DEFLATE, DEFLATE64, and Zstandard (ZSTD)
+- **Archive Features**: Properly handles solid packs, encrypted headers, and multi-block archives
+
+### PHP Compatibility
+- **PHP 7.2 - 8.5+**: Fully compatible with explicit nullable type declarations
+- **PHPUnit 9.x**: All tests updated and compatible
+- **Type Safety**: Enhanced type declarations throughout codebase
+
+### Bug Fixes
+- Fixed `RarInfo::getFileList()` to properly exclude service blocks
+- Fixed `SzipInfo` null-safety for file name parsing
+- Fixed `ArchiveInfo::getReader()` nullable return type
+- Enhanced error handling for missing or corrupt archive data
+
+

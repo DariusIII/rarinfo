@@ -1,20 +1,22 @@
 <?php
 
 use dariusiii\rarinfo\ArchiveInfo;
+use dariusiii\rarinfo\RarInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for ArchiveInfo.
  *
  * @group  ainfo
  */
-class ArchiveInfoTest extends PHPUnit_Framework_TestCase
+class ArchiveInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures');
 	}
@@ -32,14 +34,14 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$archive->open($this->fixturesDir.'/rar/4mb.rar');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_RAR, $archive->type);
-		$this->assertInstanceOf('RarInfo', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\RarInfo::class, $archive->getReader());
 		$this->assertSame(1, $archive->fileCount);
 
 		// SRR
 		$archive->open($this->fixturesDir.'/srr/added_empty_file.srr');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_SRR, $archive->type);
-		$this->assertInstanceOf('SrrInfo', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\SrrInfo::class, $archive->getReader());
 		$this->assertSame(1, $archive->fileCount);
 		$this->assertCount(1, $archive->getStoredFiles());
 
@@ -47,7 +49,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$archive->open($this->fixturesDir.'/par2/testdata.par2');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_PAR2, $archive->type);
-		$this->assertInstanceOf('Par2Info', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\Par2Info::class, $archive->getReader());
 		$this->assertSame(10, $archive->fileCount);
 		$this->assertSame(0, $archive->blockCount);
 		$this->assertEquals(5376, $archive->blockSize);
@@ -56,14 +58,14 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$archive->open($this->fixturesDir.'/zip/little_file.zip');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_ZIP, $archive->type);
-		$this->assertInstanceOf('ZipInfo', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\ZipInfo::class, $archive->getReader());
 		$this->assertSame(1, $archive->fileCount);
 
 		// SFV
 		$archive->open($this->fixturesDir.'/sfv/test001.sfv');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_SFV, $archive->type);
-		$this->assertInstanceOf('SfvInfo', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\SfvInfo::class, $archive->getReader());
 		$this->assertSame(5, $archive->fileCount);
 		$this->assertNotEmpty($archive->comments);
 
@@ -71,14 +73,14 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$archive->open($this->fixturesDir.'/szip/store_method.7z');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_SZIP, $archive->type);
-		$this->assertInstanceOf('SzipInfo', $archive->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\SzipInfo::class, $archive->getReader());
 		$this->assertSame(2, $archive->fileCount);
 		$this->assertSame(2, $archive->blockCount);
 
 		// Unsupported
 		$archive->open($this->fixturesDir.'/misc/foo.txt');
 		$this->assertNotEmpty($archive->error);
-		$this->assertContains('not a supported archive type', $archive->error);
+		$this->assertStringContainsString('not a supported archive type', $archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_NONE, $archive->type);
 		$this->assertEmpty($archive->getReader());
 	}
@@ -139,7 +141,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$text = $zip->getFileData($files[0]['name']);
 		$this->assertSame($files[0]['size'], strlen($text));
 		$this->assertSame($files[0]['crc32'], dechex(crc32(($text))));
-		$this->assertContains('Some text', $text);
+		$this->assertStringContainsString('Some text', $text);
 		unset($zip);
 
 		// RAR within ZIP
@@ -165,7 +167,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$text = $rar->getFileData($files[0]['name']);
 		$this->assertSame($files[0]['size'], strlen($text));
 		$this->assertSame($files[0]['crc32'], dechex(crc32(($text))));
-		$this->assertContains('file content', $text);
+		$this->assertStringContainsString('file content', $text);
 		unset($rar);
 
 		// SZIP within RAR
@@ -216,7 +218,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame('d0d30aae', $files[0]['crc32']);
 		$text = $rar->getFileData($files[0]['name']);
 		$this->assertSame($files[0]['size'], strlen($text));
-		$this->assertContains('file content', $text);
+		$this->assertStringContainsString('file content', $text);
 	}
 
 	/**
@@ -282,7 +284,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame('file.txt', $files[3]['name']);
 		$this->assertSame('main > rar_in_zip.zip > commented.rar', $files[3]['source']);
 		$text = $archive->getFileData($files[3]['name'], $files[3]['source']);
-		$this->assertContains('file content', $text);
+		$this->assertStringContainsString('file content', $text);
 
 		// File packed in ZIP in RAR:
 		$this->assertSame('little_file.zip', $files[8]['name']);
@@ -290,7 +292,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame('little_file.txt', $files[6]['name']);
 		$this->assertSame('main > zip_in_rar.rar > little_file.zip', $files[6]['source']);
 		$text = $archive->getFileData($files[6]['name'], $files[6]['source']);
-		$this->assertContains('Some text', $text);
+		$this->assertStringContainsString('Some text', $text);
 	}
 
 	/**
@@ -364,7 +366,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$source = 'main > rar_in_zip.zip > commented.rar';
 		$rar = $archive->getArchiveFromSource($source);
 		$this->assertInstanceOf('ArchiveInfo', $rar);
-		$this->assertInstanceOf('RarInfo', $rar->getReader());
+		$this->assertInstanceOf(\dariusiii\rarinfo\RarInfo::class, $rar->getReader());
 		$this->assertSame(1, $rar->fileCount);
 
 		$source = 'main > foo.rar';
@@ -395,7 +397,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$archive = new ArchiveInfo;
 
 		// Without inheritance
-		$archive->setReaders([ArchiveInfo::TYPE_RAR => 'RarInfo']);
+		$archive->setReaders([ArchiveInfo::TYPE_RAR => \dariusiii\rarinfo\RarInfo::class]);
 		$archive->open($this->fixturesDir.'/misc/misc_in_rar.rar');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_RAR, $archive->type);
@@ -406,13 +408,13 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 
 		$archive->open($this->fixturesDir.'/par2/testdata.par2');
 		$this->assertNotEmpty($archive->error);
-		$this->assertContains('not a supported archive', $archive->error);
+		$this->assertStringContainsString('not a supported archive', $archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_NONE, $archive->type);
 		$this->assertSame(0, $archive->fileCount);
 
 		$archive->setReaders([
-			ArchiveInfo::TYPE_RAR  => 'RarInfo',
-			ArchiveInfo::TYPE_PAR2 => 'Par2Info',
+			ArchiveInfo::TYPE_RAR  => \dariusiii\rarinfo\RarInfo::class,
+			ArchiveInfo::TYPE_PAR2 => \dariusiii\rarinfo\Par2Info::class,
 		]
 		);
 
@@ -422,7 +424,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(10, $archive->fileCount);
 
 		// With inheritance
-		$archive->setReaders([ArchiveInfo::TYPE_RAR => 'RarInfo'], true);
+		$archive->setReaders([ArchiveInfo::TYPE_RAR => \dariusiii\rarinfo\RarInfo::class], true);
 		$archive->open($this->fixturesDir.'/misc/misc_in_rar.rar');
 		$this->assertEmpty($archive->error);
 		$this->assertSame(ArchiveInfo::TYPE_RAR, $archive->type);
@@ -437,12 +439,12 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		}
 		$zip = $archive->getArchive('little_file.zip');
 		$this->assertNotEmpty($zip->error);
-		$this->assertContains('not a supported archive', $zip->error);
+		$this->assertStringContainsString('not a supported archive', $zip->error);
 		$this->assertSame(ArchiveInfo::TYPE_NONE, $zip->type);
 
 		$archive->setReaders([
-			ArchiveInfo::TYPE_RAR => 'RarInfo',
-			ArchiveInfo::TYPE_ZIP => 'ZipInfo',
+			ArchiveInfo::TYPE_RAR => \dariusiii\rarinfo\RarInfo::class,
+			ArchiveInfo::TYPE_ZIP => \dariusiii\rarinfo\ZipInfo::class,
 		], true);
 
 		$this->assertCount(5, $archive->getArchiveList());
@@ -526,7 +528,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame($rar->file, $file['file_name']);
 		$this->assertSame(7893, $file['file_size']);
 		$this->assertSame('7420-7878', $file['use_range']);
-		$this->assertContains('archive is compressed', $file['error']);
+		$this->assertStringContainsString('archive is compressed', $file['error']);
 		unset($summary);
 
 		// Method chaining
@@ -571,7 +573,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$source = 'main > compressed_rar.rar > 4mb.rar';
 		$this->assertSame($source, $files[14]['source']);
 		$this->assertArrayHasKey('error', $files[14]);
-		$this->assertContains('archive is compressed', $files[14]['error']);
+		$this->assertStringContainsString('archive is compressed', $files[14]['error']);
 	}
 
 	/**
@@ -826,7 +828,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertArrayHasKey('error', $files[14]);
 
 		$data = $archive->extractFile($file['name'], null, null, $file['source']);
-		$this->assertContains('external client', $archive->error);
+		$this->assertStringContainsString('external client', $archive->error);
 
 		$archive->setExternalClients([ArchiveInfo::TYPE_RAR => $unrar]);
 		$this->assertEmpty($archive->error);
@@ -858,7 +860,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(1, $file['compressed']);
 		$data = $archive->extractFile($file['name'], null, null, $file['source']);
 		$this->assertNotEmpty($archive->error);
-		$this->assertContains('checksum error', $archive->error);
+		$this->assertStringContainsString('checksum error', $archive->error);
 		$this->assertEmpty($data);
 	}
 
@@ -1008,7 +1010,7 @@ class ArchiveInfoTest extends PHPUnit_Framework_TestCase
 
 		$archive->setReaders([
 			ArchiveInfo::TYPE_RAR => 'TestRarInfo',
-			ArchiveInfo::TYPE_ZIP => 'ZipInfo',
+			ArchiveInfo::TYPE_ZIP => \dariusiii\rarinfo\ZipInfo::class,
 		], true);
 
 		$archive->setExternalClients([

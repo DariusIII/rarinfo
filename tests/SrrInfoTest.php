@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\SrrInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for SrrInfo.
  *
  * @group  srr
  */
-class SrrInfoTest extends PHPUnit_Framework_TestCase
+class SrrInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/srr');
 	}

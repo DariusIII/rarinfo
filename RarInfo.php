@@ -229,6 +229,23 @@ class RarInfo extends ArchiveReader
 	public const R50_FEXTRA_HT_MTIME    = 0x0002;
 	public const R50_FEXTRA_HT_CTIME    = 0x0004;
 	public const R50_FEXTRA_HT_ATIME    = 0x0008;
+	public const R50_FEXTRA_HT_UNIX_NS  = 0x0010;  // RAR 5.0+ nanosecond precision
+
+	// Redirection types for R50_FEXTRA_REDIR (symlinks, hardlinks, junctions)
+	public const R50_REDIR_UNIX_SYMLINK    = 0x01;
+	public const R50_REDIR_WIN_SYMLINK     = 0x02;
+	public const R50_REDIR_WIN_JUNCTION    = 0x03;
+	public const R50_REDIR_HARDLINK        = 0x04;
+	public const R50_REDIR_FILE_SYMLINK    = 0x05;
+
+	// Flags for R50_FEXTRA_REDIR
+	public const R50_REDIR_DIR             = 0x0001;
+
+	// Flags for R50_FEXTRA_UOWNER
+	public const R50_UOWNER_UNAME          = 0x0001;
+	public const R50_UOWNER_GNAME          = 0x0002;
+	public const R50_UOWNER_UID            = 0x0004;
+	public const R50_UOWNER_GID            = 0x0008;
 
 	// Compression methods
 	public const R50_METHOD_STORE       = 0;
@@ -430,8 +447,10 @@ class RarInfo extends ArchiveReader
 	{
 		$ret = [];
 		foreach ($this->blocks as $block) {
-			if ($block['head_type'] === self::BLOCK_FILE || !empty($block['file_name']) || $block['head_type'] ===
-			self::R50_BLOCK_FILE) {
+			// Include FILE blocks (RAR 1.5-4.x and RAR 5.0) but exclude service blocks
+			$isFileBlock = $block['head_type'] === self::BLOCK_FILE
+				|| $block['head_type'] === self::R50_BLOCK_FILE;
+			if ($isFileBlock) {
 				if ($skipDirs && !empty($block['is_dir'])) {
 					continue;
 				}
@@ -731,6 +750,29 @@ class RarInfo extends ArchiveReader
 		}
 		if (!empty($block['split_after'])) {
 			$ret['split_after'] = 1;
+		}
+		// Symlink/hardlink information
+		if (!empty($block['is_link'])) {
+			$ret['is_link'] = 1;
+			if (!empty($block['link_type'])) {
+				$ret['link_type'] = $block['link_type'];
+			}
+			if (!empty($block['link_target'])) {
+				$ret['link_target'] = $block['link_target'];
+			}
+		}
+		// Unix owner information
+		if (!empty($block['uname'])) {
+			$ret['uname'] = $block['uname'];
+		}
+		if (!empty($block['gname'])) {
+			$ret['gname'] = $block['gname'];
+		}
+		if (isset($block['uid'])) {
+			$ret['uid'] = $block['uid'];
+		}
+		if (isset($block['gid'])) {
+			$ret['gid'] = $block['gid'];
 		}
 
 		return $ret;
@@ -1416,12 +1458,65 @@ class RarInfo extends ArchiveReader
 				}
 				elseif ($rec['type'] === self::R50_FEXTRA_VERSION) {
 					$rec['name'] = 'File version';
+					$rec['version'] = $this->getVarInt();
 				}
 				elseif ($rec['type'] === self::R50_FEXTRA_REDIR) {
 					$rec['name'] = 'Redirection';
+					$rec['redir_type'] = $this->getVarInt();
+					$rec['redir_flags'] = $this->getVarInt();
+					$rec['redir_is_dir'] = (bool) ($rec['redir_flags'] & self::R50_REDIR_DIR);
+					$targetLen = $this->getVarInt();
+					if ($targetLen > 0 && $targetLen <= $this->maxFilenameLength) {
+						$rec['redir_target'] = $this->read($targetLen);
+						$block['link_target'] = $rec['redir_target'];
+					}
+					$block['is_link'] = true;
+					// Map redir type to readable name
+					switch ($rec['redir_type']) {
+						case self::R50_REDIR_UNIX_SYMLINK:
+							$block['link_type'] = 'unix_symlink';
+							break;
+						case self::R50_REDIR_WIN_SYMLINK:
+							$block['link_type'] = 'win_symlink';
+							break;
+						case self::R50_REDIR_WIN_JUNCTION:
+							$block['link_type'] = 'win_junction';
+							break;
+						case self::R50_REDIR_HARDLINK:
+							$block['link_type'] = 'hardlink';
+							break;
+						case self::R50_REDIR_FILE_SYMLINK:
+							$block['link_type'] = 'file_symlink';
+							break;
+						default:
+							$block['link_type'] = 'unknown';
+					}
 				}
 				elseif ($rec['type'] === self::R50_FEXTRA_UOWNER) {
 					$rec['name'] = 'Unix owner';
+					$rec['uowner_flags'] = $this->getVarInt();
+					if ($rec['uowner_flags'] & self::R50_UOWNER_UNAME) {
+						$unameLen = $this->getVarInt();
+						if ($unameLen > 0 && $unameLen <= 256) {
+							$rec['uname'] = $this->read($unameLen);
+							$block['uname'] = $rec['uname'];
+						}
+					}
+					if ($rec['uowner_flags'] & self::R50_UOWNER_GNAME) {
+						$gnameLen = $this->getVarInt();
+						if ($gnameLen > 0 && $gnameLen <= 256) {
+							$rec['gname'] = $this->read($gnameLen);
+							$block['gname'] = $rec['gname'];
+						}
+					}
+					if ($rec['uowner_flags'] & self::R50_UOWNER_UID) {
+						$rec['uid'] = $this->getVarInt();
+						$block['uid'] = $rec['uid'];
+					}
+					if ($rec['uowner_flags'] & self::R50_UOWNER_GID) {
+						$rec['gid'] = $this->getVarInt();
+						$block['gid'] = $rec['gid'];
+					}
 				}
 				elseif ($rec['type'] === self::R50_FEXTRA_SUBDATA) {
 					$rec['name'] = 'Service data';

@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\Par2Info;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for Par2Info.
  *
  * @group  par2
  */
-class Par2InfoTest extends PHPUnit_Framework_TestCase
+class Par2InfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/par2');
 	}

@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\SzipInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for SzipInfo.
  *
  * @group  szip
  */
-class SzipInfoTest extends PHPUnit_Framework_TestCase
+class SzipInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/szip');
 	}
@@ -310,7 +311,7 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(1, $file['compressed']);
 		$data = $szip->extractFile($file['name']);
 		$this->assertNotEmpty($szip->error);
-		$this->assertContains('external client', $szip->error);
+		$this->assertStringContainsString('external client', $szip->error);
 
 		$szip->setExternalClient($unzip);
 
@@ -332,7 +333,7 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 		$this->assertSame(1, $file['pass']);
 		$data = $szip->extractFile($file['name']);
 		$this->assertNotEmpty($szip->error);
-		$this->assertContains('passworded', $szip->error);
+		$this->assertStringContainsString('passworded', $szip->error);
 
 		$data = $szip->extractFile($file['name'], null, 'password');
 		$this->assertEmpty($szip->error, $szip->error);
@@ -392,7 +393,7 @@ class SzipInfoTest extends PHPUnit_Framework_TestCase
 		$file = $this->fixturesDir.'/encrypted_headers.7z';
 		$szip->open($file);
 		$this->assertNotEmpty($szip->error);
-		$this->assertContains('password needed', $szip->error);
+		$this->assertStringContainsString('password needed', $szip->error);
 		$this->assertTrue($szip->isEncrypted);
 		$this->assertSame(1, $szip->blockCount);
 		$this->assertEmpty($szip->getFileList());

@@ -265,9 +265,9 @@ class ArchiveInfo extends ArchiveReader
 	/**
 	 * Returns the stored archive reader instance for the file/data type.
 	 *
-	 * @return  ArchiveReader
+	 * @return  ArchiveReader|null
 	 */
-	public function getReader(): ArchiveReader
+	public function getReader(): ?ArchiveReader
 	{
 		return $this->reader;
 	}

@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\ZipInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for ZipInfo.
  *
  * @group  zip
  */
-class ZipInfoTest extends PHPUnit_Framework_TestCase
+class ZipInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/zip');
 	}
@@ -204,7 +205,7 @@ class ZipInfoTest extends PHPUnit_Framework_TestCase
 
 		$data = $zip->extractFile($file['name']);
 		$this->assertNotEmpty($zip->error);
-		$this->assertContains('external client', $zip->error);
+		$this->assertStringContainsString('external client', $zip->error);
 		$this->assertFalse($data);
 
 		$zip->setExternalClient($unzip);

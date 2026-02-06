@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\SfvInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for SfvInfo.
  *
  * @group  sfv
  */
-class SfvInfoTest extends PHPUnit_Framework_TestCase
+class SfvInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/sfv');
 	}

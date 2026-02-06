@@ -1,12 +1,14 @@
 <?php
 
 use dariusiii\rarinfo\ArchiveReader;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Test case for ArchiveReader.
  *
  * @group  archive
  */
-class ArchiveReaderTest extends PHPUnit_Framework_TestCase
+class ArchiveReaderTest extends TestCase
 {
 	protected $fixturesDir;
 	protected $testFile;
@@ -14,7 +16,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures');
@@ -367,7 +369,7 @@ class ArchiveReaderTest extends PHPUnit_Framework_TestCase
 class TestArchiveReader extends ArchiveReader
 {
 	// Abstract method implementations
-	public function getSummary($full=false)
+	public function getSummary($full=false): array
 	{
 		return [
 			'fileSize' => $this->fileSize,
@@ -375,14 +377,14 @@ class TestArchiveReader extends ArchiveReader
 		];
 	}
 
-	public function getFileList() {}
+	public function getFileList(): array { return []; }
 	public function findMarker() {}
 
-	protected function analyze()
+	protected function analyze(): bool
 	{
 		while ($this->offset < $this->length) try {
 			$this->read($this->readSize);
-		} catch(Exception $e) {
+		} catch(\Exception $e) {
 			break;
 		}
 		$this->analyzed = true;
@@ -402,27 +404,27 @@ class TestArchiveReader extends ArchiveReader
 	public $end = 0;
 	public $tempFiles = [];
 
-	public function seek($pos)
+	public function seek($pos): void
 	{
 		parent::seek($pos);
 	}
 
-	public function read($num, $confirm=true)
+	public function read($num): string
 	{
-		return parent::read($num, $confirm);
+		return parent::read($num);
 	}
 
-	public function tell()
+	public function tell(): int
 	{
 		return parent::tell();
 	}
 
-	public function getRange(array $range)
+	public function getRange(array $range): string
 	{
 		return parent::getRange($range);
 	}
 
-	public function createTempDataFile()
+	public function createTempDataFile(): string
 	{
 		return parent::createTempDataFile();
 	}

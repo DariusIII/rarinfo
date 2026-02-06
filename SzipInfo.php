@@ -91,9 +91,28 @@ class SzipInfo extends ArchiveReader
 
 	// Encoding methods
 	public const METHOD_COPY      = '00';
-	public const METHOD_LZMA      = '03';
+	public const METHOD_DELTA     = '03';       // Delta filter
+	public const METHOD_LZMA      = '030101';   // LZMA
+	public const METHOD_LZMA2     = '21';       // LZMA2
+	public const METHOD_PPMD      = '030401';   // PPMd
+	public const METHOD_BCJ       = '03030103'; // BCJ (x86)
+	public const METHOD_BCJ2      = '0303011b'; // BCJ2
+	public const METHOD_ARM       = '03030501'; // ARM filter
+	public const METHOD_ARMT      = '03030701'; // ARMT filter
+	public const METHOD_ARM64     = '0a';       // ARM64 filter (7z 21.02+)
+	public const METHOD_SPARC     = '03030805'; // SPARC filter
+	public const METHOD_PPC       = '03030205'; // PPC filter
+	public const METHOD_IA64      = '03030401'; // IA64 filter
+	public const METHOD_BZIP2     = '040202';   // BZip2
+	public const METHOD_DEFLATE   = '040108';   // Deflate
+	public const METHOD_DEFLATE64 = '040109';   // Deflate64
+	public const METHOD_ZSTD      = '04f71101'; // Zstandard (7z 21.01+)
 	public const METHOD_CRYPTO    = '06';
 	public const METHOD_7Z_AES    = '06f10701';
+
+	// Legacy method constant (for backward compatibility)
+	/** @deprecated Use METHOD_LZMA instead */
+	public const METHOD_LZMA_LEGACY = '03';
 
 	/**#@-*/
 
@@ -228,8 +247,9 @@ class SzipInfo extends ArchiveReader
 		// Collate the file & streams info
 		$folderIndex = $sizeIndex = $streamIndex = 0;
 		foreach ($info['files'] as $file) {
+			$fileName = isset($file['file_name']) ? substr($file['file_name'], 0, $this->maxFilenameLength) : 'Unknown';
 			$item = [
-				'name' => substr($file['file_name'], 0, $this->maxFilenameLength),
+				'name' => $fileName,
 				'size' => ($file['has_stream'] && isset($unpackSizes[$sizeIndex])) ? $unpackSizes[$sizeIndex] : 0,
 				'date' => $file['utime'] ?? 0,
 				'pass' => 0,
@@ -252,7 +272,7 @@ class SzipInfo extends ArchiveReader
 						$numStreamsInFolder = $streams['substreams']['num_unpack_streams'][$folderIndex];
 					}
 				}
-				if ($packRanges[$folderIndex] !== null) {
+				if (isset($packRanges[$folderIndex]) && $packRanges[$folderIndex] !== null) {
 					$item['range'] = $packRanges[$folderIndex];
 				}
 				if (!empty($streams['substreams']['digests_defined'][$sizeIndex])) {

@@ -1,20 +1,21 @@
 <?php
 
 use dariusiii\rarinfo\RarInfo;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for RarInfo.
  *
  * @group  rar
  */
-class RarInfoTest extends PHPUnit_Framework_TestCase
+class RarInfoTest extends TestCase
 {
 	protected $fixturesDir;
 
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/rar');
 	}
@@ -303,7 +304,7 @@ class RarInfoTest extends PHPUnit_Framework_TestCase
 
 		$data = $rar->extractFile($file['name']);
 		$this->assertNotEmpty($rar->error);
-		$this->assertContains('external client', $rar->error);
+		$this->assertStringContainsString('external client', $rar->error);
 		$this->assertFalse($data);
 
 		$rar->setExternalClient($unrar);

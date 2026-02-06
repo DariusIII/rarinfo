@@ -1,13 +1,14 @@
 <?php
 
 use dariusiii\rarinfo\PipeReader;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test case for PipeReader.
  *
  * @group  pipe
  */
-class PipeReaderTest extends PHPUnit_Framework_TestCase
+class PipeReaderTest extends TestCase
 {
 	protected $fixturesDir;
 	protected $testFile;
@@ -15,7 +16,7 @@ class PipeReaderTest extends PHPUnit_Framework_TestCase
 	/**
 	 * This method is called before each test is executed.
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$ds = DIRECTORY_SEPARATOR;
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures');
