@@ -365,6 +365,19 @@ abstract class ArchiveReader
 	}
 
 	/**
+	 * Sets the maximum filename length in bytes, including any directory path.
+	 *
+	 * @param   integer  $bytes  the max filename bytes to retain
+	 * @return  void
+	 */
+	public function setMaxFilenameLength($bytes): void
+	{
+		if (is_int($bytes) && $bytes > 0) {
+			$this->maxFilenameLength = $bytes;
+		}
+	}
+
+	/**
 	 * A full summary will be returned by default when converting the archive
 	 * object to a string, such as when echoing it.
 	 *

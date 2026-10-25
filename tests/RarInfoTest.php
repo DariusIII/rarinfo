@@ -19,6 +19,39 @@ class RarInfoTest extends TestCase
 	{
 		$this->fixturesDir = realpath(__DIR__ .'/fixtures/rar');
 	}
+
+	public function testAllowsConfiguringFilenameLength(): void
+	{
+		$rar = new RarInfo;
+		$rar->open($this->fixturesDir.'/4mb.rar');
+		$this->assertEmpty($rar->error, $rar->error);
+		$files = $rar->getFileList();
+		$this->assertNotEmpty($files);
+		$filename = $files[0]['name'];
+		$this->assertGreaterThan(5, strlen($filename));
+
+		$rar->setMaxFilenameLength(5);
+		$this->assertSame(substr($filename, 0, 5), $rar->getFileList()[0]['name']);
+
+		$rar->setMaxFilenameLength(4096);
+		$this->assertSame($filename, $rar->getFileList()[0]['name']);
+	}
+
+	public function testIgnoresInvalidFilenameLengths(): void
+	{
+		$rar = new RarInfo;
+		$rar->setMaxFilenameLength(5);
+		$rar->open($this->fixturesDir.'/4mb.rar');
+		$this->assertEmpty($rar->error, $rar->error);
+		$expected = $rar->getFileList();
+		$this->assertNotEmpty($expected);
+		$this->assertSame(5, strlen($expected[0]['name']));
+
+		foreach ([0, -1, '4096', 4096.0, true, null, []] as $bytes) {
+			$rar->setMaxFilenameLength($bytes);
+			$this->assertSame($expected, $rar->getFileList());
+		}
+	}
 	
 	/**
 	 * RAR files consist of a series of header blocks and optional bodies for
