@@ -237,7 +237,7 @@ Recent Compatibility Updates (February 2026)
 - **Archive Features**: Properly handles solid packs, encrypted headers, and multi-block archives
 
 ### PHP Compatibility
-- **PHP 7.2 - 8.5+**: Fully compatible with explicit nullable type declarations
+- **PHP 7.2 - 8.6**: Fully compatible with explicit nullable type declarations
 - **PHPUnit 9.x**: All tests updated and compatible
 - **Type Safety**: Enhanced type declarations throughout codebase
 
