@@ -14,7 +14,7 @@ use dariusiii\rarinfo\SrrInfo;
 use dariusiii\rarinfo\SzipInfo;
 use dariusiii\rarinfo\ZipInfo;
 
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 ini_set('display_startup_errors', 'on');
 ini_set('display_errors', 'on');
 
